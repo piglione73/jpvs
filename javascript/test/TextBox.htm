@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>TextBox</title>
+    <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript">
+        jpvs(function () {
+            x = new TextBox("#txtTest");
+
+            x.bind("click", function () {
+                alert(x.text());
+                x.text("New value");
+                alert(x.text());
+            });
+        });
+    </script>
+</head>
+<body>
+    <input type="text" id="txtTest" />
+    <button type="button">Test</button>
+</body>
+</html>

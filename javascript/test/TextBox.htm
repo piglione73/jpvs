@@ -2,23 +2,44 @@
 <html>
 <head>
     <title>TextBox</title>
+    <style type="text/css">
+        .TextBox
+        {
+            border: 1px solid red;
+        }
+        .Button
+        {
+            background-color: pink;
+            border: 1px solid red;
+        }
+    </style>
     <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript">
         jpvs(function () {
-            x = new TextBox("#txtTest");
+            var x = TextBox.attach("#txtTest");
+            var b = new Button("#btnTest");
 
-            x.bind("click", function () {
-                alert(x.text());
-                x.text("New value");
-                alert(x.text());
+            b.bind("click", { a: 1, b: 2, c: 3 }, function (event) {
+                x.text("New value").text("Chained...");
             });
+
+            var t1 = TextBox.create("#pnl");
+            var t2 = TextBox.create(".P");
+
+            var b2 = Button.create("#pnl").text("Cliccami").bind("click", function () { alert("Grazie."); });
         });
     </script>
 </head>
 <body>
     <input type="text" id="txtTest" />
-    <button type="button">Test</button>
+    <button type="button" id="btnTest">
+        Test</button>
+    <div style="border: 1px solid green" id="pnl" class="P">
+    </div>
+    <div style="border: 1px solid green" id="pnl2" class="P">
+    </div>
 </body>
 </html>

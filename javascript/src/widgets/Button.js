@@ -7,16 +7,19 @@ jpvs.makeWidget({
     type: "Button",
     cssClass: "Button",
 
-    creator: function (elem) {
+    create: function (container) {
         var obj = document.createElement("button");
         $(obj).attr("type", "button");
-        $(elem).append(obj);
+        $(container).append(obj);
         return obj;
+    },
+
+    init: function () {
     }
 });
 
 Button.prototype.text = jpvs.property({
-    get: function () { return this.elem.text(); },
-    set: function (value) { this.elem.text(value); }
+    get: function () { return this.element.text(); },
+    set: function (value) { this.element.text(value); }
 });
 

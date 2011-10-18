@@ -7,17 +7,20 @@ jpvs.makeWidget({
     type: "TextBox",
     cssClass: "TextBox",
 
-    creator: function (elem) {
+    create: function (container) {
         var obj = document.createElement("input");
         $(obj).attr("type", "text");
-        $(elem).append(obj);
+        $(container).append(obj);
         return obj;
+    },
+
+    init: function () {
     }
 });
 
 
 TextBox.prototype.text = jpvs.property({
-    get: function () { return this.elem.val(); },
-    set: function (value) { this.elem.val(value); }
+    get: function () { return this.element.val(); },
+    set: function (value) { this.element.val(value); }
 });
 

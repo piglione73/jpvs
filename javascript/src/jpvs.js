@@ -2,6 +2,12 @@
     $(document).ready(onready);
 }
 
+jpvs.states = {
+    HOVER: "Hover",
+    FOCUS: "Focus",
+    ERROR: "Error"
+};
+
 jpvs.property = function (propdef) {
     return function (value) {
         if (value === undefined)
@@ -14,9 +20,18 @@ jpvs.property = function (propdef) {
 };
 
 jpvs.makeWidget = function (widgetDef) {
+    //Widget
     var fn = widgetDef.widget;
     if (!fn)
         throw "Missing widget field in widget definition";
+
+    //Widget creator
+    if (!widgetDef.create)
+        throw "Missing create function in widget definition";
+
+    //Widget initialization
+    if (!widgetDef.init)
+        throw "Missing init function in widget definition";
 
     //Widget name
     fn.__WIDGET__ = widgetDef.type;
@@ -36,7 +51,7 @@ jpvs.makeWidget = function (widgetDef) {
     fn.prototype.attach = attach(widgetDef);
     fn.prototype.bind = bind();
     fn.prototype.unbind = unbind();
-    fn.prototype.setState = setState(widgetDef);
+    fn.prototype.addState = addState(widgetDef);
     fn.prototype.removeState = removeState(widgetDef);
 
 
@@ -51,7 +66,7 @@ jpvs.makeWidget = function (widgetDef) {
             else
                 handler = p1;
 
-            this.elem.bind.call(this.elem, eventType, eventData, function (event) {
+            this.element.bind.call(this.element, eventType, eventData, function (event) {
                 handler.call(obj, event);
             });
 
@@ -61,7 +76,7 @@ jpvs.makeWidget = function (widgetDef) {
 
     function unbind() {
         return function (eventType) {
-            this.elem.unbind.call(this.elem, eventType);
+            this.element.unbind.call(this.element, eventType);
             return this;
         };
     }
@@ -71,7 +86,7 @@ jpvs.makeWidget = function (widgetDef) {
             var objs = [];
 
             $(selector).each(function (i, elem) {
-                var obj = widgetDef.creator(elem);
+                var obj = widgetDef.create(elem);
                 objs.push(widgetDef.widget.attach(obj));
             });
 
@@ -93,22 +108,52 @@ jpvs.makeWidget = function (widgetDef) {
     function attach(widgetDef) {
         return function (selector) {
             this.__WIDGET__ = widgetDef.type;
-            this.elem = $(selector);
+            this.element = $(selector);
 
             //Decorate with CSS
-            this.elem.addClass(widgetDef.cssClass);
+            this.element.addClass(widgetDef.cssClass);
+
+            //Initialize widget behavior
+            init(this);
+            widgetDef.init.call(this);
         };
     }
 
-    function setState(wd) {
+    function init(W) {
+        //Hovering
+        W.element.hover(
+            function () {
+                W.addState(jpvs.states.HOVER);
+            },
+            function () {
+                W.removeState(jpvs.states.HOVER);
+            }
+        );
+
+        //Focusing
+        W.element.focusin(
+            function () {
+                W.addState(jpvs.states.FOCUS);
+            }
+        );
+        W.element.focusout(
+            function () {
+                W.removeState(jpvs.states.FOCUS);
+            }
+        );
+    }
+
+    function addState(wd) {
         return function (state) {
-            this.elem.addClass(wd.cssClass + "-" + state);
+            this.element.addClass("Widget-" + state);
+            this.element.addClass(wd.cssClass + "-" + state);
         };
     }
 
     function removeState(wd) {
         return function (state) {
-            this.elem.removeClass(wd.cssClass + "-" + state);
+            this.element.removeClass("Widget-" + state);
+            this.element.removeClass(wd.cssClass + "-" + state);
         };
     }
 };

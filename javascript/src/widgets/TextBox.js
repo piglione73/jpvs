@@ -1,9 +1,9 @@
-﻿function TextBox(selector) {
+﻿jpvs.TextBox = function(selector) {
     this.attach(selector);
 }
 
 jpvs.makeWidget({
-    widget: TextBox,
+    widget: jpvs.TextBox,
     type: "TextBox",
     cssClass: "TextBox",
 
@@ -19,7 +19,7 @@ jpvs.makeWidget({
 });
 
 
-TextBox.prototype.text = jpvs.property({
+jpvs.TextBox.prototype.text = jpvs.property({
     get: function () { return this.element.val(); },
     set: function (value) { this.element.val(value); }
 });

@@ -111,6 +111,7 @@ jpvs.makeWidget = function (widgetDef) {
             this.element = $(selector);
 
             //Decorate with CSS
+            this.element.addClass("Widget");
             this.element.addClass(widgetDef.cssClass);
 
             //Initialize widget behavior

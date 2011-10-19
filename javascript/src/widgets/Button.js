@@ -1,9 +1,9 @@
-﻿function Button(selector) {
+﻿jpvs.Button = function (selector) {
     this.attach(selector);
 }
 
 jpvs.makeWidget({
-    widget: Button,
+    widget: jpvs.Button,
     type: "Button",
     cssClass: "Button",
 
@@ -18,7 +18,7 @@ jpvs.makeWidget({
     }
 });
 
-Button.prototype.text = jpvs.property({
+jpvs.Button.prototype.text = jpvs.property({
     get: function () { return this.element.text(); },
     set: function (value) { this.element.text(value); }
 });

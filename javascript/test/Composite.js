@@ -1,9 +1,9 @@
-﻿function Composite(selector) {
+﻿jpvs.Composite = function(selector) {
     this.attach(selector);
 }
 
 jpvs.makeWidget({
-    widget: Composite,
+    widget: jpvs.Composite,
     type: "Composite",
     cssClass: "Composite",
 
@@ -15,8 +15,8 @@ jpvs.makeWidget({
     },
 
     init: function () {
-        this.txt = TextBox.create(this.element);
-        this.btn = Button.create(this.element);
+        this.txt = jpvs.TextBox.create(this.element);
+        this.btn = jpvs.Button.create(this.element);
 
         this.txt.text("Composite");
         this.btn.text("Comp. button").bind("click", function() { alert("Composite!!!"); });
@@ -25,7 +25,7 @@ jpvs.makeWidget({
 });
 
 
-Composite.prototype.text = jpvs.property({
+jpvs.Composite.prototype.text = jpvs.property({
     get: function () { return this.element.val(); },
     set: function (value) { this.element.val(value); }
 });

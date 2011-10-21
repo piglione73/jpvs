@@ -1,6 +1,6 @@
-﻿jpvs.TextBox = function(selector) {
+﻿jpvs.TextBox = function (selector) {
     this.attach(selector);
-}
+};
 
 jpvs.makeWidget({
     widget: jpvs.TextBox,
@@ -14,7 +14,7 @@ jpvs.makeWidget({
         return obj;
     },
 
-    init: function () {
+    init: function (W) {
     }
 });
 

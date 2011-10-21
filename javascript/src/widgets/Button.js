@@ -1,6 +1,8 @@
 ﻿jpvs.Button = function (selector) {
     this.attach(selector);
-}
+
+    this.click = jpvs.event(this);
+};
 
 jpvs.makeWidget({
     widget: jpvs.Button,
@@ -14,7 +16,10 @@ jpvs.makeWidget({
         return obj;
     },
 
-    init: function () {
+    init: function (W) {
+        this.element.click(function () {
+            W.click.fire(W);
+        });
     }
 });
 
@@ -22,4 +27,3 @@ jpvs.Button.prototype.text = jpvs.property({
     get: function () { return this.element.text(); },
     set: function (value) { this.element.text(value); }
 });
-

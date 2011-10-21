@@ -5,7 +5,8 @@
 jpvs.states = {
     HOVER: "Hover",
     FOCUS: "Focus",
-    ERROR: "Error"
+    ERROR: "Error",
+    DISABLED: "Disabled"
 };
 
 jpvs.property = function (propdef) {
@@ -17,6 +18,10 @@ jpvs.property = function (propdef) {
             return this;
         }
     };
+};
+
+jpvs.event = function (widget) {
+    return new jpvs.Event(widget);
 };
 
 jpvs.makeWidget = function (widgetDef) {
@@ -49,37 +54,9 @@ jpvs.makeWidget = function (widgetDef) {
     //Instance methods
     fn.prototype.toString = function () { return this.__WIDGET__; };
     fn.prototype.attach = attach(widgetDef);
-    fn.prototype.bind = bind();
-    fn.prototype.unbind = unbind();
     fn.prototype.addState = addState(widgetDef);
     fn.prototype.removeState = removeState(widgetDef);
 
-
-    function bind() {
-        return function (eventType, p1, p2) {
-            var obj = this;
-            var eventData, handler;
-            if (typeof (p1) == "object") {
-                eventData = p1;
-                handler = p2;
-            }
-            else
-                handler = p1;
-
-            this.element.bind.call(this.element, eventType, eventData, function (event) {
-                handler.call(obj, event);
-            });
-
-            return this;
-        };
-    }
-
-    function unbind() {
-        return function (eventType) {
-            this.element.unbind.call(this.element, eventType);
-            return this;
-        };
-    }
 
     function create_static(widgetDef) {
         return function (selector) {
@@ -116,7 +93,7 @@ jpvs.makeWidget = function (widgetDef) {
 
             //Initialize widget behavior
             init(this);
-            widgetDef.init.call(this);
+            widgetDef.init.call(this, this);
         };
     }
 

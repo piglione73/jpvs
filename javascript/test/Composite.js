@@ -1,5 +1,7 @@
-﻿jpvs.Composite = function(selector) {
+﻿jpvs.Composite = function (selector) {
     this.attach(selector);
+
+    this.customEvent = jpvs.event(this);
 }
 
 jpvs.makeWidget({
@@ -15,11 +17,13 @@ jpvs.makeWidget({
     },
 
     init: function () {
+        var W = this;
+
         this.txt = jpvs.TextBox.create(this.element);
         this.btn = jpvs.Button.create(this.element);
 
         this.txt.text("Composite");
-        this.btn.text("Comp. button").bind("click", function() { alert("Composite!!!"); });
+        this.btn.text("Comp. button").element.bind("click", function () { W.customEvent.fire(W); });
 
     }
 });

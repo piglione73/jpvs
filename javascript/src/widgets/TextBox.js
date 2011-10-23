@@ -15,12 +15,14 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
+    },
+
+    prototype: {
+        text: jpvs.property({
+            get: function () { return this.element.val(); },
+            set: function (value) { this.element.val(value); }
+        })
     }
 });
 
-
-jpvs.TextBox.prototype.text = jpvs.property({
-    get: function () { return this.element.val(); },
-    set: function (value) { this.element.val(value); }
-});
 

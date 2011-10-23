@@ -57,6 +57,12 @@ jpvs.makeWidget = function (widgetDef) {
     fn.prototype.addState = addState(widgetDef);
     fn.prototype.removeState = removeState(widgetDef);
 
+    //Additional prototype methods defined in "widgetDef"
+    if (widgetDef.prototype) {
+        $.each(widgetDef.prototype, function (memberName, member) {
+            fn.prototype[memberName] = member;
+        });
+    }
 
     function create_static(widgetDef) {
         return function (selector) {

@@ -1,17 +1,17 @@
-﻿jpvs.Button = function (selector) {
+﻿jpvs.LinkButton = function (selector) {
     this.attach(selector);
 
     this.click = jpvs.event(this);
 };
 
 jpvs.makeWidget({
-    widget: jpvs.Button,
-    type: "Button",
-    cssClass: "Button",
+    widget: jpvs.LinkButton,
+    type: "LinkButton",
+    cssClass: "LinkButton",
 
     create: function (container) {
-        var obj = document.createElement("button");
-        $(obj).attr("type", "button");
+        var obj = document.createElement("a");
+        $(obj).attr("href", "#");
         $(container).append(obj);
         return obj;
     },

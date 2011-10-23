@@ -44,19 +44,29 @@
         {
             outline: none;
         }
+        .LinkButton-Focus
+        {
+            font-weight: 900;
+        }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/CheckBox.js"></script>
     <script type="text/javascript" src="Composite.js"></script>
     <script type="text/javascript">
         jpvs(function () {
             var p = jpvs.Composite.create("#pnl");
             var p2 = jpvs.TextBox.create("#pnl2");
+            var c = jpvs.CheckBox.create("#pnl2");
+            var lnk = jpvs.LinkButton.create("#pnl2").text("Cliccami subito").click.bind(function () {
+                alert("Il checkbox precedente è " + c.checked());
+            });
 
-            p.customEvent.bind(function () { alert("Composite custom event"); });
+            p.customEvent.bind(function () { alert("Composite custom event"); c.checked(!c.checked()); });
         });
     </script>
 </head>

@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>DropDownList</title>
+    <style type="text/css">
+        .Widget-Hover
+        {
+            background-color: Aqua !important;
+        }
+        
+        .Widget-Focus
+        {
+            background-color: Yellow;
+        }
+        
+        .TextBox
+        {
+            border: 1px solid red;
+        }
+        
+        .TextBox-Focus
+        {
+            outline: green solid 2px;
+        }
+        
+        .Button
+        {
+            background-color: pink;
+            border: 1px solid red;
+        }
+    </style>
+    <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript" src="../src/widgets/DropDownList.js"></script>
+    <script type="text/javascript">
+        jpvs(function () {
+            var cmb1 = jpvs.DropDownList.attach("#cmb1");
+            var cmb2 = jpvs.DropDownList.create("#pnl2").addItem("4", "Four").addItem("5", "Five").addItems(["X", "Y", "Z", { value: "W", text: "Letter W"}]).addItem("End");
+
+            cmb1.change.bind(function () { alert("Combo 1: " + this.selectedValue()); });
+            cmb2.change.bind(function () { alert("Combo 2: " + this.selectedValue()); });
+        });
+    </script>
+</head>
+<body>
+    <div style="border: 1px solid green" id="pnl">
+        <select id="cmb1">
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3" selected>Three</option>
+        </select>
+    </div>
+    <div style="border: 1px solid red" id="pnl2">
+    </div>
+</body>
+</html>

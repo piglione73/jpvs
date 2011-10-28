@@ -1,4 +1,9 @@
-﻿function jpvs(onready) {
+﻿/* DEPENDENCY
+Class: jpvs
+Modules: Event, jquery
+*/
+
+function jpvs(onready) {
     $(document).ready(onready);
 }
 

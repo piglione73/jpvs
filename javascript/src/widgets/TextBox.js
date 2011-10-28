@@ -1,4 +1,9 @@
-﻿jpvs.TextBox = function (selector) {
+﻿/* DEPENDENCY
+Class: TextBox
+Modules: jpvs
+*/
+
+jpvs.TextBox = function (selector) {
     this.attach(selector);
 };
 

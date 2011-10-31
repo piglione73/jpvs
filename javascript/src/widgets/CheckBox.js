@@ -1,4 +1,10 @@
-﻿jpvs.CheckBox = function (selector) {
+﻿/* JPVS
+Module: widgets
+Classes: CheckBox
+Depends: core
+*/
+
+jpvs.CheckBox = function (selector) {
     this.attach(selector);
 };
 

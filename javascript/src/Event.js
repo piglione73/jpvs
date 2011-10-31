@@ -1,4 +1,10 @@
-﻿jpvs.Event = function (widget) {
+﻿/* JPVS
+Module: core
+Classes: Event
+Depends:
+*/
+
+jpvs.Event = function (widget) {
     this.widget = widget;
     this.handlers = {};
 };

@@ -18,10 +18,7 @@ namespace jpvs.Builder {
                 Utils.CheckNoDuplicateModuleNames(jsFiles);
 
                 //Find dependencies
-                var deps = jsFiles.SelectMany(x => Dependency.GetFromJS(x));
-
-                foreach (var dep in deps)
-                    Console.WriteLine("Class: {0}, Modules: {1}", dep.Class, string.Join(", ", dep.Modules));
+                var depMap = DependsMap.CreateFromListOfFiles(jsFiles);
 
                 //The end
                 Console.ForegroundColor = ConsoleColor.Green;

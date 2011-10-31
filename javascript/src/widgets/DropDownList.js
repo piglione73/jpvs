@@ -1,4 +1,10 @@
-﻿jpvs.DropDownList = function (selector) {
+﻿/* JPVS
+Module: widgets
+Classes: DropDownList
+Depends: core
+*/
+
+jpvs.DropDownList = function (selector) {
     this.attach(selector);
 
     this.change = jpvs.event(this);

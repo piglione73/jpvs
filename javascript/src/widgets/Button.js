@@ -1,4 +1,10 @@
-﻿jpvs.Button = function (selector) {
+﻿/* JPVS
+Module: widgets
+Classes: Button
+Depends: core
+*/
+
+jpvs.Button = function (selector) {
     this.attach(selector);
 
     this.click = jpvs.event(this);

@@ -7,24 +7,24 @@ using System.Text;
 namespace jpvs.Builder {
 
     class Dependency {
-        public string Class { get; set; }
-        public string[] Modules { get; set; }
+        public string Module { get; set; }
+        public string[] Depends { get; set; }
+        public string[] Classes { get; set; }
 
 
 
         /// <summary>
-        /// Read all dependencies "Class --> Modules" embedded in a javascript file.
+        /// Read all dependencies embedded in a javascript file.
         /// 
         /// Dependencies are embedded as follows.
         /// 
-        /// /* DEPENDENCY
-        /// Class: XXX
-        /// Modules: A, B, C, ...
+        /// /* JPVS
+        /// Module: XXX
+        /// Classes: Y, Z, W, ...
+        /// Depends: A, B, C, ...
         /// */
         /// 
-        /// This allows creating a dependency tree with all the modules and class names.
-        /// A module name is the javascript file without the ".js" extension.
-        /// Example: module name "TextBox" is "TextBox.js", regardless of the file path.
+        /// This allows creating a dependency tree with all the modules and dependencies.
         /// </summary>
         /// <param name="jsFilePath"></param>
         /// <returns></returns>
@@ -33,42 +33,50 @@ namespace jpvs.Builder {
 
             using (var file = new StreamReader(jsFilePath)) {
                 bool inDepBlock = false;
-                string className = null;
-                List<string> modules = null;
+                string moduleName = null;
+                List<string> depends = null;
+                List<string> classes = null;
 
                 for (string line = file.ReadLine(); line != null; line = file.ReadLine()) {
                     line = line.Trim();
 
-                    if (line.Equals("/* DEPENDENCY", StringComparison.InvariantCultureIgnoreCase)) {
+                    if (line.Equals("/* JPVS", StringComparison.InvariantCultureIgnoreCase)) {
                         inDepBlock = true;
-                        className = null;
-                        modules = null;
+                        moduleName = null;
+                        depends = null;
+                        classes = null;
                     }
                     else if (line == "*/") {
                         inDepBlock = false;
-                        if (className != null && modules != null && modules.Count != 0)
-                            yield return new Dependency {
-                                Class = className,
-                                Modules = modules.ToArray()
-                            };
+                        yield return new Dependency {
+                            Module = moduleName,
+                            Depends = depends != null ? depends.ToArray() : new string[0],
+                            Classes = classes != null ? classes.ToArray() : new string[0]
+                        };
                     }
                     else if (inDepBlock) {
                         //We are in a dependency block
-                        if (line.StartsWith("Class:", StringComparison.InvariantCultureIgnoreCase)) {
-                            className = line.Substring(6).Trim();
+                        if (line.StartsWith("Module:", StringComparison.InvariantCultureIgnoreCase)) {
+                            moduleName = line.Substring("Module:".Length).Trim();
                         }
-                        else if (line.StartsWith("Modules:", StringComparison.InvariantCultureIgnoreCase)) {
-                            string modListStr = line.Substring(8).Trim();
-                            modules = modListStr
+                        else if (line.StartsWith("Depends:", StringComparison.InvariantCultureIgnoreCase)) {
+                            string modListStr = line.Substring("Depends:".Length).Trim();
+                            depends = modListStr
                                 .Split(',', ';')
                                 .Select(x => x.Trim().ToLower())
+                                .ToList();
+                        }
+                        else if (line.StartsWith("Classes:", StringComparison.InvariantCultureIgnoreCase)) {
+                            string clsListStr = line.Substring("Classes:".Length).Trim();
+                            classes = clsListStr
+                                .Split(',', ';')
+                                .Select(x => x.Trim())
                                 .ToList();
                         }
                     }
                 }
             }
         }
-
     }
 
 }

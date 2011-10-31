@@ -1,6 +1,7 @@
-﻿/* DEPENDENCY
-Class: jpvs
-Modules: Event, jquery
+﻿/* JPVS
+Module: core
+Classes: jpvs
+Depends:
 */
 
 function jpvs(onready) {

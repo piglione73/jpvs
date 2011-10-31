@@ -1,6 +1,7 @@
-﻿/* DEPENDENCY
-Class: TextBox
-Modules: jpvs
+﻿/* JPVS
+Module: widgets
+Classes: TextBox
+Depends: core
 */
 
 jpvs.TextBox = function (selector) {

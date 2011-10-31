@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Globalization;
 
 namespace jpvs.Builder {
 
@@ -35,7 +36,7 @@ namespace jpvs.Builder {
         /// <param name="jpvsDir"></param>
         /// <returns></returns>
         public static string[] GetJSFilesToBuild() {
-            string javascriptDir = GetJPVSDirectory("javascript");
+            string javascriptDir = GetJPVSDirectory("javascript/src");
             return Directory.GetFiles(javascriptDir, "*.js", SearchOption.AllDirectories);
         }
 
@@ -48,6 +49,37 @@ namespace jpvs.Builder {
 
             if (duplicates.Length != 0)
                 throw new Exception("The following modules have duplicate names: " + string.Join(", ", duplicates));
+        }
+
+        public static void CopyToBuildPath(string[] files, DependsMap dependencies) {
+            //Clean
+            try { Directory.Delete(Utils.GetJPVSDirectory("javascript/build"), true); }
+            catch { }
+
+            //Text to replace (dependencies)
+            string JPVSTREE = "var tree = " + dependencies + ";";
+
+            //Copy all files to build/debug. Replace placeholders during process.
+            foreach (string file in files) {
+                var destFile = file.Replace('\\', '/').Replace("/src/", "/build/debug/");
+                Directory.CreateDirectory(Path.GetDirectoryName(destFile));
+
+                var txt = File.ReadAllText(file);
+                var destTxt = txt.Replace("/* $JPVSTREE$ */", JPVSTREE);
+                File.WriteAllText(destFile, destTxt);
+            }
+
+            //Now copy all files with minification by way of Yahoo.YUI.Compressor
+            foreach (string file in files) {
+                var srcFile = file.Replace('\\', '/').Replace("/src/", "/build/debug/");
+                var destFile = file.Replace('\\', '/').Replace("/src/", "/build/min/");
+                Directory.CreateDirectory(Path.GetDirectoryName(destFile));
+
+                var txt = File.ReadAllText(srcFile);
+                string destTxt = Yahoo.Yui.Compressor.JavaScriptCompressor.Compress(txt, false, true, false, false, int.MaxValue, Encoding.UTF8, CultureInfo.InvariantCulture);
+                File.WriteAllText(destFile, destTxt);
+            }
+
         }
 
     }

@@ -20,6 +20,9 @@ namespace jpvs.Builder {
                 //Find dependencies
                 var depMap = DependsMap.CreateFromListOfFiles(jsFiles);
 
+                //Copy to build path
+                Utils.CopyToBuildPath(jsFiles, depMap);
+
                 //The end
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Build terminated successfully");

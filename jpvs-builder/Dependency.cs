@@ -64,6 +64,7 @@ namespace jpvs.Builder {
                             depends = modListStr
                                 .Split(',', ';')
                                 .Select(x => x.Trim().ToLower())
+                                .Where(x => x != null && x != "")
                                 .ToList();
                         }
                         else if (line.StartsWith("Classes:", StringComparison.InvariantCultureIgnoreCase)) {
@@ -71,6 +72,7 @@ namespace jpvs.Builder {
                             classes = clsListStr
                                 .Split(',', ';')
                                 .Select(x => x.Trim())
+                                .Where(x => x != null && x != "")
                                 .ToList();
                         }
                     }

@@ -1,150 +1,136 @@
 ﻿/* JPVS
-Module: core
-Classes: jpvs
-Depends:
+Module: bootstrap
 */
 
-function jpvs(onready) {
-    $(document).ready(onready);
-}
+var jpvs = (function () {
+    function loadJS(url, callback) {
+        var head = document.getElementsByTagName("head")[0] || document.documentElement;
+        var script = document.createElement("script");
+        script.src = url;
 
-jpvs.states = {
-    HOVER: "Hover",
-    FOCUS: "Focus",
-    ERROR: "Error",
-    DISABLED: "Disabled"
-};
+        // Handle Script loading
+        var done = false;
 
-jpvs.property = function (propdef) {
-    return function (value) {
-        if (value === undefined)
-            return propdef.get.call(this);
-        else {
-            propdef.set.call(this, value);
-            return this;
+        // Attach handlers for all browsers
+        script.onload = script.onreadystatechange = function () {
+            if (!done && (!this.readyState || this.readyState === "loaded" || this.readyState === "complete")) {
+                done = true;
+                callback();
+            }
+        };
+
+        // Use insertBefore instead of appendChild to circumvent an IE6 bug.
+        head.insertBefore(script, head.firstChild);
+    }
+
+    function setAdd(list, item) {
+        var found = false;
+        for (var i in list) {
+            var x = list[i];
+            if (x == item) {
+                found = true;
+                break;
+            }
         }
-    };
-};
 
-jpvs.event = function (widget) {
-    return new jpvs.Event(widget);
-};
-
-jpvs.makeWidget = function (widgetDef) {
-    //Widget
-    var fn = widgetDef.widget;
-    if (!fn)
-        throw "Missing widget field in widget definition";
-
-    //Widget creator
-    if (!widgetDef.create)
-        throw "Missing create function in widget definition";
-
-    //Widget initialization
-    if (!widgetDef.init)
-        throw "Missing init function in widget definition";
-
-    //Widget name
-    fn.__WIDGET__ = widgetDef.type;
-    if (!fn.__WIDGET__)
-        throw "Missing type field in widget definition";
-
-    //Widget CSS class
-    if (!widgetDef.cssClass)
-        throw "Missing cssClass field in widget definition";
-
-    //Static methods
-    fn.create = create_static(widgetDef);
-    fn.attach = attach_static(widgetDef);
-
-    //Instance methods
-    fn.prototype.toString = function () { return this.__WIDGET__; };
-    fn.prototype.attach = attach(widgetDef);
-    fn.prototype.addState = addState(widgetDef);
-    fn.prototype.removeState = removeState(widgetDef);
-
-    //Additional prototype methods defined in "widgetDef"
-    if (widgetDef.prototype) {
-        $.each(widgetDef.prototype, function (memberName, member) {
-            fn.prototype[memberName] = member;
-        });
+        if (!found) {
+            list.push(item);
+            return true;
+        }
+        else
+            return false;
     }
 
-    function create_static(widgetDef) {
-        return function (selector) {
-            var objs = [];
+    function resolveDependencies(classes, modules) {
+        //The following comment is a placeholder. During the build process it will be replaced with a dependency tree
+        //of all files, classes and modules.
+        /* $JPVSTREE$ */
 
-            $(selector).each(function (i, elem) {
-                var obj = widgetDef.create(elem);
-                objs.push(widgetDef.widget.attach(obj));
-            });
-
-            if (objs.length == 1)
-                return objs[0];
-            else if (objs.length == 0)
-                return undefined;
-            else
-                return objs;
-        };
-    }
-
-    function attach_static(widgetDef) {
-        return function (selector) {
-            return new widgetDef.widget(selector);
-        };
-    }
-
-    function attach(widgetDef) {
-        return function (selector) {
-            this.__WIDGET__ = widgetDef.type;
-            this.element = $(selector);
-
-            //Decorate with CSS
-            this.element.addClass("Widget");
-            this.element.addClass(widgetDef.cssClass);
-
-            //Initialize widget behavior
-            init(this);
-            widgetDef.init.call(this, this);
-        };
-    }
-
-    function init(W) {
-        //Hovering
-        W.element.hover(
-            function () {
-                W.addState(jpvs.states.HOVER);
-            },
-            function () {
-                W.removeState(jpvs.states.HOVER);
+        //Start from classes and get a list of modules
+        var mods = [];
+        if (classes) {
+            for (var i in classes) {
+                var cls = classes[i];
+                var mod = tree.ClassToModule[cls];
+                setAdd(mods, mod);
             }
-        );
+        }
 
-        //Focusing
-        W.element.focusin(
-            function () {
-                W.addState(jpvs.states.FOCUS);
+        //Next, add modules
+        if (modules) {
+            for (var i in modules) {
+                var mod = modules[i];
+                setAdd(mods, mod);
             }
-        );
-        W.element.focusout(
-            function () {
-                W.removeState(jpvs.states.FOCUS);
+        }
+
+        //Finally, let's add all dependencies
+        var loopAgain = true;
+        while (loopAgain) {
+            loopAgain = false;
+            for (var i in mods) {
+                var mod = mods[i];
+                var depends = tree.ModuleToDepends[mod];
+                for (var j in depends) {
+                    var depend = depends[j];
+                    if (setAdd(mods, depend))
+                        loopAgain = true;
+                }
             }
-        );
+        }
+
+        //Now we have all required modules
+        //Let's determine the files to load
+        var jpvsBaseUrl = jpvs.baseUrl || "jpvs";
+
+        var files = [];
+        for (var i in mods) {
+            var mod = mods[i];
+            var fileGroup = tree.ModuleToFiles[mod];
+            for (var j in fileGroup) {
+                var file = fileGroup[j];
+                setAdd(files, jpvsBaseUrl + "/" + file);
+            }
+        }
+
+        //Return in reverse order
+        files.reverse();
+        return files;
     }
 
-    function addState(wd) {
-        return function (state) {
-            this.element.addClass("Widget-" + state);
-            this.element.addClass(wd.cssClass + "-" + state);
-        };
-    }
+    return function (classesAndModules, onready) {
+        //Variable number of parameters
+        if (!classesAndModules) {
+            //No params
+        }
+        else if (typeof (classesAndModules) == "function") {
+            //One param: callback
+            onready = classesAndModules;
+            $(document).ready(onready);
+        }
+        else {
+            //Two params: classesAndModules, onready
+            //Javascript files to load
+            var files = resolveDependencies(classesAndModules.classes, classesAndModules.modules);
 
-    function removeState(wd) {
-        return function (state) {
-            this.element.removeClass("Widget-" + state);
-            this.element.removeClass(wd.cssClass + "-" + state);
-        };
-    }
-};
+            function loadAllJS() {
+                if (!files.TotalCount)
+                    files.TotalCount = files.length;
 
+                var firstJS = files.shift();
+                if (firstJS) {
+                    setTimeout(function () {
+                        loadJS(firstJS, loadAllJS);
+                    }, 10);
+                }
+                else {
+                    //Done
+                    if (onready)
+                        onready();
+                }
+            }
+
+            $(document).ready(loadAllJS);
+        }
+    }
+})();

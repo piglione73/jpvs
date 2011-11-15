@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="../../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../../libs/qunit.js"></script>
+    <link rel="stylesheet" href="../../libs/qunit.css" type="text/css" />
+    <title>Test</title>
+    <!--
+    *********************************************************
+    Test code
+    *********************************************************
+    -->
+    <script type="text/javascript" src="../../src/parsers/XmlParser.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+
+            test("Simple XML", function () {
+                var xml = null;
+                var doc = XmlParser.parseString(xml);
+                strictEqual(doc, null, "Parsing a null string must yield null");
+
+                var xml = "";
+                var doc = XmlParser.parseString(xml);
+                strictEqual(doc, null, "Parsing an empty string must yield null");
+
+                var xml = "  ABC  XXX";
+                var doc = XmlParser.parseString(xml);
+                strictEqual(doc, null, "Parsing a string without a root node must yield null");
+
+                var xml = "<root/>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {},
+                    children: [],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "     <root/>           ";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {},
+                    children: [],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "     <root / >           ";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {},
+                    children: [],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "     <root a=\"AAA\" b=\"BBB\"   />           ";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {
+                        a: "AAA",
+                        b: "BBB"
+                    },
+                    children: [],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "     <root a= \"AAA\" b= \"BBB\"   / >           ";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {
+                        a: "AAA",
+                        b: "BBB"
+                    },
+                    children: [],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+            });
+
+
+
+            test("Intermediate XML", function () {
+                var xml = "<a><b/><c/></a>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "a",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "b",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "c",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "One-level hierarchy");
+
+            });
+
+
+            test("Complex XML", function () {
+                var xml = "<root a=\"AAA\" b=\"BBB\">  <child1/> <child2 / > <child3 a=\"b\"><a/></child3> </root>           ";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {
+                        a: "AAA",
+                        b: "BBB"
+                    },
+                    children: [
+                        {
+                            name: "child1",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "child2",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "child3",
+                            attributes: {
+                                a: "b"
+                            },
+                            children: [
+                                {
+                                    name: "a",
+                                    attributes: {},
+                                    children: [],
+                                    value: null
+                                }
+                            ],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "Two-level hierarchy");
+
+                var xml = "<root a=\"AAA\" b=\"BBB\">  <child1 a=\"A<B\"/> <child2 / > <child3 a=\"b\"><a><b b=\"c\" c=\"d\"/></a></child3> </root>           ";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {
+                        a: "AAA",
+                        b: "BBB"
+                    },
+                    children: [
+                        {
+                            name: "child1",
+                            attributes: { a: "A<B" },
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "child2",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "child3",
+                            attributes: {
+                                a: "b"
+                            },
+                            children: [
+                                {
+                                    name: "a",
+                                    attributes: {},
+                                    children: [
+                                        {
+                                            name: "b",
+                                            attributes: {
+                                                b: "c",
+                                                c: "d"
+                                            },
+                                            children: [],
+                                            value: null
+                                        }
+                                    ],
+                                    value: null
+                                }
+                            ],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "Three-level hierarchy");
+
+            });
+
+
+        });
+    </script>
+</head>
+<body>
+    <h1 id="qunit-header">
+        XmlParser</h1>
+    <h2 id="qunit-banner">
+    </h2>
+    <div id="qunit-testrunner-toolbar">
+    </div>
+    <h2 id="qunit-userAgent">
+    </h2>
+    <ol id="qunit-tests">
+    </ol>
+    <div id="qunit-fixture">
+        test markup, will be hidden</div>
+</body>
+</html>

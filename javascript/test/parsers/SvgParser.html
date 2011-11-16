@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="../../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../../libs/qunit.js"></script>
+    <link rel="stylesheet" href="../../libs/qunit.css" type="text/css" />
+    <title>Test</title>
+    <!--
+    *********************************************************
+    Test code
+    *********************************************************
+    -->
+    <script type="text/javascript" src="../../src/parsers/XmlParser.js"></script>
+    <script type="text/javascript" src="../../src/parsers/SvgParser.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            test("parseColor", function () {
+                var actual = SvgParser.parseColor(undefined);
+                var expected = { r: 0, g: 0, b: 0, a: 1 };
+                deepEqual(actual, expected, "No color");
+
+                var actual = SvgParser.parseColor(null);
+                var expected = { r: 0, g: 0, b: 0, a: 1 };
+                deepEqual(actual, expected, "No color");
+
+                var actual = SvgParser.parseColor("");
+                var expected = { r: 0, g: 0, b: 0, a: 1 };
+                deepEqual(actual, expected, "No color");
+
+                var actual = SvgParser.parseColor(" Cyan ");
+                var expected = { r: 0, g: 255, b: 255, a: 1 };
+                deepEqual(actual, expected, "Named color");
+
+                var actual = SvgParser.parseColor("#ABC");
+                var expected = { r: 170, g: 187, b: 204, a: 1 };
+                deepEqual(actual, expected, "Hex color");
+
+                var actual = SvgParser.parseColor("#1234AB");
+                var expected = { r: 18, g: 52, b: 171, a: 1 };
+                deepEqual(actual, expected, "Hex color");
+
+                var actual = SvgParser.parseColor("rgb(10,20,30)");
+                var expected = { r: 10, g: 20, b: 30, a: 1 };
+                deepEqual(actual, expected, "RGB color");
+
+                var actual = SvgParser.parseColor("rgb(10,20,30 ");
+                var expected = { r: 0, g: 0, b: 0, a: 1 };
+                deepEqual(actual, expected, "Malformed RGB color");
+
+                var actual = SvgParser.parseColor("RGB(10,20,30)");
+                var expected = { r: 10, g: 20, b: 30, a: 1 };
+                deepEqual(actual, expected, "RGB color");
+
+                var actual = SvgParser.parseColor(" rgb ( 10 , 20 , 30 ) ");
+                var expected = { r: 10, g: 20, b: 30, a: 1 };
+                deepEqual(actual, expected, "RGB color with blanks");
+
+                var actual = SvgParser.parseColor("rgba(10,20,30,0.75)");
+                var expected = { r: 10, g: 20, b: 30, a: 0.75 };
+                deepEqual(actual, expected, "RGBA color");
+
+                var actual = SvgParser.parseColor("RGBA(10,20,30,0.75)");
+                var expected = { r: 10, g: 20, b: 30, a: 0.75 };
+                deepEqual(actual, expected, "RGBA color");
+            });
+
+            test("Simple SVG", function () {
+                var xml = null;
+                var doc = SvgParser.parseString(xml);
+                strictEqual(doc, null, "Parsing a null string must yield null");
+
+                var xml = "";
+                var doc = SvgParser.parseString(xml);
+                strictEqual(doc, null, "Parsing an empty string must yield null");
+
+                var xml = "  ABC  XXX";
+                var doc = SvgParser.parseString(xml);
+                strictEqual(doc, null, "Parsing a string without a root node must yield null");
+
+                var xml = "<svg xmlns=\"http://www.w3.org/2000/svg\">\n\t<circle cx=\"100\" cy=\"50\" r=\"40\" style=\"stroke:brown;stroke-width:5;fill:green\" />\n</svg>";
+                var doc = SvgParser.parseString(xml);
+                var expected = [
+                    {
+                        name: "circle",
+                        children: [],
+                        cx: 100,
+                        cy: 50,
+                        r: 40,
+                        stroke: { color: { r: 165, g: 42, b: 42, a: 1} },
+                        "stroke-width": 5,
+                        fill: { color: { r: 0, g: 128, b: 0, a: 1} }
+                    }
+                ];
+                deepEqual(doc, expected, "Single shape");
+            });
+
+        });
+    </script>
+</head>
+<body>
+    <h1 id="qunit-header">
+        XmlParser</h1>
+    <h2 id="qunit-banner">
+    </h2>
+    <div id="qunit-testrunner-toolbar">
+    </div>
+    <h2 id="qunit-userAgent">
+    </h2>
+    <ol id="qunit-tests">
+    </ol>
+    <div id="qunit-fixture">
+        test markup, will be hidden</div>
+</body>
+</html>

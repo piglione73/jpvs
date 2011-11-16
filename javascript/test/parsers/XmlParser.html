@@ -71,7 +71,7 @@
                 };
                 deepEqual(doc, expected, "Single empty node");
 
-                var xml = "     <root a= \"AAA\" b= \"BBB\"   / >           ";
+                var xml = "     <root a   =    \"AAA\" b= \"BBB\"   / >           ";
                 var doc = XmlParser.parseString(xml);
                 var expected = {
                     name: "root",
@@ -80,6 +80,39 @@
                         b: "BBB"
                     },
                     children: [],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "<root a=\"AAA\" b=\"BBB\"></root>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {
+                        a: "AAA",
+                        b: "BBB"
+                    },
+                    children: [],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "<root a=\"AAA\" b=\"BBB\">This is a text</root>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {
+                        a: "AAA",
+                        b: "BBB"
+                    },
+                    children: [
+                        {
+                            name: "#TEXT",
+                            attributes: {},
+                            children: [],
+                            value: "This is a text"
+                        }
+                    ],
                     value: null
                 };
                 deepEqual(doc, expected, "Single empty node");
@@ -208,9 +241,150 @@
                 };
                 deepEqual(doc, expected, "Three-level hierarchy");
 
+
+                var xml = "<root a=\"AAA\" b=\"BBB\">This is<child1 a  =\"A<B\"/> a <child2 / >  good text <child3 a=\"b\"><a><b b=\"c\" c=\"d\"/></a></child3> </root>           ";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {
+                        a: "AAA",
+                        b: "BBB"
+                    },
+                    children: [
+                        {
+                            name: "#TEXT",
+                            attributes: {},
+                            children: [],
+                            value: "This is"
+                        },
+                        {
+                            name: "child1",
+                            attributes: { a: "A<B" },
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "#TEXT",
+                            attributes: {},
+                            children: [],
+                            value: "a"
+                        },
+                        {
+                            name: "child2",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "#TEXT",
+                            attributes: {},
+                            children: [],
+                            value: "good text"
+                        },
+                        {
+                            name: "child3",
+                            attributes: {
+                                a: "b"
+                            },
+                            children: [
+                                {
+                                    name: "a",
+                                    attributes: {},
+                                    children: [
+                                        {
+                                            name: "b",
+                                            attributes: {
+                                                b: "c",
+                                                c: "d"
+                                            },
+                                            children: [],
+                                            value: null
+                                        }
+                                    ],
+                                    value: null
+                                }
+                            ],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "Three-level hierarchy");
+
             });
 
+            test("Example in the XmlParser.js comment", function () {
+                var xml = "<books>\n\t<book title=\"The red apple\"/>\n\n\tRandom text...\n\n\t<book title=\"The Javascript Language\" />\n</books>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "books",
+                    attributes: {},
+                    value: null,
+                    children: [
+                        {
+                            name: "book",
+                            attributes: { title: "The red apple" },
+                            value: null,
+                            children: []
+                        },
+                        {
+                            name: "#TEXT",
+                            attributes: {},
+                            value: "Random text...",
+                            children: []
+                        },
+                        {
+                            name: "book",
+                            attributes: { title: "The Javascript Language" },
+                            value: null,
+                            children: []
+                        }
+                    ]
+                };
+                deepEqual(doc, expected, "Example");
+            });
 
+            test("Transformations", function () {
+                function transform(node) {
+                    if (node.name == "books") {
+                        //Keep books, discard text
+                        for (var i = 0; i < node.children.length; i++) {
+                            var child = node.children[i];
+                            if (child.name != "book") {
+                                //Remove
+                                node.children.splice(i--, 1);
+                            }
+                        }
+
+                        delete node.attributes;
+                        delete node.name;
+                        delete node.value;
+                    }
+                    else if (node.name == "book") {
+                        //Modify something
+                        node.title = node.attributes.title;
+                        delete node.attributes;
+                        delete node.name;
+                        delete node.children;
+                        delete node.value;
+                    }
+                }
+
+                var xml = "<books>\n\t<book title=\"The red apple\"/>\n\n\tRandom text...\n\n\t<book a=\"xxx\" title=\"The Javascript Language\" />\n</books>";
+                var doc = XmlParser.parseString(xml, transform);
+                var expected = {
+                    children: [
+                        {
+                            title: "The red apple"
+                        },
+                        {
+                            title: "The Javascript Language"
+                        }
+                    ]
+                };
+                deepEqual(doc, expected, "Example with a transformation");
+
+            });
         });
     </script>
 </head>

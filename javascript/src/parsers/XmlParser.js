@@ -1,4 +1,58 @@
-﻿/* JPVS
+﻿/*
+****************************************
+XML-to-JSON parser
+****************************************
+
+
+
+EXAMPLE
+
+Given this XML document:
+
+<books>
+<book title="The red apple" />
+
+Random text...
+
+<book title="The Javascript Language" />
+</books>
+
+
+The following call:
+
+var doc = XmlParser.parseString("<books>\n\t<book title=\"The red apple\"/>\n\n\tRandom text...\n\n\t<book title=\"The Javascript Language\" />\n</books>");
+
+yields the following JSON object:
+
+doc = {
+name: "books",
+attributes: {},
+value: null,
+children: [
+{
+name: "book",
+attributes: { title: "The red apple" },
+value: null,
+children: []
+},
+{
+name: "#TEXT",
+attributes: { },
+value: "Random text...",
+children: []
+},
+{
+name: "book",
+attributes: { title: "The Javascript Language" },
+value: null,
+children: []
+}
+]
+}
+
+*/
+
+/* JPVS
 Module: parsers
 Classes: XmlParser
 Depends: 
@@ -14,6 +68,10 @@ var XmlParser = (function () {
         WaitForElementEnd = 6;
 
 
+    function trim(str) {
+        return str.replace(/^\s\s*/, "").replace(/\s\s*$/, "");
+    }
+
     function createEmptyNode() {
         return {
             name: "",
@@ -23,7 +81,16 @@ var XmlParser = (function () {
         };
     }
 
-    function parseString(s) {
+    function createTextNode(text) {
+        return {
+            name: "#TEXT",
+            attributes: {},
+            children: [],
+            value: text
+        };
+    }
+
+    function parseString(s, nodeTransform) {
         //No string --> return null
         if (!s || s == "")
             return null;
@@ -31,7 +98,7 @@ var XmlParser = (function () {
         //String present, let's parse
         var state = OutOfTag;
         var nodeStack = [];
-        var curNode, curAttrName, curAttrValue;
+        var curNode, curAttrName, curAttrValue, curText = "";
 
         for (var i = 0; i < s.length; i++) {
             var c = s[i];
@@ -42,6 +109,16 @@ var XmlParser = (function () {
                     //Tag is starting, prepare for reading the tag name
                     state = TagName;
 
+                    //If we have text accumulated, then emit a text node and append it to the current node
+                    curText = trim(curText);
+                    if (curText.length > 0) {
+                        var textNode = createTextNode(curText);
+                        curNode.children.push(textNode);
+                    }
+
+                    //Reset the accumulated text
+                    curText = "";
+
                     //Create a new node and add it as a child to the current node, if any
                     var oldCurNode = curNode;
                     curNode = createEmptyNode();
@@ -51,7 +128,8 @@ var XmlParser = (function () {
                         oldCurNode.children.push(curNode);
                 }
                 else {
-                    //Any other char is ignored
+                    //Any other char is plain text
+                    curText += c;
                 }
             }
             else if (state == TagName) {
@@ -146,7 +224,7 @@ var XmlParser = (function () {
                     state = WaitForAttributeName;
 
                     //Add the attribute name/value to the collection
-                    curNode.attributes[curAttrName] = curAttrValue;
+                    curNode.attributes[trim(curAttrName)] = curAttrValue;
                 }
                 else {
                     //Part of value
@@ -177,11 +255,29 @@ var XmlParser = (function () {
                 throwUnexpectedState();
         }
 
-        //End
-        return nodeStack[0] || null;
+        //End: transform all nodes if required
+        var doc = nodeStack[0] || null;
+        if (nodeTransform)
+            transformRecursively(doc);
+
+        return doc;
 
 
-        //Utilities for compacting the minified script
+        function transformRecursively(node) {
+            if (node) {
+                //Transform the node...
+                nodeTransform(node);
+
+                //... and all its children
+                if (node.children) {
+                    for (var i in node.children) {
+                        var child = node.children[i];
+                        transformRecursively(child);
+                    }
+                }
+            }
+        }
+
         function throwInvalidChar() {
             throw "Invalid character: " + c;
         }

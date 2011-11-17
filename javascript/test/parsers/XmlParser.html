@@ -4,7 +4,7 @@
     <script type="text/javascript" src="../../libs/jquery-1.6.4.min.js"></script>
     <script type="text/javascript" src="../../libs/qunit.js"></script>
     <link rel="stylesheet" href="../../libs/qunit.css" type="text/css" />
-    <title>Test</title>
+    <title>XmlParser</title>
     <!--
     *********************************************************
     Test code
@@ -28,7 +28,21 @@
                 var doc = XmlParser.parseString(xml);
                 strictEqual(doc, null, "Parsing a string without a root node must yield null");
 
+                var xml = "<!-- Only this comment -->";
+                var doc = XmlParser.parseString(xml);
+                strictEqual(doc, null, "Parsing a string without a root node must yield null");
+
                 var xml = "<root/>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {},
+                    children: [],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "<!-- Test document -->\n<root/>";
                 var doc = XmlParser.parseString(xml);
                 var expected = {
                     name: "root",
@@ -117,9 +131,301 @@
                 };
                 deepEqual(doc, expected, "Single empty node");
 
+                var xml = "<root>Level 1</root>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "#TEXT",
+                            attributes: {},
+                            children: [],
+                            value: "Level 1"
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "<root><!-- Comment -->Level 1</root>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "#COMMENT",
+                            attributes: {},
+                            children: [],
+                            value: "Comment"
+                        },
+                        {
+                            name: "#TEXT",
+                            attributes: {},
+                            children: [],
+                            value: "Level 1"
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node with comment");
+
+                var xml = "<root><title>Level 1</title><a/></root>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "title",
+                            attributes: {},
+                            children: [
+                                {
+                                    name: "#TEXT",
+                                    attributes: {},
+                                    children: [],
+                                    value: "Level 1"
+                                }
+                            ],
+                            value: null
+                        },
+                        {
+                            name: "a",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "<root><!-- Comment--><title>Level 1</title></root>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "#COMMENT",
+                            attributes: {},
+                            children: [],
+                            value: "Comment"
+                        },
+                        {
+                            name: "title",
+                            attributes: {},
+                            children: [
+                                {
+                                    name: "#TEXT",
+                                    attributes: {},
+                                    children: [],
+                                    value: "Level 1"
+                                }
+                            ],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "<root><g><title>Level 1</title></g></root>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "g",
+                            attributes: {},
+                            children: [
+                                {
+                                    name: "title",
+                                    attributes: {},
+                                    children: [
+                                        {
+                                            name: "#TEXT",
+                                            attributes: {},
+                                            children: [],
+                                            value: "Level 1"
+                                        }
+                                    ],
+                                    value: null
+                                }
+                            ],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
+                var xml = "<root><!-- Comment --><g><title>Level 1</title><a/><b/></g></root>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "root",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "#COMMENT",
+                            attributes: {},
+                            children: [],
+                            value: "Comment"
+                        },
+                        {
+                            name: "g",
+                            attributes: {},
+                            children: [
+                                {
+                                    name: "title",
+                                    attributes: {},
+                                    children: [
+                                        {
+                                            name: "#TEXT",
+                                            attributes: {},
+                                            children: [],
+                                            value: "Level 1"
+                                        }
+                                    ],
+                                    value: null
+                                },
+                                {
+                                    name: "a",
+                                    attributes: {},
+                                    children: [],
+                                    value: null
+                                },
+                                {
+                                    name: "b",
+                                    attributes: {},
+                                    children: [],
+                                    value: null
+                                }
+                            ],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "Single empty node");
+
             });
 
 
+            test("Structure", function () {
+                var xml = "<a><b/></a>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "a",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "b",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "<a><b/></a>");
+
+                var xml = "<a><b></b></a>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "a",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "b",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "<a><b></b></a>");
+
+                var xml = "<a><b/><d/></a>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "a",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "b",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "d",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "<a><b/><d/></a>");
+
+                var xml = "<a><b></b><d/></a>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "a",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "b",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "d",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "<a><b></b><d/></a>");
+
+                var xml = "<a><b>c</b><d/></a>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "a",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "b",
+                            attributes: {},
+                            children: [
+                                {
+                                    name: "#TEXT",
+                                    attributes: {},
+                                    children: [],
+                                    value: "c"
+                                }
+                            ],
+                            value: null
+                        },
+                        {
+                            name: "d",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        }
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "<a><b>c</b><d/></a>");
+
+            });
 
             test("Intermediate XML", function () {
                 var xml = "<a><b/><c/></a>";
@@ -144,6 +450,76 @@
                     value: null
                 };
                 deepEqual(doc, expected, "One-level hierarchy");
+
+                var xml = "<a>\n<!-- Test document --><b/><c/>   <!-- End of test document -->   </a>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "a",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "#COMMENT",
+                            attributes: {},
+                            children: [],
+                            value: "Test document"
+                        },
+                        {
+                            name: "b",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "c",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "#COMMENT",
+                            attributes: {},
+                            children: [],
+                            value: "End of test document"
+                        },
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "One-level hierarchy with comments");
+
+                var xml = "  <!-- Title -->   <a>\n<!-- Test document --><b/><c/>   <!-- End of test document -->   </a>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "a",
+                    attributes: {},
+                    children: [
+                        {
+                            name: "#COMMENT",
+                            attributes: {},
+                            children: [],
+                            value: "Test document"
+                        },
+                        {
+                            name: "b",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "c",
+                            attributes: {},
+                            children: [],
+                            value: null
+                        },
+                        {
+                            name: "#COMMENT",
+                            attributes: {},
+                            children: [],
+                            value: "End of test document"
+                        },
+                    ],
+                    value: null
+                };
+                deepEqual(doc, expected, "One-level hierarchy with comments");
 
             });
 
@@ -390,7 +766,7 @@
 </head>
 <body>
     <h1 id="qunit-header">
-        XmlParser</h1>
+        Test</h1>
     <h2 id="qunit-banner">
     </h2>
     <div id="qunit-testrunner-toolbar">

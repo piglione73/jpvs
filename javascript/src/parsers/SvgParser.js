@@ -37,7 +37,7 @@ fill: { color: { r: 0, g: 128, b: 0, a: 1 } }
 /* JPVS
 Module: parsers
 Classes: SvgParser
-Depends: XmlParser
+Depends:
 */
 var SvgParser = (function () {
 
@@ -193,6 +193,15 @@ var SvgParser = (function () {
     }
 
     function transform(node) {
+        //Strip comments from children
+        for (var i = 0; i < node.children.length; i++) {
+            var child = node.children[i];
+            if (child.name == "#COMMENT") {
+                //Remove
+                node.children.splice(i--, 1);
+            }
+        }
+
         //Remove value
         delete node.value;
 

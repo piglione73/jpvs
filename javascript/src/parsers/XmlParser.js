@@ -65,7 +65,8 @@ var XmlParser = (function () {
         AttributeName = 3,
         WaitForAttributeValue = 4,
         AttributeValue = 5,
-        WaitForElementEnd = 6;
+        WaitForElementEnd = 6,
+        Comment = 7;
 
 
     function trim(str) {
@@ -98,7 +99,7 @@ var XmlParser = (function () {
         //String present, let's parse
         var state = OutOfTag;
         var nodeStack = [];
-        var curNode, curAttrName, curAttrValue, curText = "";
+        var curNode, curAttrName, curAttrValue, curText = "", curComment = "";
 
         for (var i = 0; i < s.length; i++) {
             var c = s[i];
@@ -165,6 +166,12 @@ var XmlParser = (function () {
                             //The closing tag itself is not a child of the parent: let's pop it off
                             curNode.children.pop();
                         }
+
+                        //Now go up one level (to the parent) because we have just closed an element
+                        if (nodeStack.length > 1) {
+                            nodeStack.pop();
+                            curNode = nodeStack[nodeStack.length - 1];
+                        }
                     }
                     else {
                     }
@@ -172,6 +179,14 @@ var XmlParser = (function () {
                 else {
                     //Still reading the tag name
                     curNode.name += c;
+
+                    //See if this is a comment
+                    if (curNode.name == "!--") {
+                        //This is not an element but a comment
+                        //Let's go to comment mode
+                        curComment = "";
+                        state = Comment;
+                    }
                 }
             }
             else if (state == WaitForAttributeName) {
@@ -249,6 +264,26 @@ var XmlParser = (function () {
                 else {
                     //Not valid
                     throwInvalidChar();
+                }
+            }
+            else if (state == Comment) {
+                //We are in a comment, so let's accumulate the chars into the comment string
+                curComment += c;
+
+                //Let's determine when the comment finishes
+                if ((/-->$/gi).test(curComment)) {
+                    //The comment ends here
+                    //Let's strip the comment closing sequence "-->" and the blanks
+                    curComment = trim(curComment.substring(0, curComment.length - 3));
+
+                    //Let's now update curNode
+                    curNode.name = "#COMMENT";
+                    curNode.value = curComment;
+
+                    //End of node
+                    nodeStack.pop();
+                    curNode = nodeStack[nodeStack.length - 1];
+                    state = OutOfTag;
                 }
             }
             else

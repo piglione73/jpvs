@@ -46,7 +46,7 @@ namespace jpvs.Builder {
                         depends = null;
                         classes = null;
                     }
-                    else if (line == "*/") {
+                    else if (line == "*/" && inDepBlock) {
                         inDepBlock = false;
                         yield return new Dependency {
                             Module = moduleName,

@@ -4,7 +4,7 @@
     <script type="text/javascript" src="../../libs/jquery-1.6.4.min.js"></script>
     <script type="text/javascript" src="../../libs/qunit.js"></script>
     <link rel="stylesheet" href="../../libs/qunit.css" type="text/css" />
-    <title>Test</title>
+    <title>SvgParser</title>
     <!--
     *********************************************************
     Test code
@@ -95,12 +95,49 @@
                 deepEqual(doc, expected, "Single shape");
             });
 
+
+            test("Complex SVG", function () {
+                var xml = "<svg width=\"640\" height=\"480\" xmlns=\"http://www.w3.org/2000/svg\">\n<!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->\n<g>\n<title>Livello 1</title>\n<rect id=\"svg_1\" height=\"136\" width=\"219\" y=\"41\" x=\"46\" stroke-width=\"5\" stroke=\"#000000\" fill=\"#FF0000\"/>\n<ellipse ry=\"65\" rx=\"110\" id=\"svg_2\" cy=\"76\" cx=\"223\" stroke-linecap=\"null\" stroke-linejoin=\"null\" stroke-dasharray=\"null\" stroke-width=\"5\" stroke=\"#000000\" fill=\"#FF0000\"/>\n<ellipse id=\"svg_3\" cy=\"45\" cx=\"297\" stroke-linecap=\"null\" stroke-linejoin=\"null\" stroke-dasharray=\"null\" stroke-width=\"5\" stroke=\"#000000\" fill=\"#FF0000\"/>\n<ellipse ry=\"52\" rx=\"69\" id=\"svg_4\" cy=\"75\" cx=\"300\" stroke-linecap=\"null\" stroke-linejoin=\"null\" stroke-dasharray=\"null\" stroke-width=\"5\" stroke=\"#000000\" fill=\"#FF0000\"/>\n<path transform=\"rotate(-65.05241394042969 289.80041503906244,163.52166748046872) \" id=\"svg_5\" d=\"m183,152c-21,-193.02209 79.11603,92 74,-29c167.88397,-87 165,-40.02209 74,29c108,59.02209 91.88397,105 -74,29c-1.88397,-98 -60,224.02209 -74,-29z\" stroke-linecap=\"null\" stroke-linejoin=\"null\" stroke-dasharray=\"null\" stroke-width=\"5\" stroke=\"#000000\" fill=\"#0000ff\"/>\n</g>\n</svg>";
+                var doc = SvgParser.parseString(xml);
+
+                equal(doc.length, 1);
+                equal(doc[0].name, "g");
+
+                var g = doc[0];
+                equal(g.children.length, 6);
+                equal(g.children[0].name, "title");
+                equal(g.children[1].name, "rect");
+                equal(g.children[2].name, "ellipse");
+                equal(g.children[3].name, "ellipse");
+                equal(g.children[4].name, "ellipse");
+                equal(g.children[5].name, "path");
+
+                //Check last ellipse
+                /*
+                <ellipse ry="52" rx="69" id="svg_4" cy="75" cx="300" stroke-linecap="null" 
+                stroke-linejoin="null" stroke-dasharray="null" 
+                stroke-width="5" stroke="#000000" fill="#FF0000"/>
+                */
+                var e = g.children[4];
+                equal(e.id, "svg_4");
+                equal(e.ry, 52);
+                equal(e.rx, 69);
+                equal(e.cy, 75);
+                equal(e.cx, 300);
+                equal(e["stroke-linecap"], "null");
+                equal(e["stroke-linejoin"], "null");
+                equal(e["stroke-dasharray"], "null");
+                equal(e["stroke-width"], 5);
+                deepEqual(e.stroke, { color: { r: 0, g: 0, b: 0, a: 1} });
+                deepEqual(e.fill, { color: { r: 255, g: 0, b: 0, a: 1} });
+            });
+
         });
     </script>
 </head>
 <body>
     <h1 id="qunit-header">
-        XmlParser</h1>
+        Test</h1>
     <h2 id="qunit-banner">
     </h2>
     <div id="qunit-testrunner-toolbar">

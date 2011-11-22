@@ -243,6 +243,18 @@ var SvgParser = (function () {
         }
 
         function processFill(destination, value) {
+            //Special case: none
+            if (!value) {
+                destination.fill = {};
+                return;
+            }
+
+            value = trim(value);
+            if (value == "" || value.toLowerCase() == "none") {
+                destination.fill = {};
+                return;
+            }
+
             //Value is a color or gradient
             var urlRegEx = /^url *\( *#(.+) *\) *$/gi;
             var result = urlRegEx.exec(value);
@@ -310,6 +322,18 @@ var SvgParser = (function () {
         }
 
         function processStroke(destination, value) {
+            //Special case: none
+            if (!value) {
+                destination.stroke = {};
+                return;
+            }
+
+            value = trim(value);
+            if (value == "" || value.toLowerCase() == "none") {
+                destination.stroke = {};
+                return;
+            }
+
             //Value is a color
             destination.stroke = { color: parseColor(value) };
         }

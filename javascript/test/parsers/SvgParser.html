@@ -109,6 +109,36 @@
                     ]
                 };
                 deepEqual(doc, expected, "Single shape");
+
+                var xml = "<svg xmlns=\"http://www.w3.org/2000/svg\">\n\t<circle id=\"id1\" cx=\"100\" cy=\"50\" r=\"40\" style=\"stroke:none;fill:none\" />\n</svg>";
+                var doc = SvgParser.parseString(xml);
+                var expected = {
+                    ids: {
+                        "id1": {
+                            name: "circle",
+                            children: [],
+                            id: "id1",
+                            cx: 100,
+                            cy: 50,
+                            r: 40,
+                            stroke: {},
+                            fill: {}
+                        }
+                    },
+                    elements: [
+                        {
+                            name: "circle",
+                            children: [],
+                            id: "id1",
+                            cx: 100,
+                            cy: 50,
+                            r: 40,
+                            stroke: {},
+                            fill: {}
+                        }
+                    ]
+                };
+                deepEqual(doc, expected, "Single shape with no fill and no stroke");
             });
 
 

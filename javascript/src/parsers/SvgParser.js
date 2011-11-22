@@ -233,6 +233,8 @@ var SvgParser = (function () {
                 processFill(destination, value);
             else if (name == "stroke")
                 processStroke(destination, value);
+            else if (name == "d")
+                processPathDefinition(destination, value);
             else {
                 //Transfer to destination
                 var endsWithPercent = /%$/g.test(value);
@@ -240,6 +242,11 @@ var SvgParser = (function () {
                 var valueIsNumber = isFinite(valueAsNumber) && !endsWithPercent;
                 destination[name] = valueIsNumber ? valueAsNumber : value;
             }
+        }
+
+        function processPathDefinition(destination, value) {
+            var pd = parsePathDefinition(value);
+            destination.d = pd;
         }
 
         function processFill(destination, value) {
@@ -439,9 +446,98 @@ var SvgParser = (function () {
         }
     }
 
+    var NUMERIC_CHARS = "1234567890.-+";
+    var ALPHA_CHARS = "qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM";
+
+    function parsePathDefinition(d) {
+        //Empty or no definition --> return null
+        if (!d)
+            return null;
+
+        d = trim(d);
+        if (d == "")
+            return null;
+
+        //States
+        var START = 0;
+        var READ_PARAMS = 1;
+        var IN_PARAM = 2;
+
+        //Otherwise, parse
+        var commands = [];
+        var curCmd, curParam;
+        var state = START;
+
+        for (var i = 0; i < d.length; i++) {
+            var c = d[i];
+
+            if (state == START) {
+                if (ALPHA_CHARS.indexOf(c) >= 0) {
+                    //Letter found: this is a command
+                    curCmd = { cmd: c, params: [] };
+                    commands.push(curCmd);
+                    state = READ_PARAMS;
+                }
+                else {
+                    //Ignore any other char
+                }
+            }
+            else if (state == READ_PARAMS) {
+                if (ALPHA_CHARS.indexOf(c) >= 0) {
+                    //Letter found: this is a new command
+                    curCmd = { cmd: c, params: [] };
+                    commands.push(curCmd);
+                    state = READ_PARAMS;
+                }
+                else if (NUMERIC_CHARS.indexOf(c) >= 0) {
+                    //Numeric char: here starts a parameter
+                    curParam = c;
+                    state = IN_PARAM;
+                }
+                else {
+                    //Ignore any other char
+                }
+            }
+            else if (state == IN_PARAM) {
+                if (NUMERIC_CHARS.indexOf(c) >= 0) {
+                    //Numeric char: here continues the current parameter
+                    curParam += c;
+                }
+                else if (ALPHA_CHARS.indexOf(c) >= 0) {
+                    //Letter found: this is a new command
+                    //First, end processing the current param
+                    curCmd.params.push(parseFloat(curParam));
+                    curParam = null;
+
+                    //Then start the new command
+                    curCmd = { cmd: c, params: [] };
+                    commands.push(curCmd);
+                    state = READ_PARAMS;
+                }
+                else {
+                    //Any other char means we are done reading this parameter
+                    //First, end processing the current param
+                    curCmd.params.push(parseFloat(curParam));
+                    curParam = null;
+
+                    //Then go back to waiting for a new param or a new command
+                    state = READ_PARAMS;
+                }
+            }
+        }
+
+        //At the end, end processing the current param, if any
+        if (curParam)
+            curCmd.params.push(parseFloat(curParam));
+
+        return commands;
+    }
+
+
     return {
         parseString: parseString,
-        parseColor: parseColor
+        parseColor: parseColor,
+        parsePathDefinition: parsePathDefinition
     };
 
 })();

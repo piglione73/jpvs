@@ -15,6 +15,101 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
+            test("parsePathDefinition", function () {
+                var actual = SvgParser.parsePathDefinition();
+                var expected = null;
+                strictEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition(null);
+                var expected = null;
+                strictEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition("");
+                var expected = null;
+                strictEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition("    ");
+                var expected = null;
+                strictEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition(" a");
+                var expected = [
+                    { cmd: "a", params: [] }
+                ];
+                deepEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition(" abc");
+                var expected = [
+                    { cmd: "a", params: [] },
+                    { cmd: "b", params: [] },
+                    { cmd: "c", params: [] },
+                ];
+                deepEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition(" a b c");
+                var expected = [
+                    { cmd: "a", params: [] },
+                    { cmd: "b", params: [] },
+                    { cmd: "c", params: [] },
+                ];
+                deepEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition("a1,2,3b4 -5.3 6");
+                var expected = [
+                    { cmd: "a", params: [1, 2, 3] },
+                    { cmd: "b", params: [4, -5.3, 6] }
+                ];
+                deepEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition("a1,2,3b4 -5.3 6z");
+                var expected = [
+                    { cmd: "a", params: [1, 2, 3] },
+                    { cmd: "b", params: [4, -5.3, 6] },
+                    { cmd: "z", params: [] }
+                ];
+                deepEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition("a1,2,3b4 -5.3 6z1");
+                var expected = [
+                    { cmd: "a", params: [1, 2, 3] },
+                    { cmd: "b", params: [4, -5.3, 6] },
+                    { cmd: "z", params: [1] }
+                ];
+                deepEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition(" a  1 , 2 ,  3 b 4 -5.3 6 z  ");
+                var expected = [
+                    { cmd: "a", params: [1, 2, 3] },
+                    { cmd: "b", params: [4, -5.3, 6] },
+                    { cmd: "z", params: [] }
+                ];
+                deepEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition(" a  1 , 2 ,  3 b 4 -5.3 6 z1  ");
+                var expected = [
+                    { cmd: "a", params: [1, 2, 3] },
+                    { cmd: "b", params: [4, -5.3, 6] },
+                    { cmd: "z", params: [1] }
+                ];
+                deepEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition(" a  1 , 2 ,  3 b 4 -5.3 6 z 1 ");
+                var expected = [
+                    { cmd: "a", params: [1, 2, 3] },
+                    { cmd: "b", params: [4, -5.3, 6] },
+                    { cmd: "z", params: [1] }
+                ];
+                deepEqual(actual, expected);
+
+                var actual = SvgParser.parsePathDefinition(" a  1 , 2 ,  3 b 4 -5.3 6 z   1");
+                var expected = [
+                    { cmd: "a", params: [1, 2, 3] },
+                    { cmd: "b", params: [4, -5.3, 6] },
+                    { cmd: "z", params: [1] }
+                ];
+                deepEqual(actual, expected);
+            });
+
             test("parseColor", function () {
                 var actual = SvgParser.parseColor(undefined);
                 var expected = { r: 0, g: 0, b: 0, a: 1 };
@@ -203,6 +298,22 @@
                 });
             });
 
+        });
+
+        test("Path", function () {
+            var xml = "<svg><path d=\"c 50,0 50,100 100,100 c 50,0 50,-100 100,-100\" /></svg>";
+            var doc = SvgParser.parseString(xml);
+
+            deepEqual(doc.elements, [
+                {
+                    name: "path",
+                    children: [],
+                    d: [
+                        { cmd: "c", params: [50, 0, 50, 100, 100, 100] },
+                        { cmd: "c", params: [50, 0, 50, -100, 100, -100] }
+                    ]
+                }
+            ]);
         });
     </script>
 </head>

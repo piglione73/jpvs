@@ -301,7 +301,7 @@ var XmlParser = (function () {
         function transformRecursively(node) {
             if (node) {
                 //Transform the node...
-                nodeTransform(node);
+                nodeTransform(node, doc);
 
                 //... and all its children
                 if (node.children) {

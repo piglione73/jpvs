@@ -78,20 +78,36 @@
                 var doc = SvgParser.parseString(xml);
                 strictEqual(doc, null, "Parsing a string without a root node must yield null");
 
-                var xml = "<svg xmlns=\"http://www.w3.org/2000/svg\">\n\t<circle cx=\"100\" cy=\"50\" r=\"40\" style=\"stroke:brown;stroke-width:5;fill:green\" />\n</svg>";
+                var xml = "<svg xmlns=\"http://www.w3.org/2000/svg\">\n\t<circle id=\"id1\" cx=\"100\" cy=\"50\" r=\"40\" style=\"stroke:brown;stroke-width:5;fill:green\" />\n</svg>";
                 var doc = SvgParser.parseString(xml);
-                var expected = [
-                    {
-                        name: "circle",
-                        children: [],
-                        cx: 100,
-                        cy: 50,
-                        r: 40,
-                        stroke: { color: { r: 165, g: 42, b: 42, a: 1} },
-                        "stroke-width": 5,
-                        fill: { color: { r: 0, g: 128, b: 0, a: 1} }
-                    }
-                ];
+                var expected = {
+                    ids: {
+                        "id1": {
+                            name: "circle",
+                            children: [],
+                            id: "id1",
+                            cx: 100,
+                            cy: 50,
+                            r: 40,
+                            stroke: { color: { r: 165, g: 42, b: 42, a: 1} },
+                            "stroke-width": 5,
+                            fill: { color: { r: 0, g: 128, b: 0, a: 1} }
+                        }
+                    },
+                    elements: [
+                        {
+                            name: "circle",
+                            children: [],
+                            id: "id1",
+                            cx: 100,
+                            cy: 50,
+                            r: 40,
+                            stroke: { color: { r: 165, g: 42, b: 42, a: 1} },
+                            "stroke-width": 5,
+                            fill: { color: { r: 0, g: 128, b: 0, a: 1} }
+                        }
+                    ]
+                };
                 deepEqual(doc, expected, "Single shape");
             });
 
@@ -100,10 +116,10 @@
                 var xml = "<svg width=\"640\" height=\"480\" xmlns=\"http://www.w3.org/2000/svg\">\n<!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->\n<g>\n<title>Livello 1</title>\n<rect id=\"svg_1\" height=\"136\" width=\"219\" y=\"41\" x=\"46\" stroke-width=\"5\" stroke=\"#000000\" fill=\"#FF0000\"/>\n<ellipse ry=\"65\" rx=\"110\" id=\"svg_2\" cy=\"76\" cx=\"223\" stroke-linecap=\"null\" stroke-linejoin=\"null\" stroke-dasharray=\"null\" stroke-width=\"5\" stroke=\"#000000\" fill=\"#FF0000\"/>\n<ellipse id=\"svg_3\" cy=\"45\" cx=\"297\" stroke-linecap=\"null\" stroke-linejoin=\"null\" stroke-dasharray=\"null\" stroke-width=\"5\" stroke=\"#000000\" fill=\"#FF0000\"/>\n<ellipse ry=\"52\" rx=\"69\" id=\"svg_4\" cy=\"75\" cx=\"300\" stroke-linecap=\"null\" stroke-linejoin=\"null\" stroke-dasharray=\"null\" stroke-width=\"5\" stroke=\"#000000\" fill=\"#FF0000\"/>\n<path transform=\"rotate(-65.05241394042969 289.80041503906244,163.52166748046872) \" id=\"svg_5\" d=\"m183,152c-21,-193.02209 79.11603,92 74,-29c167.88397,-87 165,-40.02209 74,29c108,59.02209 91.88397,105 -74,29c-1.88397,-98 -60,224.02209 -74,-29z\" stroke-linecap=\"null\" stroke-linejoin=\"null\" stroke-dasharray=\"null\" stroke-width=\"5\" stroke=\"#000000\" fill=\"#0000ff\"/>\n</g>\n</svg>";
                 var doc = SvgParser.parseString(xml);
 
-                equal(doc.length, 1);
-                equal(doc[0].name, "g");
+                equal(doc.elements.length, 1);
+                equal(doc.elements[0].name, "g");
 
-                var g = doc[0];
+                var g = doc.elements[0];
                 equal(g.children.length, 6);
                 equal(g.children[0].name, "title");
                 equal(g.children[1].name, "rect");
@@ -130,6 +146,31 @@
                 equal(e["stroke-width"], 5);
                 deepEqual(e.stroke, { color: { r: 0, g: 0, b: 0, a: 1} });
                 deepEqual(e.fill, { color: { r: 255, g: 0, b: 0, a: 1} });
+            });
+
+
+            test("Linear gradient", function () {
+                var xml = "<svg width=\"640\" height=\"480\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient y2=\"1\" x2=\"100%\" y1=\"0\" x1=\"0\" id=\"svg_2\"><stop stop-opacity=\"0.76\" stop-color=\"#ff0000\" offset=\"0\"/><stop stop-color=\"#ffff00\" offset=\"1\"/></linearGradient><linearGradient y2=\"0.57422\" x2=\"56.641%\" y1=\"0\" x1=\"0\" id=\"svg_3\"><stop stop-opacity=\"0.76\" stop-color=\"#ff0000\" offset=\"0\"/><stop stop-color=\"#ffff00\" offset=\"1\"/></linearGradient></defs><g><rect id=\"svg_1\" height=\"183\" width=\"306\" y=\"54\" x=\"66\" stroke=\"#000000\" fill=\"url(#svg_3)\"/></g></svg>";
+                var doc = SvgParser.parseString(xml);
+
+                //Test the "element-by-id" feature
+                equal(doc.ids.svg_1.name, "rect");
+                equal(doc.ids.svg_2.name, "linearGradient");
+                equal(doc.ids.svg_3.name, "linearGradient");
+
+                //Test the rectangle fill gradient
+                deepEqual(doc.ids.svg_1.fill, {
+                    linearGradient: {
+                        x1: 0,
+                        y1: 0,
+                        x2: 0.56641,
+                        y2: 0.57422,
+                        stops: [
+                            { color: { r: 255, g: 0, b: 0, a: 0.76 }, offset: 0 },
+                            { color: { r: 255, g: 255, b: 0, a: 1 }, offset: 1 }
+                        ]
+                    }
+                });
             });
 
         });

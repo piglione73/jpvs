@@ -313,6 +313,21 @@
 
             });
 
+            test("Attribute types", function () {
+                var xml = "<a b=\"Hello\" c=\"25.76\" d=\"56.54%\"/>";
+                var doc = XmlParser.parseString(xml);
+                var expected = {
+                    name: "a",
+                    attributes: {
+                        b: "Hello",
+                        c: "25.76",
+                        d: "56.54%"
+                    },
+                    children: [],
+                    value: null
+                };
+                deepEqual(doc, expected, "Strings, numbers and percentages");
+            });
 
             test("Structure", function () {
                 var xml = "<a><b/></a>";

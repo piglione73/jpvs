@@ -19,7 +19,9 @@ var svg = SvgParser.parseString("<svg xmlns=\"http://www.w3.org/2000/svg\">\n\t<
 
 yields the following JSON object:
 
-svg = [
+svg = {
+ids:{},
+elements: [
 {
 name: "circle",
 children: [],
@@ -30,7 +32,8 @@ stroke: { color: { r: 165, g: 42, b: 42, a: 1 } },
 stroke-width: 5,
 fill: { color: { r: 0, g: 128, b: 0, a: 1 } }
 }
-];
+]
+};
 
 */
 
@@ -187,12 +190,22 @@ var SvgParser = (function () {
         //Parse as XML
         var doc = XmlParser.parseString(s, transform);
         if (doc)
-            return doc.children;
+            return {
+                ids: doc.__$ids$__,
+                elements: doc.children
+            };
         else
             return null;
     }
 
-    function transform(node) {
+    function transform(node, rootNode) {
+        //Fill the "ids" field in rootNode along the way
+        if (!rootNode.__$ids$__)
+            rootNode.__$ids$__ = {};
+
+        if (node.attributes.id)
+            rootNode.__$ids$__[node.attributes.id] = node;
+
         //Strip comments from children
         for (var i = 0; i < node.children.length; i++) {
             var child = node.children[i];
@@ -222,15 +235,78 @@ var SvgParser = (function () {
                 processStroke(destination, value);
             else {
                 //Transfer to destination
+                var endsWithPercent = /%$/g.test(value);
                 var valueAsNumber = parseFloat(value);
-                var valueIsNumber = isFinite(valueAsNumber);
+                var valueIsNumber = isFinite(valueAsNumber) && !endsWithPercent;
                 destination[name] = valueIsNumber ? valueAsNumber : value;
             }
         }
 
         function processFill(destination, value) {
-            //Value is a color
-            destination.fill = { color: parseColor(value) };
+            //Value is a color or gradient
+            var urlRegEx = /^url *\( *#(.+) *\) *$/gi;
+            var result = urlRegEx.exec(value);
+
+            if (result) {
+                //Reference to a gradient
+                var gradientId = result[1];
+
+                //Let us assume that the "gradientId" has already been encountered in the 
+                //document (i.e., the "defs" element is before all shapes in the SVG document)
+                var grad = rootNode.__$ids$__[gradientId];
+                if (grad.name == "linearGradient") {
+                    //Linear gradient
+                    var x1 = parseNumberOrPercentage(grad.x1);
+                    var x2 = parseNumberOrPercentage(grad.x2);
+                    var y1 = parseNumberOrPercentage(grad.y1);
+                    var y2 = parseNumberOrPercentage(grad.y2);
+
+                    destination.fill = {
+                        linearGradient: {
+                            x1: x1,
+                            y1: y1,
+                            x2: x2,
+                            y2: y2,
+                            stops: []
+                        }
+                    };
+
+                    //Parse stops
+                    for (var i in grad.children) {
+                        var stop = grad.children[i];
+                        if (stop.name != "stop")
+                            continue;
+
+                        var offset = stop.offset;
+                        var color = parseColor(stop["stop-color"]);
+                        var opacity = stop["stop-opacity"];
+
+                        if (opacity != null)
+                            color.a *= opacity;
+
+                        destination.fill.linearGradient.stops.push({
+                            color: color,
+                            offset: offset
+                        });
+                    }
+                }
+                else {
+                    //Not supported yet
+                }
+            }
+            else {
+                //Solid color
+                destination.fill = { color: parseColor(value) };
+            }
+        }
+
+        function parseNumberOrPercentage(x) {
+            if (/%$/g.test(x)) {
+                //Ends with %
+                return parseFloat(x.substring(0, x.length - 1)) / 100;
+            }
+            else
+                return parseFloat(x);
         }
 
         function processStroke(destination, value) {

@@ -20,7 +20,11 @@ namespace jpvs.Builder {
                 //Find dependencies
                 var depMap = DependsMap.CreateFromListOfFiles(jsFiles);
 
-                //Copy to build path
+                //Create a bundle file with all js files concatenated
+                string bundleName = Utils.BundleAllFiles(jsFiles);
+                jsFiles = jsFiles.Concat(new string[] { bundleName }).ToArray();
+
+                //Copy all (including bundle) to build path
                 Utils.CopyToBuildPath(jsFiles, depMap);
 
                 //The end

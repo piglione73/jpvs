@@ -37,7 +37,27 @@ namespace jpvs.Builder {
         /// <returns></returns>
         public static string[] GetJSFilesToBuild() {
             string javascriptDir = GetJPVSDirectory("javascript/src");
-            return Directory.GetFiles(javascriptDir, "*.js", SearchOption.AllDirectories);
+            return Directory.GetFiles(javascriptDir, "*.js", SearchOption.AllDirectories)
+                .Where(x => !x.EndsWith("jpvs-all.js"))
+                .ToArray();
+        }
+
+        public static string BundleAllFiles(string[] files) {
+            var contents = files
+                .OrderBy(x => {
+                    //We want jpvs.js as the first file to be processed
+                    if (x.EndsWith("jpvs.js"))
+                        return "";
+                    else
+                        return x;
+                })
+                .Select(file => File.ReadAllText(file));
+
+            string single = string.Join("\n", contents.ToArray());
+
+            string outputName = Path.Combine(GetJPVSDirectory("javascript/src"), "jpvs-all.js");
+            File.WriteAllText(outputName, single);
+            return outputName;
         }
 
         public static void CheckNoDuplicateModuleNames(string[] files) {

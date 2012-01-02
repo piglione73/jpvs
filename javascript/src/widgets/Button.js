@@ -40,3 +40,22 @@ jpvs.makeWidget({
     }
 });
 
+
+jpvs.writeButtonBar = function (container, buttons) {
+    if (!container)
+        return;
+    if (!buttons)
+        return;
+
+    //Create buttonbar
+    var bar = $(document.createElement("div"));
+    $(bar).addClass("ButtonBar").appendTo(container);
+
+    //Add individual buttons
+    $.each(buttons, function (i, btnDef) {
+        var btn = jpvs.Button.create(bar);
+        btn.text(btnDef.text || "OK").click.bind(btnDef.click);
+    });
+
+    return bar;
+};

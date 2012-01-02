@@ -65,6 +65,8 @@ jpvs.makeWidget = function (widgetDef) {
     //Instance methods
     fn.prototype.toString = function () { return this.__WIDGET__; };
     fn.prototype.attach = attach(widgetDef);
+    fn.prototype.destroy = destroy(widgetDef);
+    fn.prototype.focus = focus(widgetDef);
     fn.prototype.addState = addState(widgetDef);
     fn.prototype.removeState = removeState(widgetDef);
 
@@ -118,6 +120,15 @@ jpvs.makeWidget = function (widgetDef) {
         };
     }
 
+    function destroy(widgetDef) {
+        return function () {
+            if (widgetDef.destroy)
+                widgetDef.destroy.call(this, this);
+
+            this.element.remove();
+        };
+    }
+
     function init(W) {
         //Hovering
         W.element.hover(
@@ -140,6 +151,15 @@ jpvs.makeWidget = function (widgetDef) {
                 W.removeState(jpvs.states.FOCUS);
             }
         );
+    }
+
+    function focus(widgetDef) {
+        return function () {
+            if (widgetDef.focus)
+                widgetDef.focus.call(this, this);
+            else
+                this.element.focus();
+        };
     }
 
     function addState(wd) {
@@ -184,4 +204,34 @@ jpvs.createAllWidgets = function () {
             }
         });
     });
+};
+
+
+jpvs.write = function (container, text) {
+    if (!container)
+        return;
+
+    if (text)
+        $(container).append(document.createTextNode(text));
+};
+
+jpvs.writeln = function (container, text) {
+    if (!container)
+        return;
+
+    jpvs.write(container, text);
+    $(container).append(document.createElement("br"));
+};
+
+jpvs.writeTag = function (container, tagName, text) {
+    if (!container)
+        return;
+    if (!tagName)
+        return;
+
+    var tag = document.createElement(tagName);
+    $(container).append(tag);
+    jpvs.write(tag, text);
+
+    return $(tag);
 };

@@ -24,7 +24,7 @@ jpvs.makeWidget({
     },
 
     canAttachTo: function (obj) {
-        return $(obj).is("input[type=\"text\"]");
+        return $(obj).is("input[type=\"text\"],input[type=\"password\"]");
     },
 
     prototype: {

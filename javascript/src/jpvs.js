@@ -106,7 +106,10 @@ var jpvs = (function () {
         else if (typeof (classesAndModules) == "function") {
             //One param: callback
             onready = classesAndModules;
-            $(document).ready(onready);
+            $(document).ready(function () {
+                jpvs.createAllWidgets();
+                onready(jpvs.widgets);
+            });
         }
         else {
             //Two params: classesAndModules, onready
@@ -125,8 +128,9 @@ var jpvs = (function () {
                 }
                 else {
                     //Done
+                    jpvs.createAllWidgets();
                     if (onready)
-                        onready();
+                        onready(jpvs.widgets);
                 }
             }
 

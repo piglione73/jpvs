@@ -28,6 +28,10 @@ jpvs.makeWidget({
         });
     },
 
+    canAttachTo: function (obj) {
+        return $(obj).is("button");
+    },
+
     prototype: {
         text: jpvs.property({
             get: function () { return this.element.text(); },

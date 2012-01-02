@@ -27,6 +27,10 @@ jpvs.makeWidget({
         });
     },
 
+    canAttachTo: function (obj) {
+        return $(obj).is("select");
+    },
+
     prototype: {
         clearItems: function () {
             this.element.empty();

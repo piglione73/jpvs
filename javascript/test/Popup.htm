@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Popup</title>
+    <style type="text/css">
+        .Popup .DimScreen 
+        {
+            background-color:rgba(255,0,0,0.2);
+        }
+        .Popup .Contents
+        {
+            background-color:#fff;
+            border:1px solid black;
+            border-radius:6pt;
+        }
+    </style>
+    <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/CheckBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript">
+        jpvs(function ($W) {
+            $W.pop1.modal(true).show();
+        });
+    </script>
+</head>
+<body>
+    <div id="pnl">aaaaaaaaa</div>
+    <div id="pnl2">bbbbbbbbbbb</div>
+    <div id="pop1" data-jpvs-type="Popup" data-jpvs-width="30em">
+        <h1>Popup di <b>Prova</b></h1>
+        Testo di prova
+    </div>
+</body>
+</html>

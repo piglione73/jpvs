@@ -106,7 +106,10 @@ var jpvs = (function () {
         else if (typeof (classesAndModules) == "function") {
             //One param: callback
             onready = classesAndModules;
-            $(document).ready(onready);
+            $(document).ready(function () {
+                jpvs.createAllWidgets();
+                onready(jpvs.widgets);
+            });
         }
         else {
             //Two params: classesAndModules, onready
@@ -125,8 +128,9 @@ var jpvs = (function () {
                 }
                 else {
                     //Done
+                    jpvs.createAllWidgets();
                     if (onready)
-                        onready();
+                        onready(jpvs.widgets);
                 }
             }
 
@@ -140,6 +144,12 @@ Module: core
 Classes: jpvs
 Depends:
 */
+
+//All widget definitions
+jpvs.widgetDefs = [];
+
+//All widgets, by ID
+jpvs.widgets = {};
 
 jpvs.states = {
     HOVER: "Hover",
@@ -164,6 +174,9 @@ jpvs.event = function (widget) {
 };
 
 jpvs.makeWidget = function (widgetDef) {
+    //Keep track of all widget definitions for function createAllWidgets
+    jpvs.widgetDefs.push(widgetDef);
+
     //Widget
     var fn = widgetDef.widget;
     if (!fn)
@@ -239,6 +252,9 @@ jpvs.makeWidget = function (widgetDef) {
             //Initialize widget behavior
             init(this);
             widgetDef.init.call(this, this);
+
+            //Put in collection
+            jpvs.widgets[this.element.attr("id")] = this;
         };
     }
 
@@ -281,6 +297,34 @@ jpvs.makeWidget = function (widgetDef) {
     }
 };
 
+
+jpvs.createAllWidgets = function () {
+    $("*").each(function () {
+        //Loop over all elements and attach a widget, as appropriate
+        var obj = this;
+        var $this = $(obj);
+        var type = $this.data("jpvsType");
+        if (type) {
+            //If "data-jpvs-type" is specified, apply it
+            var widget = jpvs[type];
+            if (widget) {
+                widget.attach(this);
+                return;
+            }
+        }
+
+        //If no "data-jpvs-type" is specified or if didn't manage to attach anything, then select the first appropriate widget, if any,
+        //and attach it (default behavior)
+        $.each(jpvs.widgetDefs, function (i, wd) {
+            //Let's see if "wd" is an appropriate widget definition for "obj"
+            if (wd.canAttachTo && wd.canAttachTo(obj)) {
+                //Yes, the widget said it can be attached to "obj"
+                wd.widget.attach(obj);
+                return false;
+            }
+        });
+    });
+};
 
 /* JPVS
 Module: core
@@ -1229,6 +1273,10 @@ jpvs.makeWidget({
         });
     },
 
+    canAttachTo: function (obj) {
+        return $(obj).is("button");
+    },
+
     prototype: {
         text: jpvs.property({
             get: function () { return this.element.text(); },
@@ -1261,6 +1309,10 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
+    },
+
+    canAttachTo: function (obj) {
+        return $(obj).is("input[type=\"checkbox\"]");
     },
 
     prototype: {
@@ -1300,6 +1352,10 @@ jpvs.makeWidget({
         this.element.change(function () {
             W.change.fire(W);
         });
+    },
+
+    canAttachTo: function (obj) {
+        return $(obj).is("select");
     },
 
     prototype: {
@@ -1364,6 +1420,12 @@ jpvs.makeWidget({
         });
     },
 
+    canAttachTo: function (obj) {
+        //By default, we don't want to automatically attach a LinkButton widget to an "A" element, because
+        //we cannot determine if it is used as a button or as a hyperlink
+        return false;
+    },
+
     prototype: {
         text: jpvs.property({
             get: function () { return this.element.text(); },
@@ -1396,6 +1458,10 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
+    },
+
+    canAttachTo: function (obj) {
+        return $(obj).is("input[type=\"text\"]");
     },
 
     prototype: {

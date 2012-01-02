@@ -23,6 +23,10 @@ jpvs.makeWidget({
     init: function (W) {
     },
 
+    canAttachTo: function (obj) {
+        return $(obj).is("input[type=\"checkbox\"]");
+    },
+
     prototype: {
         checked: jpvs.property({
             get: function () { return this.element.prop("checked"); },

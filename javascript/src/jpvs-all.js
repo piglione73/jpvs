@@ -352,8 +352,15 @@ jpvs.write = function (container, text) {
     if (!container)
         return;
 
-    if (text)
-        $(container).append(document.createTextNode(text));
+    if (text) {
+        //Handle multiple lines
+        text = text.replace("\r", "");
+        var lines = text.split("\n");
+        $.each(lines, function (i, line) {
+            $(container).append(document.createTextNode(line));
+            $(container).append(document.createElement("br"));
+        });
+    }
 };
 
 jpvs.writeln = function (container, text) {

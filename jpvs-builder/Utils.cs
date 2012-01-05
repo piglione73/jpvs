@@ -53,7 +53,7 @@ namespace jpvs.Builder {
                 })
                 .Select(file => File.ReadAllText(file));
 
-            string single = string.Join("\n", contents.ToArray());
+            string single = string.Join("\r\n", contents.ToArray());
 
             string outputName = Path.Combine(GetJPVSDirectory("javascript/src"), "jpvs-all.js");
             File.WriteAllText(outputName, single);

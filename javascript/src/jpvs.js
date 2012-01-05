@@ -136,5 +136,5 @@ var jpvs = (function () {
 
             $(document).ready(loadAllJS);
         }
-    }
+    };
 })();

@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>DataGrid</title>
+    <style type="text/css">
+        .Widget-Hover
+        {
+            background-color: Aqua !important;
+        }
+        
+        .Widget-Focus
+        {
+            background-color: Yellow;
+        }
+        
+        .DataGrid
+        {
+            background-color: pink;
+            border: 1px solid red;
+        }
+    </style>
+    <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript" src="../src/widgets/DataGrid.js"></script>
+    <script type="text/javascript">
+        jpvs(function ($W) {
+            var tbl1 = $W.tbl1;
+            var tbl2 = jpvs.DataGrid.create("#pnl");
+
+            var data1 = [
+                { A: "A1", B: "B1", C: "C1" },
+                { A: "A2", B: "B2", C: "C2" },
+                { A: "A3", B: "B3", C: "C3" },
+                { A: "A4", B: "B4", C: "C4" }
+            ];
+
+            var data2 = function () { return data1.concat(data1.slice(1)); };
+
+            var tmpl1 = [
+                { header: "Head A", body: { fieldName: "A"} },
+                { header: "Head C", body: { isHeader: true, template: { fieldName: "C"} }, footer: "Foot C" },
+                { header: "Head B", body: function (item) { jpvs.writeTag(this, "em", item && item.B); } },
+                {
+                    body: function (item) {
+                        jpvs.Button.create(this).text("Click me").click.bind(function () {
+                            jpvs.alert("Member A", item.A);
+                        });
+                    },
+                    footer: function (item) {
+                        jpvs.Button.create(this).text("Hello").click.bind(function () {
+                            jpvs.alert("Footer", "I am the footer");
+                        });
+                    }
+                }
+            ];
+
+            $W.btn0.click.bind(function () {
+                tbl1.caption("Cleared");
+                tbl1.clear();
+                tbl2.caption("Cleared");
+                tbl2.clear();
+            });
+            $W.btn1.click.bind(function () {
+                tbl1.caption("Cleared body");
+                tbl1.dataBind();
+                tbl2.caption("Cleared body");
+                tbl2.dataBind();
+            });
+            $W.btn2.click.bind(function () {
+                tbl1.caption("data1/tmpl1");
+                tbl1.template(tmpl1);
+                tbl1.dataBind(data1);
+
+                tbl2.caption("data1/tmpl1");
+                tbl2.template(tmpl1);
+                tbl2.dataBind(data1);
+            });
+            $W.btn3.click.bind(function () {
+                tbl1.caption("data2/tmpl1");
+                tbl1.template(tmpl1);
+                tbl1.dataBind(data2);
+
+                tbl2.caption("data2/tmpl1");
+                tbl2.template(tmpl1);
+                tbl2.dataBind(data2);
+            });
+            $W.btn4.click.bind(function () {
+                tbl1.caption("headers");
+                tbl1.addHeaderRow();
+
+                tbl2.caption("headers");
+                tbl2.addHeaderRow();
+            });
+            $W.btn5.click.bind(function () {
+                tbl1.caption("footers");
+                tbl1.addFooterRow();
+
+                tbl2.caption("footers");
+                tbl2.addFooterRow();
+            });
+        });
+    </script>
+</head>
+<body>
+    <table id="tbl1" data-jpvs-type="DataGrid">
+    </table>
+    <div id="pnl">
+    </div>
+    <button id="btn0">
+        Clear</button>
+    <button id="btn1">
+        Clear body</button>
+    <button id="btn2">
+        data1/tmpl1</button>
+    <button id="btn3">
+        data2/tmpl1</button>
+    <button id="btn4">
+        Headers</button>
+    <button id="btn5">
+        Footers</button>
+</body>
+</html>

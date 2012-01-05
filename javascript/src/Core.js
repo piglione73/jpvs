@@ -7,8 +7,22 @@ Depends:
 //All widget definitions
 jpvs.widgetDefs = [];
 
-//All widgets, by ID
+//All widgets, by ID and by element
 jpvs.widgets = {};
+
+jpvs.find = function (selector) {
+    var elem = $(selector);
+    if (elem.length == 0)
+        return null;
+    else if (elem.length == 1)
+        return elem.data("jpvs-widget");
+    else {
+        var widgets = [];
+        elem.each(function () {
+            widgets.push($(this).data("jpvs-widget"));
+        });
+    }
+};
 
 jpvs.states = {
     HOVER: "Hover",
@@ -117,6 +131,7 @@ jpvs.makeWidget = function (widgetDef) {
 
             //Put in collection
             jpvs.widgets[this.element.attr("id")] = this;
+            this.element.data("jpvs-widget", this);
         };
     }
 
@@ -241,4 +256,53 @@ jpvs.writeTag = function (container, tagName, text) {
     jpvs.write(tag, text);
 
     return $(tag);
+};
+
+jpvs.applyTemplate = function (container, template, dataItem) {
+    if (!container)
+        return;
+    if (!template)
+        return;
+
+    /*
+    When used with DataGrid, the template might be in the form { isHeader: true, template: .... }
+    */
+    if (template.template) {
+        jpvs.applyTemplate(container, template.template, dataItem);
+        return;
+    }
+
+    /*
+    The template might be a string, in which case we just write it
+    */
+    if (typeof (template) == "string") {
+        jpvs.write(container, template);
+        return;
+    }
+
+    /*
+    Or it could be in the form: { fieldName: "ABC", tagName: "TAG" }.
+    Extract dataItem.ABC and write it as text (optionally in the specified tag name).
+    */
+    if (template.fieldName) {
+        if (template.tagName)
+            jpvs.writeTag(container, template.tagName, dataItem && dataItem[template.fieldName]);
+        else
+            jpvs.write(container, dataItem && dataItem[template.fieldName]);
+
+        return;
+    }
+
+    /*
+    Or it could be a function. Call it with this = container.
+    */
+    if (typeof (template) == "function") {
+        template.call(container, dataItem);
+        return;
+    }
+
+    /*
+    Don't know what to do here.
+    */
+    jpvs.alert("JPVS Error", "The specified template is not valid.");
 };

@@ -23,6 +23,7 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
+        W.element.attr("href", "#");
         this.element.click(function () {
             W.click.fire(W);
         });

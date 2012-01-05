@@ -47,18 +47,22 @@
             var t1 = jpvs.TextBox.create("#pnl");
             var t2 = jpvs.TextBox.create(".P");
 
-            var b2 = jpvs.Button.create("#pnl").text("Cliccami").click.bind("H1", function () { alert("Grazie."); }).click.bind("H2", function() { alert("Grazie ancora"); });
+            var b2 = jpvs.Button.create("#pnl").text("Cliccami").click.bind("H1", function () { alert("Grazie."); }).click.bind("H2", function () { alert("Grazie ancora"); });
+
+            jpvs.find("#txtAuto").text("Found by jpvs.find");
         });
     </script>
 </head>
 <body>
     <input type="text" id="txtTest" />
-    <button type="button" id="btnTest">Test</button>
+    <button type="button" id="btnTest">
+        Test</button>
     <div style="border: 1px solid green" id="pnl" class="P">
     </div>
     <div style="border: 1px solid green" id="pnl2" class="P">
     </div>
     <br />
-    Auto attach: <input type="text" id="txtAuto" />
+    Auto attach:
+    <input type="text" id="txtAuto" />
 </body>
 </html>

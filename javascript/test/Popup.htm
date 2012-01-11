@@ -61,6 +61,17 @@
             { text: "No", click: function () { jpvs.alert("You said no!"); } },
             { text: "Don't know", click: function () { jpvs.alert("You said nothing!"); } },
             ], function () { jpvs.alert("You manually closed."); });
+
+            $W.btnConfirm.click.bind(function () {
+                jpvs.confirm("Title", "Are you sure?", function () { jpvs.alert("Yes!"); }, function () { jpvs.alert("No"); });
+            });
+            $W.btnConfirm2.click.bind(function () {
+                jpvs.confirm("Title", "Are you sure?", function () { jpvs.alert("Yes!"); }, function () { jpvs.alert("No"); }, "Yes!", "No!");
+            });
+            $W.btnzindex.click.bind(function () {
+                $W.pop1.modal(false).show();
+                $W.pop2.modal(false).show();
+            });
         });
     </script>
 </head>
@@ -76,5 +87,13 @@
             Popup di <b>Prova</b></h1>
         Testo di prova molto bello
     </div>
+    <div id="pop2" data-jpvs-type="Popup" data-jpvs-width="30em">
+        <h1>
+            Popup di <b>Prova</b></h1>
+        Testo di prova molto bello
+    </div>
+    <button id="btnConfirm2">Conferma 2</button>
+    <button id="btnConfirm">Conferma</button>
+    <button id="btnzindex">zIndex</button>
 </body>
 </html>

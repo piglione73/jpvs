@@ -35,6 +35,7 @@ namespace jpvs.Builder {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Error: " + exc.ToString());
                 Console.WriteLine("Build terminated with errors");
+                Console.ReadLine();
             }
             finally {
                 Console.ForegroundColor = originalColor;

@@ -48,6 +48,7 @@
             var t2 = jpvs.TextBox.create(".P");
 
             var b2 = jpvs.Button.create("#pnl").text("Cliccami").click.bind("H1", function () { alert("Grazie."); }).click.bind("H2", function () { alert("Grazie ancora"); });
+            var b3 = jpvs.Button.create("#pnl").text("Cliccami 2").click("H1", function () { alert("Grazie."); }).click("H2", function () { alert("Grazie ancora"); });
 
             jpvs.find("#txtAuto").text("Found by jpvs.find");
         });

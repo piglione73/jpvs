@@ -38,7 +38,9 @@ Depends: core, ImageButton
         cssClass: "Popup",
 
         create: function (container) {
+            //Every popup created here must have a unique ID because it is put in allPopups[id]
             var obj = document.createElement("div");
+            $(obj).attr("id", jpvs.randomString(20));
             $(container).append(obj);
             return obj;
         },

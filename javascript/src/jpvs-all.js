@@ -628,14 +628,20 @@ jpvs.applyTemplate = function (container, template, dataItem) {
     }
 
     /*
-    Or it could be in the form: { fieldName: "ABC", tagName: "TAG" }.
+    Or it could be in the form: { fieldName: "ABC", tagName: "TAG", selector: function(fieldValue, dataItem) {} }.
     Extract dataItem.ABC and write it as text (optionally in the specified tag name).
     */
     if (template.fieldName) {
-        if (template.tagName)
-            jpvs.writeTag(container, template.tagName, dataItem && dataItem[template.fieldName]);
+        var fieldValue = dataItem && dataItem[template.fieldName];
+        if (template.selector)
+            fieldValue = template.selector(fieldValue, dataItem);
         else
-            jpvs.write(container, dataItem && dataItem[template.fieldName]);
+            fieldValue = fieldValue.toString();
+
+        if (template.tagName)
+            jpvs.writeTag(container, template.tagName, fieldValue);
+        else
+            jpvs.write(container, fieldValue);
 
         return;
     }

@@ -55,6 +55,10 @@ jpvs.makeWidget({
             return this;
         },
 
+        count: function () {
+            return this.element.find("option").length;
+        },
+
         selectedValue: jpvs.property({
             get: function () { return this.element.val(); },
             set: function (value) { this.element.val(value); }

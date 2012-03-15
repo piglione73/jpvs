@@ -312,3 +312,106 @@ jpvs.applyTemplate = function (container, template, dataItem) {
     */
     jpvs.alert("JPVS Error", "The specified template is not valid.");
 };
+
+/*
+This function handles extraction of data from various types of data sources and returns data asynchronously to a callback.
+The object passed to the callback is as follows: 
+{
+total: total number of records in the full data set,
+start: offset in the data set of the first record returned in the "data" field,
+count: number of records returned in the "data" field; this is <= total,
+data: array with the returned records
+}
+
+Parameter "start" is optional. When not specified (null or undefined), 0 is implied.
+Parameter "count" is optional. When not specified (null or undefined), the entire data set is returned.
+*/
+jpvs.readDataSource = function (data, start, count, callback) {
+    if (!data) {
+        //No data source provided. Return no data.
+        returnNoData();
+    }
+    else if (typeof (data) == "function") {
+        //The data source is a function. It might be either synchronous or asynchronous.
+        //Let's try to call it and see what comes back. Pass whatever comes back to our internalCallback function.
+        var ret = data(start, count, internalCallback);
+
+        if (ret === undefined) {
+            //No return value. The function is probably asynchronous. The internalCallback will receive the data.
+        }
+        else if (ret === null) {
+            //The function explicitly returned null. Means "no data". Let's return no data.
+            returnNoData();
+        }
+        else {
+            //The function explicitly returned something. That's the data we are looking for. Let's pass it to the internal callback
+            internalCallback(ret);
+        }
+    }
+    else if (data.length) {
+        //"data" is a static collection of records, not a function. We are supposed to return records between start and start+count
+        var tot = data.length;
+        var sliceStart = Math.max(0, start || 0);
+        var dataPortion;
+        if (count === undefined || count === null) {
+            //Get from start to end
+            dataPortion = data.slice(sliceStart);
+        }
+        else {
+            //Get from start to start+count
+            var sliceCount = Math.max(0, count || 0);
+            var sliceEnd = sliceStart + sliceCount;
+            dataPortion = data.slice(sliceStart, sliceEnd);
+        }
+
+        callback({
+            total: tot,
+            start: sliceStart,
+            count: dataPortion.length,
+            data: dataPortion
+        });
+    }
+    else {
+        //"data" is not an array-like object. Let's return no data
+        returnNoData();
+    }
+
+    function returnNoData() {
+        callback({
+            total: 0,
+            start: 0,
+            count: 0,
+            data: []
+        });
+    }
+
+    function internalCallback(val) {
+        /*
+        "val" is the return value of the "data" function. It might be a plain array or it might be structured as a partial data set.
+        */
+        if (val.total && val.data) {
+            //Return it directly
+            callback({
+                total: val.total,
+                start: val.start || 0,
+                count: val.data.length || 0,
+                data: val.data
+            });
+        }
+        else if (val.length) {
+            //The function returned an array. We must assume this is the entire data set, since we have no info as to which part it is.
+            callback({
+                total: val.length,
+                start: 0,
+                count: val.length,
+                data: val
+            });
+        }
+        else {
+            //No data or unknown format
+            returnNoData();
+        }
+    }
+};
+
+

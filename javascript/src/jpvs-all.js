@@ -660,6 +660,109 @@ jpvs.applyTemplate = function (container, template, dataItem) {
     jpvs.alert("JPVS Error", "The specified template is not valid.");
 };
 
+/*
+This function handles extraction of data from various types of data sources and returns data asynchronously to a callback.
+The object passed to the callback is as follows: 
+{
+total: total number of records in the full data set,
+start: offset in the data set of the first record returned in the "data" field,
+count: number of records returned in the "data" field; this is <= total,
+data: array with the returned records
+}
+
+Parameter "start" is optional. When not specified (null or undefined), 0 is implied.
+Parameter "count" is optional. When not specified (null or undefined), the entire data set is returned.
+*/
+jpvs.readDataSource = function (data, start, count, callback) {
+    if (!data) {
+        //No data source provided. Return no data.
+        returnNoData();
+    }
+    else if (typeof (data) == "function") {
+        //The data source is a function. It might be either synchronous or asynchronous.
+        //Let's try to call it and see what comes back. Pass whatever comes back to our internalCallback function.
+        var ret = data(start, count, internalCallback);
+
+        if (ret === undefined) {
+            //No return value. The function is probably asynchronous. The internalCallback will receive the data.
+        }
+        else if (ret === null) {
+            //The function explicitly returned null. Means "no data". Let's return no data.
+            returnNoData();
+        }
+        else {
+            //The function explicitly returned something. That's the data we are looking for. Let's pass it to the internal callback
+            internalCallback(ret);
+        }
+    }
+    else if (data.length) {
+        //"data" is a static collection of records, not a function. We are supposed to return records between start and start+count
+        var tot = data.length;
+        var sliceStart = Math.max(0, start || 0);
+        var dataPortion;
+        if (count === undefined || count === null) {
+            //Get from start to end
+            dataPortion = data.slice(sliceStart);
+        }
+        else {
+            //Get from start to start+count
+            var sliceCount = Math.max(0, count || 0);
+            var sliceEnd = sliceStart + sliceCount;
+            dataPortion = data.slice(sliceStart, sliceEnd);
+        }
+
+        callback({
+            total: tot,
+            start: sliceStart,
+            count: dataPortion.length,
+            data: dataPortion
+        });
+    }
+    else {
+        //"data" is not an array-like object. Let's return no data
+        returnNoData();
+    }
+
+    function returnNoData() {
+        callback({
+            total: 0,
+            start: 0,
+            count: 0,
+            data: []
+        });
+    }
+
+    function internalCallback(val) {
+        /*
+        "val" is the return value of the "data" function. It might be a plain array or it might be structured as a partial data set.
+        */
+        if (val.count && val.data) {
+            //Return it directly
+            callback({
+                total: val.count,
+                start: val.start || 0,
+                count: val.data.length || 0,
+                data: val.data
+            });
+        }
+        else if (val.length) {
+            //The function returned an array. We must assume this is the entire data set, since we have no info as to which part it is.
+            callback({
+                total: val.length,
+                start: 0,
+                count: val.length,
+                data: val
+            });
+        }
+        else {
+            //No data or unknown format
+            returnNoData();
+        }
+    }
+};
+
+
+
 /* JPVS
 Module: core
 Classes: Event
@@ -1717,7 +1820,7 @@ jpvs.makeWidget({
 /* JPVS
 Module: widgets
 Classes: DataGrid
-Depends: core
+Depends: core, Pager
 */
 
 (function () {
@@ -1748,6 +1851,11 @@ Depends: core
             template: jpvs.property({
                 get: function () { return this.element.data("template"); },
                 set: function (value) { this.element.data("template", value); }
+            }),
+
+            binder: jpvs.property({
+                get: function () { return this.element.data("binder"); },
+                set: function (value) { this.element.data("binder", value); }
             }),
 
             caption: jpvs.property({
@@ -1809,26 +1917,11 @@ Depends: core
     });
 
     function dataBind(W, section, data) {
-        function getList() {
-            if (!data)
-                return [];
-            else if (typeof (data) == "function")
-                return data();
-            else
-                return data;
-        }
+        //Get the current binder or the default one
+        var binder = W.binder() || jpvs.DataGrid.defaultBinder;
 
-        //Obtain the list of record to display
-        var list = getList();
-
-        //Remove all rows and recreate them
-        var sectionElement = getSection(W, section);
-        var sectionName = decodeSectionName(section);
-        sectionElement.empty();
-
-        $.each(list, function (i, item) {
-            addRow(W, sectionName, sectionElement, item);
-        });
+        //Call the binder, setting this=WIDGET and passing section and data
+        binder.call(W, section, data);
     }
 
     function getSection(W, section) {
@@ -1885,6 +1978,82 @@ Depends: core
             jpvs.applyTemplate(cell, cellTemplate, item);
         });
     }
+
+
+    /*
+    Default binder
+
+    Displays all rows in the datasource
+    */
+    jpvs.DataGrid.defaultBinder = function (section, data) {
+        var W = this;
+
+        //Remove all rows
+        var sectionElement = getSection(W, section);
+        var sectionName = decodeSectionName(section);
+        sectionElement.empty();
+
+        //Read the entire data set...
+        jpvs.readDataSource(data, null, null, next);
+
+        //...and bind all the rows
+        function next(ret) {
+            $.each(ret.data, function (i, item) {
+                addRow(W, sectionName, sectionElement, item);
+            });
+        }
+    };
+
+
+
+    /*
+    Paging binder
+
+    Displays rows in the grid one page at a time
+    */
+    jpvs.DataGrid.pagingBinder = function (params) {
+        var curPage = 0;
+        var pageSize = (params && params.pageSize) || 10;
+
+        function binder(section, data) {
+            var W = this;
+
+            //Refresh the current page
+            refreshPage(W, section, data);
+        }
+
+        function refreshPage(W, section, data) {
+            //Remove all rows...
+            var sectionElement = getSection(W, section);
+            var sectionName = decodeSectionName(section);
+            sectionElement.empty();
+
+            //Read the current page...
+            var start = curPage * pageSize;
+            jpvs.readDataSource(data, start, pageSize, next);
+
+            //...and bind all the rows
+            function next(ret) {
+                $.each(ret.data, function (i, item) {
+                    addRow(W, sectionName, sectionElement, item);
+                });
+            }
+        }
+
+        return binder;
+    };
+
+
+
+    /*
+    Scrolling binder
+
+    Displays at most one page and allows up/down scrolling
+    */
+    jpvs.DataGrid.scrollingBinder = function (params) {
+        return function (section, data) {
+        };
+    };
 })();
 
 /* JPVS
@@ -2088,6 +2257,245 @@ jpvs.makeWidget({
     }
 });
 
+
+/* JPVS
+Module: widgets
+Classes: Pager
+Depends: core
+*/
+
+(function () {
+
+    jpvs.DataGrid = function (selector) {
+        this.attach(selector);
+    };
+
+    jpvs.makeWidget({
+        widget: jpvs.DataGrid,
+        type: "DataGrid",
+        cssClass: "DataGrid",
+
+        create: function (container) {
+            var obj = document.createElement("table");
+            $(container).append(obj);
+            return obj;
+        },
+
+        init: function (W) {
+        },
+
+        canAttachTo: function (obj) {
+            return false;
+        },
+
+        prototype: {
+            template: jpvs.property({
+                get: function () { return this.element.data("template"); },
+                set: function (value) { this.element.data("template", value); }
+            }),
+
+            binder: jpvs.property({
+                get: function () { return this.element.data("binder"); },
+                set: function (value) { this.element.data("binder", value); }
+            }),
+
+            caption: jpvs.property({
+                get: function () {
+                    var caption = this.element.find("caption");
+                    if (caption.length != 0)
+                        return caption.text();
+                    else
+                        return null;
+                },
+                set: function (value) {
+                    var caption = this.element.find("caption");
+                    if (caption.length == 0) {
+                        caption = $(document.createElement("caption"));
+                        this.element.prepend(caption);
+                    }
+
+                    caption.text(value);
+                }
+            }),
+
+            clear: function () {
+                this.element.find("tr").remove();
+            },
+
+            dataBind: function (data) {
+                dataBind(this, "tbody", data);
+            },
+
+            dataBindHeader: function (data) {
+                dataBind(this, "thead", data);
+            },
+
+            dataBindFooter: function (data) {
+                dataBind(this, "tfoot", data);
+            },
+
+            addBodyRow: function (item) {
+                var section = "tbody";
+                var sectionElement = getSection(this, section);
+                var sectionName = decodeSectionName(section);
+                addRow(this, sectionName, sectionElement, item);
+            },
+
+            addHeaderRow: function (item) {
+                var section = "thead";
+                var sectionElement = getSection(this, section);
+                var sectionName = decodeSectionName(section);
+                addRow(this, sectionName, sectionElement, item);
+            },
+
+            addFooterRow: function (item) {
+                var section = "tfoot";
+                var sectionElement = getSection(this, section);
+                var sectionName = decodeSectionName(section);
+                addRow(this, sectionName, sectionElement, item);
+            }
+        }
+    });
+
+    function dataBind(W, section, data) {
+        //Get the current binder or the default one
+        var binder = W.binder() || jpvs.DataGrid.defaultBinder;
+
+        //Call the binder, setting this=WIDGET and passing section and data
+        binder.call(W, section, data);
+    }
+
+    function getSection(W, section) {
+        //Ensure the "section" exists (thead, tbody or tfoot)
+        var sectionElement = W.element.find(section);
+        if (sectionElement.length == 0) {
+            sectionElement = $(document.createElement(section));
+            W.element.append(sectionElement);
+        }
+
+        return sectionElement;
+    }
+
+    function addRow(W, sectionName, sectionElement, item) {
+        //Add a new row
+        var tr = $(document.createElement("tr"));
+        sectionElement.append(tr);
+
+        //Create the cells according to the row template
+        var tmpl = W.template();
+        if (tmpl)
+            applyRowTemplate(tr, sectionName, tmpl, item);
+    }
+
+    function decodeSectionName(section) {
+        if (section == "thead") return "header";
+        else if (section == "tfoot") return "footer";
+        else return "body";
+    }
+
+    function applyRowTemplate(tr, sectionName, tmpl, item) {
+        //The template is a collection of column templates. For each element, create a cell.
+        $.each(tmpl, function (i, columnTemplate) {
+            /*
+            Determine the cell template, given the column template.
+            The column template may be in the form:
+            { header: headerCellTemplate, body: bodyCellTemplate, footer: footerCellTemplate } where any element may be missing.
+            Or it may contain the cell template directly.
+            */
+            var cellTemplate = columnTemplate;
+            if (columnTemplate.header || columnTemplate.body || columnTemplate.footer)
+                cellTemplate = columnTemplate[sectionName];
+
+            //Determine if we have to create a TH or a TD
+            var cellTag = "td";
+            if ((cellTemplate && cellTemplate.isHeader) || sectionName == "header" || sectionName == "footer")
+                cellTag = "th";
+
+            //Create the cell
+            var cell = $(document.createElement(cellTag));
+            tr.append(cell);
+
+            //Populate the cell by applying the cell template
+            jpvs.applyTemplate(cell, cellTemplate, item);
+        });
+    }
+
+
+    /*
+    Default binder
+
+    Displays all rows in the datasource
+    */
+    jpvs.DataGrid.defaultBinder = function (section, data) {
+        var W = this;
+
+        //Remove all rows
+        var sectionElement = getSection(W, section);
+        var sectionName = decodeSectionName(section);
+        sectionElement.empty();
+
+        //Read the entire data set...
+        jpvs.readDataSource(data, null, null, next);
+
+        //...and bind all the rows
+        function next(ret) {
+            $.each(ret.data, function (i, item) {
+                addRow(W, sectionName, sectionElement, item);
+            });
+        }
+    };
+
+
+
+    /*
+    Paging binder
+
+    Displays rows in the grid one page at a time
+    */
+    jpvs.DataGrid.pagingBinder = function (params) {
+        var curPage = 0;
+        var pageSize = (params && params.pageSize) || 10;
+
+        function binder(section, data) {
+            var W = this;
+
+            //Refresh the current page
+            refreshPage(W, section, data);
+        }
+
+        function refreshPage(W, section, data) {
+            //Remove all rows...
+            var sectionElement = getSection(W, section);
+            var sectionName = decodeSectionName(section);
+            sectionElement.empty();
+
+            //Read the current page...
+            var start = curPage * pageSize;
+            jpvs.readDataSource(data, start, pageSize, next);
+
+            //...and bind all the rows
+            function next(ret) {
+                $.each(ret.data, function (i, item) {
+                    addRow(W, sectionName, sectionElement, item);
+                });
+            }
+        }
+
+        return binder;
+    };
+
+
+
+    /*
+    Scrolling binder
+
+    Displays at most one page and allows up/down scrolling
+    */
+    jpvs.DataGrid.scrollingBinder = function (params) {
+        return function (section, data) {
+        };
+    };
+})();
 
 /* JPVS
 Module: widgets

@@ -57,9 +57,10 @@
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
     <script type="text/javascript" src="../src/widgets/CheckBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/Scroller.js"></script>
     <script type="text/javascript" src="Composite.js"></script>
     <script type="text/javascript">
-        jpvs(function () {
+        jpvs(function ($W) {
             var p = jpvs.Composite.create("#pnl");
             var p2 = jpvs.TextBox.create("#pnl2");
             var c = jpvs.CheckBox.create("#pnl2");
@@ -68,11 +69,37 @@
             });
 
             p.customEvent.bind(function () { alert("Composite custom event"); c.checked(!c.checked()); });
+
+            $W.scrl.change(function () {
+                var scrlPos = this.scrollPosition();
+                $("#lbl").text("TOP=" + scrlPos.top + ", LEFT=" + scrlPos.left);
+            });
         });
     </script>
 </head>
 <body>
     <div id="pnl"></div>
     <div id="pnl2"></div>
+
+    <div id="scrl" data-jpvs-type="Scroller">
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        aaaaaaaaaaaaaaaaaaaaa<br />
+        bbbbBBBB<br />
+    </div>
+    <br />
+    <br />
+    <br />
+    <br />
+    <div id="lbl"></div>
 </body>
 </html>

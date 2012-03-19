@@ -289,7 +289,7 @@ jpvs.applyTemplate = function (container, template, dataItem) {
         if (template.selector)
             fieldValue = template.selector(fieldValue, dataItem);
         else
-            fieldValue = fieldValue.toString();
+            fieldValue = fieldValue && fieldValue.toString();
 
         if (template.tagName)
             jpvs.writeTag(container, template.tagName, fieldValue);

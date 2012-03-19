@@ -74,25 +74,61 @@ Depends: core, Pager
                 dataBind(this, "tfoot", data);
             },
 
-            addBodyRow: function (item) {
+            addBodyRow: function (item, index) {
                 var section = "tbody";
                 var sectionElement = getSection(this, section);
                 var sectionName = decodeSectionName(section);
-                addRow(this, sectionName, sectionElement, item);
+                addRow(this, sectionName, sectionElement, item, index);
             },
 
-            addHeaderRow: function (item) {
+            addHeaderRow: function (item, index) {
                 var section = "thead";
                 var sectionElement = getSection(this, section);
                 var sectionName = decodeSectionName(section);
-                addRow(this, sectionName, sectionElement, item);
+                addRow(this, sectionName, sectionElement, item, index);
             },
 
-            addFooterRow: function (item) {
+            addFooterRow: function (item, index) {
                 var section = "tfoot";
                 var sectionElement = getSection(this, section);
                 var sectionName = decodeSectionName(section);
-                addRow(this, sectionName, sectionElement, item);
+                addRow(this, sectionName, sectionElement, item, index);
+            },
+
+            removeBodyRow: function (index) {
+                var section = "tbody";
+                var sectionElement = getSection(this, section);
+                removeRow(this, sectionElement, index);
+            },
+
+            removeHeaderRow: function (index) {
+                var section = "thead";
+                var sectionElement = getSection(this, section);
+                removeRow(this, sectionElement, index);
+            },
+
+            removeFooterRow: function (index) {
+                var section = "tfoot";
+                var sectionElement = getSection(this, section);
+                removeRow(this, sectionElement, index);
+            },
+
+            removeBodyRows: function (index, count) {
+                var section = "tbody";
+                var sectionElement = getSection(this, section);
+                removeRow(this, sectionElement, index, count);
+            },
+
+            removeHeaderRows: function (index, count) {
+                var section = "thead";
+                var sectionElement = getSection(this, section);
+                removeRow(this, sectionElement, index, count);
+            },
+
+            removeFooterRows: function (index, count) {
+                var section = "tfoot";
+                var sectionElement = getSection(this, section);
+                removeRow(this, sectionElement, index, count);
             }
         }
     });
@@ -116,15 +152,37 @@ Depends: core, Pager
         return sectionElement;
     }
 
-    function addRow(W, sectionName, sectionElement, item) {
+    function addRow(W, sectionName, sectionElement, item, index) {
+        if (!item)
+            return;
+
         //Add a new row
         var tr = $(document.createElement("tr"));
-        sectionElement.append(tr);
+
+        if (index === null || index === undefined) {
+            //Append, because no index was specified
+            sectionElement.append(tr);
+        }
+        else {
+            //An index was specified: insert the row at that index
+            sectionElement.find("tr").eq(index).before(tr);
+        }
 
         //Create the cells according to the row template
         var tmpl = W.template();
         if (tmpl)
             applyRowTemplate(tr, sectionName, tmpl, item);
+    }
+
+    function removeRow(W, sectionElement, index, count) {
+        //By default, count = 1
+        if (count === null || count === undefined)
+            count = 1;
+
+        if (count == 1)
+            sectionElement.find("tr").eq(index).remove();
+        else if (count > 1)
+            sectionElement.find("tr").slice(index, index + count).remove();
     }
 
     function decodeSectionName(section) {
@@ -281,36 +339,57 @@ Depends: core, Pager
             var newScrollPos = 0;
 
             var cachedData = [];
-            var totalRecords = 0;
+            var totalRecords = +Infinity;
 
             //Ensure the scroller is present
             var scroller = getScroller();
 
             //Load the first chunk of data
-            jpvs.readDataSource(data, newScrollPos, chunkSize, onDataLoaded);
+            ensurePageOfDataLoaded(updateGrid);
 
-            function onDataLoaded(ret) {
-                //Write to cache
-                totalRecords = ret.total;
-                var start = ret.start;
-                var count = ret.count;
-                var requiredCacheLength = start + count;
+            function ensurePageOfDataLoaded(next) {
+                //Let's make sure we have all the records in memory (at least for the page we have to display)
+                //Let's also check beyond "totalRecords"
+                var start = newScrollPos;
+                var end = start + pageSize;
+                var allPresent = true;
+                for (var i = start; i < end; i++) {
+                    var recordPresent = cachedData[i];
+                    if (!recordPresent) {
+                        allPresent = false;
+                        break;
+                    }
+                }
 
-                //Resize cache if necessary
-                while (cachedData.length < requiredCacheLength)
-                    cachedData.push(undefined);
+                //If we don't have all records in memory, let's call the datasource
+                jpvs.readDataSource(data, newScrollPos, chunkSize, onDataLoaded(next));
+            }
 
-                //Now write into the array
-                var i = start, j = 0;
-                while (j < count)
-                    cachedData[i++] = ret.data[j++];
+            function onDataLoaded(next) {
+                return function (ret) {
+                    //Write to cache
+                    totalRecords = ret.total;
+                    var start = ret.start;
+                    var count = ret.count;
+                    var requiredCacheLength = start + count;
 
-                //Finally, update the grid incrementally, if possible
-                updateGrid();
+                    //Resize cache if necessary
+                    while (cachedData.length < requiredCacheLength)
+                        cachedData.push(undefined);
+
+                    //Now write into the array
+                    var i = start, j = 0;
+                    while (j < count)
+                        cachedData[i++] = ret.data[j++];
+
+                    //Call the next function
+                    if (next)
+                        next();
+                };
             }
 
             function updateGrid() {
-                if (!curScrollPos) {
+                if (curScrollPos === null) {
                     //First time: write the entire page
                     refreshPage();
                 }
@@ -320,7 +399,7 @@ Depends: core, Pager
 
                     //"delta" represents the number of rows to delete and the number of new rows to insert
                     //Refreshing the entire page requires deleting all rows and inserting the entire page (pageSize)
-                    if (delta < pageSize) {
+                    if (Math.abs(delta) < pageSize) {
                         //Incremental is better
                         scrollGrid(delta);
                     }
@@ -348,8 +427,27 @@ Depends: core, Pager
                 scroller.totalPages(totalRecords);
             }
 
-            function scrollRows(delta) {
-                alert("TODO: scroll " + delta);
+            function scrollGrid(delta) {
+                if (delta > 0) {
+                    //Scroll forward: remove "delta" lines from the beginning and append "delta" lines at the end
+                    W.removeBodyRows(0, delta);
+
+                    var i = newScrollPos + pageSize - delta;
+                    var j = 0;
+                    while (j++ < delta)
+                        addRow(W, sectionName, sectionElement, cachedData[i++]);
+                }
+                else if (delta < 0) {
+                    delta = -delta;
+
+                    //Scroll backwards: remove "delta" lines at the end and insert "delta" lines at the beginning
+                    W.removeBodyRows(pageSize - delta, delta);
+
+                    var i = newScrollPos;
+                    var j = 0;
+                    while (j < delta)
+                        addRow(W, sectionName, sectionElement, cachedData[i++], j++);
+                }
             }
 
             function getScroller() {
@@ -374,10 +472,8 @@ Depends: core, Pager
             }
 
             function onScrollChange() {
-                var newScrollPos = this.page();
-                scrollRows(newScrollPos - curScrollPos, W, section, data, scroller);
-                curScrollPos = newScrollPos;
-                refreshPage(W, section, data, scroller);
+                newScrollPos = this.page();
+                ensurePageOfDataLoaded(updateGrid);
             }
         }
 

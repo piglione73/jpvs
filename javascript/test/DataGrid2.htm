@@ -47,6 +47,8 @@
             var tbl1 = $W.tbl1;
             var tbl2 = jpvs.DataGrid.create("#pnl");
 
+            $W.btnRebind.click(bind);
+
             function data_sync(start, count) {
                 var TOTRECS = 100;
                 start = start || 0;
@@ -88,13 +90,18 @@
 
             var data = data_async;
 
-            $W.tbl1.dataBind(data);
-            $W.tbl2.dataBind(data);
-            $W.tbl3.dataBind(data);
+            bind();
+
+            function bind() {
+                $W.tbl1.dataBind(data);
+                $W.tbl2.dataBind(data);
+                $W.tbl3.dataBind(data);
+            }
         });
     </script>
 </head>
 <body>
+    <button id="btnRebind">Rebind data</button>
     <table cellpadding="3" border="2" style="width:100%">
         <tr>
             <td style="vertical-align:top">

@@ -33,12 +33,13 @@ Depends: core, LinkButton
 
         init: function (W) {
             var tbody = jpvs.writeTag(W.element, "tbody");
+            var tr = jpvs.writeTag(tbody, "tr");
 
-            var first = jpvs.writeTag(tbody, "td");
-            var prev = jpvs.writeTag(tbody, "td");
-            var combo = jpvs.writeTag(tbody, "td");
-            var next = jpvs.writeTag(tbody, "td");
-            var last = jpvs.writeTag(tbody, "td");
+            var first = jpvs.writeTag(tr, "td");
+            var prev = jpvs.writeTag(tr, "td");
+            var combo = jpvs.writeTag(tr, "td");
+            var next = jpvs.writeTag(tr, "td");
+            var last = jpvs.writeTag(tr, "td");
 
             jpvs.LinkButton.create(first).text(jpvs.Pager.strings.firstPage).click(function () {
                 W.page(Math.min(0, W.totalPages() - 1));

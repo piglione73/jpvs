@@ -2143,9 +2143,14 @@ Depends: core, Pager
                     W.element.before(pagerContainer);
                     pager = jpvs.Pager.create(pagerContainer);
 
-                    //Bind events
-                    pager.change(onPageChange);
+                    pagerId = jpvs.randomString(20);
+                    pager.element.attr("id", pagerId);
+                    W.element.data("pagerId", pagerId);
                 }
+
+                //Bind events
+                pager.change.unbind("DataGrid");
+                pager.change.bind("DataGrid", onPageChange);
 
                 return pager;
             }
@@ -2335,12 +2340,17 @@ Depends: core, Pager
                     W.element.after(scrollerContainer);
                     scroller = jpvs.Scroller.create(scrollerContainer);
 
+                    scrollerId = jpvs.randomString(20);
+                    scroller.element.attr("id", scrollerId);
+                    W.element.data("scrollerId", scrollerId);
+
                     //Move the DataGrid inside the scroller, so the scroller gets the same size as the DataGrid
                     scroller.element.append(W.element);
-
-                    //Bind events
-                    scroller.change(onScrollChange);
                 }
+
+                //Bind events
+                scroller.change.unbind("DataGrid");
+                scroller.change.bind("DataGrid", onScrollChange);
 
                 return scroller;
             }
@@ -2596,12 +2606,13 @@ Depends: core, LinkButton
 
         init: function (W) {
             var tbody = jpvs.writeTag(W.element, "tbody");
+            var tr = jpvs.writeTag(tbody, "tr");
 
-            var first = jpvs.writeTag(tbody, "td");
-            var prev = jpvs.writeTag(tbody, "td");
-            var combo = jpvs.writeTag(tbody, "td");
-            var next = jpvs.writeTag(tbody, "td");
-            var last = jpvs.writeTag(tbody, "td");
+            var first = jpvs.writeTag(tr, "td");
+            var prev = jpvs.writeTag(tr, "td");
+            var combo = jpvs.writeTag(tr, "td");
+            var next = jpvs.writeTag(tr, "td");
+            var last = jpvs.writeTag(tr, "td");
 
             jpvs.LinkButton.create(first).text(jpvs.Pager.strings.firstPage).click(function () {
                 W.page(Math.min(0, W.totalPages() - 1));

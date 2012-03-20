@@ -324,9 +324,14 @@ Depends: core, Pager
                     W.element.before(pagerContainer);
                     pager = jpvs.Pager.create(pagerContainer);
 
-                    //Bind events
-                    pager.change(onPageChange);
+                    pagerId = jpvs.randomString(20);
+                    pager.element.attr("id", pagerId);
+                    W.element.data("pagerId", pagerId);
                 }
+
+                //Bind events
+                pager.change.unbind("DataGrid");
+                pager.change.bind("DataGrid", onPageChange);
 
                 return pager;
             }
@@ -516,12 +521,17 @@ Depends: core, Pager
                     W.element.after(scrollerContainer);
                     scroller = jpvs.Scroller.create(scrollerContainer);
 
+                    scrollerId = jpvs.randomString(20);
+                    scroller.element.attr("id", scrollerId);
+                    W.element.data("scrollerId", scrollerId);
+
                     //Move the DataGrid inside the scroller, so the scroller gets the same size as the DataGrid
                     scroller.element.append(W.element);
-
-                    //Bind events
-                    scroller.change(onScrollChange);
                 }
+
+                //Bind events
+                scroller.change.unbind("DataGrid");
+                scroller.change.bind("DataGrid", onScrollChange);
 
                 return scroller;
             }

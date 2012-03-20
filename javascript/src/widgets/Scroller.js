@@ -31,7 +31,7 @@ Depends: core
             W.element.append(W.scroller).css({ position: "relative" });
             W.scroller.append(W.scrollerContent);
 
-            W.scroller.css({ position: "absolute", left: "0px", top: "0px", overflow: "scroll" });
+            W.scroller.css({ position: "absolute", left: "0px", top: "0px", overflow: "auto" });
 
             //Measure scrollbars
             W.scrollerContent.width("100%").height("100%");
@@ -58,7 +58,7 @@ Depends: core
                     };
                 },
                 set: function (value) {
-                    W.element.width(value.width).height(value.height);
+                    this.element.width(value.width).height(value.height);
                     refreshScroller(this);
                 }
             }),
@@ -88,17 +88,25 @@ Depends: core
                     var st = this.scroller.scrollTop();
                     var sl = this.scroller.scrollLeft();
 
-                    var os = this.objectSize();
-                    var vs = this.visibleSize();
                     var ts = this.totalSize();
 
-                    var maxST = (ts.height / vs.height - 1) * os.height;
-                    var maxSL = ts.width / vs.width * os.width - os.width - this.scrollbarW;
-
-                    return {
-                        top: st / maxST * ts.height,
-                        left: sl / maxSL * ts.width
+                    var ss = {
+                        width: this.scroller.innerWidth(),
+                        height: this.scroller.innerHeight()
                     };
+
+                    var scs = {
+                        width: this.scrollerContent.innerWidth(),
+                        height: this.scrollerContent.innerHeight()
+                    };
+
+                    var maxST = scs.height - ss.height;
+                    var maxSL = scs.width - ss.width;
+
+                    var T = Math.min(ts.height, st / maxST * ts.height);
+                    var L = Math.min(ts.width, sl / maxSL * ts.width);
+
+                    return { top: T, left: L };
                 }
             })
         }
@@ -106,7 +114,7 @@ Depends: core
 
 
     function refreshScroller(W) {
-        //Set scroller's size equal to widget's size
+        //Set scroller's size equal to widget's size plus scrollbars
         var size = W.objectSize();
         //size.width += W.scrollbarW;
         size.height += W.scrollbarH;

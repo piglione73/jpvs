@@ -1877,6 +1877,17 @@ Depends: core, Pager
                 }
             }),
 
+            enableEvenOdd: jpvs.property({
+                get: function () {
+                    var val = this.element.data("enableEvenOdd");
+                    if (val === true || val === false)
+                        return val;
+                    else
+                        return true;    //Default value
+                },
+                set: function (value) { this.element.data("enableEvenOdd", value); }
+            }),
+
             clear: function () {
                 this.element.find("tr").remove();
             },
@@ -1981,10 +1992,22 @@ Depends: core, Pager
         if (index === null || index === undefined) {
             //Append, because no index was specified
             sectionElement.append(tr);
+
+            //Only update the even/odd of the last row
+            if (W.enableEvenOdd())
+                updateEvenOdd(-1, sectionElement);
         }
         else {
             //An index was specified: insert the row at that index
-            sectionElement.find("tr").eq(index).before(tr);
+            var trs = sectionElement.find("tr");
+            if (trs.length == 0)
+                sectionElement.append(tr);
+            else
+                trs.eq(index).before(tr);
+
+            //Update the even/odd state of all rows from "index" on
+            if (W.enableEvenOdd())
+                updateEvenOdd(index, sectionElement);
         }
 
         //Create the cells according to the row template
@@ -2002,6 +2025,27 @@ Depends: core, Pager
             sectionElement.find("tr").eq(index).remove();
         else if (count > 1)
             sectionElement.find("tr").slice(index, index + count).remove();
+
+        //Update the even/odd state of all rows from "index" on
+        if (W.enableEvenOdd())
+            updateEvenOdd(index, sectionElement);
+    }
+
+    function updateEvenOdd(start, sectionElement) {
+        var rows = sectionElement.find("tr");
+
+        if (start < 0)
+            start += rows.length;
+
+        var even = ((start % 2) == 0);
+
+        for (var i = start; i < rows.length; i++) {
+            var row = rows.eq(i);
+            row.removeClass("Even Odd").addClass(even ? "Even" : "Odd");
+
+            //Toggle "even"
+            even = !even;
+        }
     }
 
     function decodeSectionName(section) {
@@ -2147,7 +2191,7 @@ Depends: core, Pager
     */
     jpvs.DataGrid.scrollingBinder = function (params) {
         var pageSize = (params && params.pageSize) || 10;
-        var chunkSize = (params && params.pageSize) || (5 * pageSize);
+        var chunkSize = (params && params.chunkSize) || (5 * pageSize);
 
         function binder(section, data) {
             var W = this;
@@ -2155,7 +2199,6 @@ Depends: core, Pager
             var sectionName = decodeSectionName(section);
 
             var curScrollPos = null;
-            var newScrollPos = 0;
 
             var cachedData = [];
             var totalRecords = +Infinity;
@@ -2164,9 +2207,9 @@ Depends: core, Pager
             var scroller = getScroller();
 
             //Load the first chunk of data
-            ensurePageOfDataLoaded(updateGrid);
+            ensurePageOfDataLoaded(0, updateGrid(0));
 
-            function ensurePageOfDataLoaded(next) {
+            function ensurePageOfDataLoaded(newScrollPos, next) {
                 //Let's make sure we have all the records in memory (at least for the page we have to display)
                 //Let's also check beyond "totalRecords"
                 var start = newScrollPos;
@@ -2181,7 +2224,10 @@ Depends: core, Pager
                 }
 
                 //If we don't have all records in memory, let's call the datasource
-                jpvs.readDataSource(data, newScrollPos, chunkSize, onDataLoaded(next));
+                if (allPresent)
+                    next();
+                else
+                    jpvs.readDataSource(data, newScrollPos, chunkSize, onDataLoaded(next));
             }
 
             function onDataLoaded(next) {
@@ -2201,38 +2247,48 @@ Depends: core, Pager
                     while (j < count)
                         cachedData[i++] = ret.data[j++];
 
+                    //Update the scroller
+                    scroller.visibleSize({ width: 100, height: pageSize });
+                    scroller.totalSize({ width: 100, height: Math.max(1, totalRecords - pageSize + 3) });
+
                     //Call the next function
                     if (next)
                         next();
                 };
             }
 
-            function updateGrid() {
-                if (curScrollPos === null) {
-                    //First time: write the entire page
-                    refreshPage();
-                }
-                else {
-                    //Not first time. Determine if it's faster to refresh the entire page or to delete/insert selected rows
-                    var delta = newScrollPos - curScrollPos;
+            function updateGrid(newScrollPos) {
+                return function () {
+                    if (curScrollPos === null) {
+                        //First time: write the entire page
+                        refreshPage(newScrollPos);
 
-                    //"delta" represents the number of rows to delete and the number of new rows to insert
-                    //Refreshing the entire page requires deleting all rows and inserting the entire page (pageSize)
-                    if (Math.abs(delta) < pageSize) {
-                        //Incremental is better
-                        scrollGrid(delta);
+                        //Fix the scroller size by setting the size explicitly
+                        var scrollerSize = scroller.objectSize();
+                        scroller.objectSize(scrollerSize);
                     }
                     else {
-                        //Full redraw is better
-                        refreshPage();
-                    }
-                }
+                        //Not first time. Determine if it's faster to refresh the entire page or to delete/insert selected rows
+                        var delta = newScrollPos - curScrollPos;
 
-                //At the end, the new position becomes the current position
-                curScrollPos = newScrollPos;
+                        //"delta" represents the number of rows to delete and the number of new rows to insert
+                        //Refreshing the entire page requires deleting all rows and inserting the entire page (pageSize)
+                        if (Math.abs(delta) < pageSize) {
+                            //Incremental is better
+                            scrollGrid(newScrollPos, delta);
+                        }
+                        else {
+                            //Full redraw is better
+                            refreshPage(newScrollPos);
+                        }
+                    }
+
+                    //At the end, the new position becomes the current position
+                    curScrollPos = newScrollPos;
+                };
             }
 
-            function refreshPage() {
+            function refreshPage(newScrollPos) {
                 //Remove all rows
                 sectionElement.empty();
 
@@ -2240,13 +2296,9 @@ Depends: core, Pager
                 var end = Math.min(cachedData.length, newScrollPos + pageSize);
                 for (var i = newScrollPos; i < end; i++)
                     addRow(W, sectionName, sectionElement, cachedData[i]);
-
-                //Update the scroller, based on the current situation
-                scroller.page(newScrollPos);
-                scroller.totalPages(totalRecords);
             }
 
-            function scrollGrid(delta) {
+            function scrollGrid(newScrollPos, delta) {
                 if (delta > 0) {
                     //Scroll forward: remove "delta" lines from the beginning and append "delta" lines at the end
                     W.removeBodyRows(0, delta);
@@ -2271,28 +2323,31 @@ Depends: core, Pager
 
             function getScroller() {
                 //Let's see if a scroller has already been created for this datagrid
-                var pagerId = W.element.data("pagerId");
-                var pager;
-                if (pagerId) {
-                    //There is a pager
-                    pager = jpvs.find("#" + pagerId);
+                var scrollerId = W.element.data("scrollerId");
+                var scroller;
+                if (scrollerId) {
+                    //There is a scroller
+                    scroller = jpvs.find("#" + scrollerId);
                 }
                 else {
-                    //No pager, let's create one
-                    var pagerContainer = document.createElement("div");
-                    W.element.before(pagerContainer);
-                    pager = jpvs.Pager.create(pagerContainer);
+                    //No scroller, let's create one
+                    var scrollerContainer = document.createElement("div");
+                    W.element.after(scrollerContainer);
+                    scroller = jpvs.Scroller.create(scrollerContainer);
+
+                    //Move the DataGrid inside the scroller, so the scroller gets the same size as the DataGrid
+                    scroller.element.append(W.element);
 
                     //Bind events
-                    pager.change(onScrollChange);
+                    scroller.change(onScrollChange);
                 }
 
-                return pager;
+                return scroller;
             }
 
             function onScrollChange() {
-                newScrollPos = this.page();
-                ensurePageOfDataLoaded(updateGrid);
+                var newScrollPos = Math.min(totalRecords, Math.floor(this.scrollPosition().top));
+                ensurePageOfDataLoaded(newScrollPos, updateGrid(newScrollPos));
             }
         }
 
@@ -3004,7 +3059,7 @@ Depends: core
             W.element.append(W.scroller).css({ position: "relative" });
             W.scroller.append(W.scrollerContent);
 
-            W.scroller.css({ position: "absolute", left: "0px", top: "0px", overflow: "scroll" });
+            W.scroller.css({ position: "absolute", left: "0px", top: "0px", overflow: "auto" });
 
             //Measure scrollbars
             W.scrollerContent.width("100%").height("100%");
@@ -3031,7 +3086,7 @@ Depends: core
                     };
                 },
                 set: function (value) {
-                    W.element.width(value.width).height(value.height);
+                    this.element.width(value.width).height(value.height);
                     refreshScroller(this);
                 }
             }),
@@ -3061,17 +3116,25 @@ Depends: core
                     var st = this.scroller.scrollTop();
                     var sl = this.scroller.scrollLeft();
 
-                    var os = this.objectSize();
-                    var vs = this.visibleSize();
                     var ts = this.totalSize();
 
-                    var maxST = (ts.height / vs.height - 1) * os.height;
-                    var maxSL = ts.width / vs.width * os.width - os.width - this.scrollbarW;
-
-                    return {
-                        top: st / maxST * ts.height,
-                        left: sl / maxSL * ts.width
+                    var ss = {
+                        width: this.scroller.innerWidth(),
+                        height: this.scroller.innerHeight()
                     };
+
+                    var scs = {
+                        width: this.scrollerContent.innerWidth(),
+                        height: this.scrollerContent.innerHeight()
+                    };
+
+                    var maxST = scs.height - ss.height;
+                    var maxSL = scs.width - ss.width;
+
+                    var T = Math.min(ts.height, st / maxST * ts.height);
+                    var L = Math.min(ts.width, sl / maxSL * ts.width);
+
+                    return { top: T, left: L };
                 }
             })
         }
@@ -3079,7 +3142,7 @@ Depends: core
 
 
     function refreshScroller(W) {
-        //Set scroller's size equal to widget's size
+        //Set scroller's size equal to widget's size plus scrollbars
         var size = W.objectSize();
         //size.width += W.scrollbarW;
         size.height += W.scrollbarH;

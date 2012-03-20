@@ -18,6 +18,15 @@
             background-color: pink;
             border: 1px solid red;
         }
+        
+        .Even td 
+        {
+            background-color:Lime;
+        }
+        .Odd td 
+        {
+            background-color:Silver;
+        }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
@@ -31,6 +40,7 @@
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
     <script type="text/javascript" src="../src/widgets/Pager.js"></script>
+    <script type="text/javascript" src="../src/widgets/Scroller.js"></script>
     <script type="text/javascript" src="../src/widgets/DataGrid.js"></script>
     <script type="text/javascript">
         jpvs(function ($W) {
@@ -45,7 +55,7 @@
 
                 var ret = [];
                 for (var i = start; i < Math.min(TOTRECS, start + count); i++)
-                    ret.push({ A: "A" + i, B: "B" + i, C: "C" + i });
+                    ret.push({ A: "A" + i, B: "B" + i, C: "C" + i, D: jpvs.randomString(20) });
 
                 return ({
                     total: TOTRECS,
@@ -63,7 +73,9 @@
 
             var tmpl = [
                 { body: { fieldName: "A"} },
-                { body: { fieldName: "B"} }
+                { body: { fieldName: "B"} },
+                { body: { fieldName: "C"} },
+                { body: { fieldName: "D"} }
             ];
 
             $W.tbl1.template(tmpl);
@@ -72,9 +84,9 @@
 
             $W.tbl1.binder(jpvs.DataGrid.defaultBinder);
             $W.tbl2.binder(jpvs.DataGrid.pagingBinder({ pageSize: 10 }));
-            $W.tbl3.binder(jpvs.DataGrid.scrollingBinder({ pageSize: 30 }));
+            $W.tbl3.binder(jpvs.DataGrid.scrollingBinder({ pageSize: 30, chunkSize: 40 }));
 
-            var data = data_sync;
+            var data = data_async;
 
             $W.tbl1.dataBind(data);
             $W.tbl2.dataBind(data);
@@ -87,17 +99,17 @@
         <tr>
             <td style="vertical-align:top">
                 <table id="tbl1" data-jpvs-type="DataGrid">
-                    <thead><tr><th>Col1</th><th>Col2</th></tr></thead>
+                    <thead><tr><th>Col1</th><th>Col2</th><th>Col3</th><th>Random data</th></tr></thead>
                 </table>
             </td>
             <td style="vertical-align:top">
                 <table id="tbl2" data-jpvs-type="DataGrid">
-                    <thead><tr><th>Col1</th><th>Col2</th></tr></thead>
+                    <thead><tr><th>Col1</th><th>Col2</th><th>Col3</th><th>Random data</th></tr></thead>
                 </table>
             </td>
             <td style="vertical-align:top">
                 <table id="tbl3" data-jpvs-type="DataGrid">
-                    <thead><tr><th>Col1</th><th>Col2</th></tr></thead>
+                    <thead><tr><th>Col1</th><th>Col2</th><th>Col3</th><th>Random data</th></tr></thead>
                 </table>
             </td>
         </tr>

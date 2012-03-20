@@ -1,0 +1,5 @@
+Copyright (c) 2012 
+Pavia System s.a.s. (http://www.paviasystem.com)
+
+Dual licensed under the GPL (http://www.gnu.org/licenses/gpl.html)
+and MIT (http://www.opensource.org/licenses/mit-license.php) licenses.

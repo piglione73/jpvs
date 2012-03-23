@@ -481,7 +481,7 @@ Depends: core, Pager
                 //Add one page of rows
                 var end = Math.min(cachedData.length, newScrollPos + pageSize);
                 for (var i = newScrollPos; i < end; i++)
-                    addRow(W, sectionName, sectionElement, cachedData[i]);
+                    addRow(W, sectionName, sectionElement, cachedData[i] || {});
             }
 
             function scrollGrid(newScrollPos, delta) {
@@ -492,7 +492,7 @@ Depends: core, Pager
                     var i = newScrollPos + pageSize - delta;
                     var j = 0;
                     while (j++ < delta)
-                        addRow(W, sectionName, sectionElement, cachedData[i++]);
+                        addRow(W, sectionName, sectionElement, cachedData[i++] || {});
                 }
                 else if (delta < 0) {
                     delta = -delta;
@@ -503,7 +503,7 @@ Depends: core, Pager
                     var i = newScrollPos;
                     var j = 0;
                     while (j < delta)
-                        addRow(W, sectionName, sectionElement, cachedData[i++], j++);
+                        addRow(W, sectionName, sectionElement, cachedData[i++] || {}, j++);
                 }
             }
 
@@ -538,6 +538,7 @@ Depends: core, Pager
 
             function onScrollChange() {
                 var newScrollPos = Math.min(totalRecords, Math.floor(this.scrollPosition().top));
+                //updateGrid(newScrollPos)();
                 ensurePageOfDataLoaded(newScrollPos, updateGrid(newScrollPos));
             }
         }

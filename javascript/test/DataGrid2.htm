@@ -50,7 +50,7 @@
             $W.btnRebind.click(bind);
 
             function data_sync(start, count) {
-                var TOTRECS = 100;
+                var TOTRECS = 1000;
                 start = start || 0;
                 if (!count)
                     count = TOTRECS;
@@ -70,11 +70,11 @@
                 setTimeout(function () {
                     var recs = data_sync(start, count);
                     callback(data_sync(start, count));
-                }, 1000);
+                }, 2000);
             }
 
             var tmpl = [
-                { body: { fieldName: "A"} },
+                { body: "X" },
                 { body: { fieldName: "B"} },
                 { body: { fieldName: "C"} },
                 { body: { fieldName: "D"} }
@@ -84,7 +84,8 @@
             $W.tbl2.template(tmpl);
             $W.tbl3.template(tmpl);
 
-            $W.tbl1.binder(jpvs.DataGrid.defaultBinder);
+            //$W.tbl1.binder(jpvs.DataGrid.defaultBinder);
+            $W.tbl1.binder(jpvs.DataGrid.pagingBinder({ pageSize: 17 }));
             $W.tbl2.binder(jpvs.DataGrid.pagingBinder({ pageSize: 10 }));
             $W.tbl3.binder(jpvs.DataGrid.scrollingBinder({ pageSize: 30, chunkSize: 40 }));
 

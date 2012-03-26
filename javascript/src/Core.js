@@ -230,10 +230,14 @@ jpvs.write = function (container, text) {
         //Handle multiple lines
         text = text.replace("\r", "");
         var lines = text.split("\n");
-        $.each(lines, function (i, line) {
-            $(container).append(document.createTextNode(line));
-            $(container).append(document.createElement("br"));
-        });
+        if (lines.length == 1)
+            $(container).append(document.createTextNode(lines[0]));
+        else if (lines.length > 1) {
+            $.each(lines, function (i, line) {
+                $(container).append(document.createTextNode(line));
+                $(container).append(document.createElement("br"));
+            });
+        }
     }
 };
 

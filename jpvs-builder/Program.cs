@@ -29,12 +29,13 @@ namespace jpvs.Builder {
 
                 //The end
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Build terminated successfully");
+                Console.WriteLine("Build terminated successfully. Press Enter to exit.");
+                Console.ReadLine();
             }
             catch (Exception exc) {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Error: " + exc.ToString());
-                Console.WriteLine("Build terminated with errors");
+                Console.WriteLine("Build terminated with errors. Press Enter to exit.");
                 Console.ReadLine();
             }
             finally {

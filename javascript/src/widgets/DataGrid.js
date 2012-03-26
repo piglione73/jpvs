@@ -34,6 +34,11 @@ Depends: core, Pager
                 set: function (value) { this.element.data("template", value); }
             }),
 
+            emptyRowTemplate: jpvs.property({
+                get: function () { return this.element.data("emptyRowTemplate"); },
+                set: function (value) { this.element.data("emptyRowTemplate", value); }
+            }),
+
             binder: jpvs.property({
                 get: function () { return this.element.data("binder"); },
                 set: function (value) { this.element.data("binder", value); }
@@ -41,14 +46,14 @@ Depends: core, Pager
 
             caption: jpvs.property({
                 get: function () {
-                    var caption = this.element.find("caption");
+                    var caption = this.element.children("caption");
                     if (caption.length != 0)
                         return caption.text();
                     else
                         return null;
                 },
                 set: function (value) {
-                    var caption = this.element.find("caption");
+                    var caption = this.element.children("caption");
                     if (caption.length == 0) {
                         caption = $(document.createElement("caption"));
                         this.element.prepend(caption);
@@ -154,7 +159,7 @@ Depends: core, Pager
 
     function getSection(W, section) {
         //Ensure the "section" exists (thead, tbody or tfoot)
-        var sectionElement = W.element.find(section);
+        var sectionElement = W.element.children(section);
         if (sectionElement.length == 0) {
             sectionElement = $(document.createElement(section));
             W.element.append(sectionElement);
@@ -164,9 +169,7 @@ Depends: core, Pager
     }
 
     function addRow(W, sectionName, sectionElement, item, index) {
-        if (!item)
-            return;
-
+        //If item is null or undefined, continue anyway. We will add an empty row with a special "empty row template".
         //Add a new row
         var tr = $(document.createElement("tr"));
 
@@ -180,7 +183,7 @@ Depends: core, Pager
         }
         else {
             //An index was specified: insert the row at that index
-            var trs = sectionElement.find("tr");
+            var trs = sectionElement.children("tr");
             if (trs.length == 0)
                 sectionElement.append(tr);
             else
@@ -193,8 +196,9 @@ Depends: core, Pager
 
         //Create the cells according to the row template
         var tmpl = W.template();
+        var emptyRowTmpl = W.emptyRowTemplate();
         if (tmpl)
-            applyRowTemplate(tr, sectionName, tmpl, item);
+            applyRowTemplate(tr, sectionName, tmpl, emptyRowTmpl, item);
     }
 
     function removeRow(W, sectionElement, index, count) {
@@ -203,9 +207,9 @@ Depends: core, Pager
             count = 1;
 
         if (count == 1)
-            sectionElement.find("tr").eq(index).remove();
+            sectionElement.children("tr").eq(index).remove();
         else if (count > 1)
-            sectionElement.find("tr").slice(index, index + count).remove();
+            sectionElement.children("tr").slice(index, index + count).remove();
 
         //Update the even/odd state of all rows from "index" on
         if (W.enableEvenOdd())
@@ -213,7 +217,7 @@ Depends: core, Pager
     }
 
     function updateEvenOdd(start, sectionElement) {
-        var rows = sectionElement.find("tr");
+        var rows = sectionElement.children("tr");
 
         if (start < 0)
             start += rows.length;
@@ -235,31 +239,59 @@ Depends: core, Pager
         else return "body";
     }
 
-    function applyRowTemplate(tr, sectionName, tmpl, item) {
-        //The template is a collection of column templates. For each element, create a cell.
-        $.each(tmpl, function (i, columnTemplate) {
-            /*
-            Determine the cell template, given the column template.
-            The column template may be in the form:
-            { header: headerCellTemplate, body: bodyCellTemplate, footer: footerCellTemplate } where any element may be missing.
-            Or it may contain the cell template directly.
-            */
-            var cellTemplate = columnTemplate;
-            if (columnTemplate.header || columnTemplate.body || columnTemplate.footer)
-                cellTemplate = columnTemplate[sectionName];
+    function applyRowTemplate(tr, sectionName, tmpl, emptyRowTmpl, item) {
+        //Remove the existing cells
+        tr.empty();
 
-            //Determine if we have to create a TH or a TD
-            var cellTag = "td";
-            if ((cellTemplate && cellTemplate.isHeader) || sectionName == "header" || sectionName == "footer")
-                cellTag = "th";
+        //Then write the new cells
+        if (item) {
+            //We have a record
+            //The template is a collection of column templates. For each element, create a cell.
+            $.each(tmpl, function (i, columnTemplate) {
+                /*
+                Determine the cell template, given the column template.
+                The column template may be in the form:
+                { header: headerCellTemplate, body: bodyCellTemplate, footer: footerCellTemplate } where any element may be missing.
+                Or it may contain the cell template directly.
+                */
+                var cellTemplate = columnTemplate;
+                if (columnTemplate.header || columnTemplate.body || columnTemplate.footer)
+                    cellTemplate = columnTemplate[sectionName];
 
-            //Create the cell
-            var cell = $(document.createElement(cellTag));
-            tr.append(cell);
+                //Determine if we have to create a TH or a TD
+                var cellTag = "td";
+                if ((cellTemplate && cellTemplate.isHeader) || sectionName == "header" || sectionName == "footer")
+                    cellTag = "th";
 
-            //Populate the cell by applying the cell template
-            jpvs.applyTemplate(cell, cellTemplate, item);
-        });
+                //Create the cell
+                var cell = $(document.createElement(cellTag));
+                tr.append(cell);
+
+                //Populate the cell by applying the cell template
+                jpvs.applyTemplate(cell, cellTemplate, item);
+            });
+
+            //Keep track of the fact we are NOT using the empty row template
+            tr.data("fromEmptyRowTemplate", false);
+        }
+        else {
+            //We don't have a record. Let's use the empty row template, if any, or the default empty row template
+            jpvs.applyTemplate(tr, emptyRowTmpl || createDefaultEmptyRowTemplate(tmpl.length), item);
+
+            //Keep track of the fact we are using the empty row template
+            tr.data("fromEmptyRowTemplate", true);
+        }
+    }
+
+    function createDefaultEmptyRowTemplate(numCols) {
+        return function (dataItem) {
+            //Since it's an empty row template, we have no data, so we ignore the "dataItem" argument
+            //Let's create a single cell that spans the entire row
+            var singleTD = jpvs.writeTag(this, "td").attr("colspan", numCols);
+
+            //Then let's create an invisible dummy text so the row has the correct height automagically
+            jpvs.writeTag(singleTD, "span", ".").css("visibility", "hidden");
+        };
     }
 
 
@@ -387,24 +419,30 @@ Depends: core, Pager
             var curScrollPos = null;
 
             var cachedData = [];
-            var totalRecords = +Infinity;
+            var totalRecords = null;
 
             //Ensure the scroller is present
             var scroller = getScroller();
 
-            //Load the first chunk of data
-            ensurePageOfDataLoaded(0, updateGrid(0));
+            //Load the first chunk of data (only the visible page for faster turnaround times)
+            jpvs.readDataSource(data, 0, pageSize, onDataLoaded(function () {
+                updateGrid(0);
+
+                //After loading and displaying the first page, load some more records in background
+                jpvs.readDataSource(data, pageSize, chunkSize, onDataLoaded(updateRows));
+            }));
 
             function ensurePageOfDataLoaded(newScrollPos, next) {
                 //Let's make sure we have all the records in memory (at least for the page we have to display)
-                //Let's also check beyond "totalRecords"
                 var start = newScrollPos;
                 var end = start + pageSize;
                 var allPresent = true;
-                for (var i = start; i < end; i++) {
+                var firstMissingIndex;
+                for (var i = start; i < end && i < totalRecords; i++) {
                     var recordPresent = cachedData[i];
                     if (!recordPresent) {
                         allPresent = false;
+                        firstMissingIndex = i;
                         break;
                     }
                 }
@@ -412,20 +450,25 @@ Depends: core, Pager
                 //If we don't have all records in memory, let's call the datasource
                 if (allPresent)
                     next();
-                else
-                    jpvs.readDataSource(data, newScrollPos, chunkSize, onDataLoaded(next));
+                else {
+                    //Read from firstMissingIndex up to firstMissingIndex + chunkSize
+                    var end = Math.min(firstMissingIndex + chunkSize, totalRecords);
+                    var numOfRecsToRead = end - firstMissingIndex;
+                    jpvs.readDataSource(data, firstMissingIndex, numOfRecsToRead, onDataLoaded(next));
+                }
             }
 
             function onDataLoaded(next) {
                 return function (ret) {
                     //Write to cache
-                    totalRecords = ret.total;
+                    if (totalRecords === null)
+                        totalRecords = ret.total;
+
                     var start = ret.start;
                     var count = ret.count;
-                    var requiredCacheLength = start + count;
 
                     //Resize cache if necessary
-                    while (cachedData.length < requiredCacheLength)
+                    while (cachedData.length < totalRecords)
                         cachedData.push(undefined);
 
                     //Now write into the array
@@ -444,34 +487,32 @@ Depends: core, Pager
             }
 
             function updateGrid(newScrollPos) {
-                return function () {
-                    if (curScrollPos === null) {
-                        //First time: write the entire page
-                        refreshPage(newScrollPos);
+                if (curScrollPos === null) {
+                    //First time: write the entire page
+                    refreshPage(newScrollPos);
 
-                        //Fix the scroller size by setting the size explicitly
-                        var scrollerSize = scroller.objectSize();
-                        scroller.objectSize(scrollerSize);
+                    //Fix the scroller size by setting the size explicitly
+                    var scrollerSize = scroller.objectSize();
+                    scroller.objectSize(scrollerSize);
+                }
+                else {
+                    //Not first time. Determine if it's faster to refresh the entire page or to delete/insert selected rows
+                    var delta = newScrollPos - curScrollPos;
+
+                    //"delta" represents the number of rows to delete and the number of new rows to insert
+                    //Refreshing the entire page requires deleting all rows and inserting the entire page (pageSize)
+                    if (Math.abs(delta) < pageSize) {
+                        //Incremental is better
+                        scrollGrid(newScrollPos, delta);
                     }
                     else {
-                        //Not first time. Determine if it's faster to refresh the entire page or to delete/insert selected rows
-                        var delta = newScrollPos - curScrollPos;
-
-                        //"delta" represents the number of rows to delete and the number of new rows to insert
-                        //Refreshing the entire page requires deleting all rows and inserting the entire page (pageSize)
-                        if (Math.abs(delta) < pageSize) {
-                            //Incremental is better
-                            scrollGrid(newScrollPos, delta);
-                        }
-                        else {
-                            //Full redraw is better
-                            refreshPage(newScrollPos);
-                        }
+                        //Full redraw is better
+                        refreshPage(newScrollPos);
                     }
+                }
 
-                    //At the end, the new position becomes the current position
-                    curScrollPos = newScrollPos;
-                };
+                //At the end, the new position becomes the current position
+                curScrollPos = newScrollPos;
             }
 
             function refreshPage(newScrollPos) {
@@ -479,9 +520,9 @@ Depends: core, Pager
                 sectionElement.empty();
 
                 //Add one page of rows
-                var end = Math.min(cachedData.length, newScrollPos + pageSize);
+                var end = Math.min(newScrollPos + pageSize, totalRecords);
                 for (var i = newScrollPos; i < end; i++)
-                    addRow(W, sectionName, sectionElement, cachedData[i] || {});
+                    addRow(W, sectionName, sectionElement, cachedData[i]);
             }
 
             function scrollGrid(newScrollPos, delta) {
@@ -491,8 +532,10 @@ Depends: core, Pager
 
                     var i = newScrollPos + pageSize - delta;
                     var j = 0;
-                    while (j++ < delta)
-                        addRow(W, sectionName, sectionElement, cachedData[i++] || {});
+                    while (j++ < delta) {
+                        if (i < totalRecords)
+                            addRow(W, sectionName, sectionElement, cachedData[i++]);
+                    }
                 }
                 else if (delta < 0) {
                     delta = -delta;
@@ -502,8 +545,35 @@ Depends: core, Pager
 
                     var i = newScrollPos;
                     var j = 0;
-                    while (j < delta)
-                        addRow(W, sectionName, sectionElement, cachedData[i++] || {}, j++);
+                    while (j < delta) {
+                        if (i < totalRecords)
+                            addRow(W, sectionName, sectionElement, cachedData[i++], j++);
+                    }
+                }
+            }
+
+            function updateRows() {
+                //Row templates
+                var tmpl = W.template();
+                var emptyRowTmpl = W.emptyRowTemplate();
+
+                //See what records are visible
+                var visibleRows = sectionElement.children("tr");
+                var start = curScrollPos;
+                var end = start + visibleRows.length;
+
+                //Update the rows, if we now have the data
+                var j = 0;
+                for (var i = start; i < end; i++) {
+                    var item = cachedData[i];
+                    var tr = visibleRows.eq(j++);
+
+                    //Only if the row is empty, substitute the cells with up-to-date values
+                    //If the row is not empty, leave it unchanged
+                    if (item && tr.data("fromEmptyRowTemplate")) {
+                        if (tmpl)
+                            applyRowTemplate(tr, sectionName, tmpl, emptyRowTmpl, item);
+                    }
                 }
             }
 
@@ -538,8 +608,14 @@ Depends: core, Pager
 
             function onScrollChange() {
                 var newScrollPos = Math.min(totalRecords, Math.floor(this.scrollPosition().top));
-                //updateGrid(newScrollPos)();
-                ensurePageOfDataLoaded(newScrollPos, updateGrid(newScrollPos));
+
+                //Update immediately scrolling the rows to "newScrollPos", even if no data is in cache (in that case,
+                //the missing records are rendered by the "emptyRowTemplate")
+                updateGrid(newScrollPos);
+
+                //Then, call the datasource and update the rows as soon as they arrive from the datasource, without scrolling
+                //(because we already did the scrolling in "updateGrid")
+                ensurePageOfDataLoaded(newScrollPos, updateRows);
             }
         }
 

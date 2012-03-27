@@ -2237,6 +2237,8 @@ Depends: core, Pager
     jpvs.DataGrid.scrollingBinder = function (params) {
         var pageSize = (params && params.pageSize) || 10;
         var chunkSize = (params && params.chunkSize) || (5 * pageSize);
+        var forcedWidth = (params && params.width);
+        var forcedHeight = (params && params.height);
 
         function binder(section, data) {
             var W = this;
@@ -2247,6 +2249,10 @@ Depends: core, Pager
 
             var cachedData = [];
             var totalRecords = null;
+
+            //In this variables we keep the maximum grid size encountered
+            var maxGridWidth = 0;
+            var maxGridHeight = 0;
 
             //Ensure the scroller is present
             var scroller = getScroller();
@@ -2286,6 +2292,7 @@ Depends: core, Pager
             }
 
             function onDataLoaded(next) {
+                //This function gets called whenever new records are returned from the data source
                 return function (ret) {
                     //Write to cache
                     if (totalRecords === null)
@@ -2303,10 +2310,6 @@ Depends: core, Pager
                     while (j < count)
                         cachedData[i++] = ret.data[j++];
 
-                    //Update the scroller
-                    scroller.visibleSize({ width: 100, height: pageSize });
-                    scroller.totalSize({ width: 100, height: Math.max(1, totalRecords - pageSize + 3) });
-
                     //Call the next function
                     if (next)
                         next();
@@ -2317,10 +2320,6 @@ Depends: core, Pager
                 if (curScrollPos === null) {
                     //First time: write the entire page
                     refreshPage(newScrollPos);
-
-                    //Fix the scroller size by setting the size explicitly
-                    var scrollerSize = scroller.objectSize();
-                    scroller.objectSize(scrollerSize);
                 }
                 else {
                     //Not first time. Determine if it's faster to refresh the entire page or to delete/insert selected rows
@@ -2350,6 +2349,9 @@ Depends: core, Pager
                 var end = Math.min(newScrollPos + pageSize, totalRecords);
                 for (var i = newScrollPos; i < end; i++)
                     addRow(W, sectionName, sectionElement, cachedData[i]);
+
+                //Refresh the scroller
+                refreshScroller();
             }
 
             function scrollGrid(newScrollPos, delta) {
@@ -2377,6 +2379,9 @@ Depends: core, Pager
                             addRow(W, sectionName, sectionElement, cachedData[i++], j++);
                     }
                 }
+
+                //After the move, refresh the scroller
+                refreshScroller();
             }
 
             function updateRows() {
@@ -2384,12 +2389,13 @@ Depends: core, Pager
                 var tmpl = W.template();
                 var emptyRowTmpl = W.emptyRowTemplate();
 
-                //See what records are visible
+                //See what records are displayed
                 var visibleRows = sectionElement.children("tr");
                 var start = curScrollPos;
                 var end = start + visibleRows.length;
 
                 //Update the rows, if we now have the data
+                var updatedSomething = false;
                 var j = 0;
                 for (var i = start; i < end; i++) {
                     var item = cachedData[i];
@@ -2398,10 +2404,16 @@ Depends: core, Pager
                     //Only if the row is empty, substitute the cells with up-to-date values
                     //If the row is not empty, leave it unchanged
                     if (item && tr.data("fromEmptyRowTemplate")) {
-                        if (tmpl)
+                        if (tmpl) {
                             applyRowTemplate(tr, sectionName, tmpl, emptyRowTmpl, item);
+                            updatedSomething = true;
+                        }
                     }
                 }
+
+                //Refresh the scroller
+                if (updatedSomething)
+                    refreshScroller();
             }
 
             function getScroller() {
@@ -2422,8 +2434,23 @@ Depends: core, Pager
                     scroller.element.attr("id", scrollerId);
                     W.element.data("scrollerId", scrollerId);
 
-                    //Move the DataGrid inside the scroller, so the scroller gets the same size as the DataGrid
-                    scroller.element.append(W.element);
+                    //Move the DataGrid inside the scroller
+                    scroller.content.append(W.element);
+
+                    //Setup the content area so that it's virtually unlimited and causes no text-wrapping or column-shrinking
+                    //To do this, we just set it "wide enough"
+                    //The height does not matter much, because the real scrolling only occurs horizontally (vertically, we only
+                    //simulate scrolling by moving rows in the DataGrid)
+                    scroller.contentSize({ width: "1000%", height: "200%" });
+
+                    //Measure the grid
+                    measureMaxGridSize();
+
+                    //Set the scroller bounding box size
+                    scroller.objectSize({
+                        width: maxGridWidth + scroller.scrollbarW,
+                        height: maxGridHeight + scroller.scrollbarH
+                    });
                 }
 
                 //Bind events
@@ -2434,15 +2461,56 @@ Depends: core, Pager
             }
 
             function onScrollChange() {
-                var newScrollPos = Math.min(totalRecords, Math.floor(this.scrollPosition().top));
+                //Current scroll position
+                var scrollPos = this.scrollPosition();
+
+                //Horizontal scrolling: connect scroll position to content position directly, so the horizontal scrollbar immediately
+                //moves the grid on the horizontal axis
+                //Vertical scrolling: don't move content here because we artificially scroll rows in the DataGrid
+                var newHorzPos = scrollPos.left;
+                var newVertPos = 0;
+                this.contentPosition({ top: newVertPos, left: newHorzPos });
+
+                //Now handle the vertical scrolling by artificially moving rows in the DataGrid
+                //measureMaxGridSize();
+                var maxST = maxGridHeight / pageSize * totalRecords - maxGridHeight;
+                var newScrollPos = Math.min(totalRecords, Math.floor(scrollPos.top / maxST * (totalRecords - pageSize + 5)));
 
                 //Update immediately scrolling the rows to "newScrollPos", even if no data is in cache (in that case,
-                //the missing records are rendered by the "emptyRowTemplate")
+                //the missing records are rendered by the grid's "emptyRowTemplate")
                 updateGrid(newScrollPos);
 
                 //Then, call the datasource and update the rows as soon as they arrive from the datasource, without scrolling
                 //(because we already did the scrolling in "updateGrid")
                 ensurePageOfDataLoaded(newScrollPos, updateRows);
+            }
+
+            function measureMaxGridSize() {
+                var gridSize = {
+                    width: W.element.outerWidth(),
+                    height: W.element.outerHeight()
+                };
+
+                maxGridHeight = Math.max(maxGridHeight, gridSize.height);
+                maxGridWidth = Math.max(maxGridWidth, gridSize.width);
+            }
+
+            function refreshScroller() {
+                if (!scroller)
+                    return;
+
+                //Let's adjust the scrollbars to reflect the content (the DataGrid)
+                measureMaxGridSize();
+                var totalGridHeight = maxGridHeight / pageSize * totalRecords;
+
+                //The scrollable area is as wide as the grid and as high as the total grid height
+                scroller.scrollableSize({ width: maxGridWidth, height: totalGridHeight });
+
+                //Set the scroller bounding box size
+                scroller.objectSize({
+                    width: forcedWidth || (maxGridWidth + scroller.scrollbarW),
+                    height: forcedHeight || (maxGridHeight + scroller.scrollbarH)
+                });
             }
         }
 
@@ -2751,7 +2819,7 @@ Depends: core, LinkButton
                         var cmbPages = this.element.data("cmbPages");
                         cmbPages.clearItems();
                         for (var i = 0; i < value; i++)
-                            cmbPages.addItem(i.toString(), jpvs.Pager.strings.pag + " " + (i + 1));
+                            cmbPages.addItem(i.toString(), jpvs.Pager.strings.pag + " " + (i + 1) + " / " + value);
                     }
 
                     this.element.data("totalPages", value);
@@ -3143,30 +3211,61 @@ Depends: core
 
         create: function (container) {
             var obj = document.createElement("div");
+            $(obj).css({ position: "relative", width: "200px", height: "200px" });
             $(container).append(obj);
             return obj;
         },
 
         init: function (W) {
-            /* Create a DIV with a bigger DIV inside, so as to display scrollbars. */
-            W.scroller = $(document.createElement("div"));
-            W.scrollerContent = $(document.createElement("div"));
+            //Create a content box DIV with overflow hidden, same size as the widget
+            W.contentBox = jpvs.writeTag(W.element, "div").css({
+                position: "absolute",
+                left: "0px", top: "0px",
+                width: "100%", height: "100%",
+                overflow: "hidden"
+            });
 
-            W.element.append(W.scroller).css({ position: "relative" });
-            W.scroller.append(W.scrollerContent);
+            //Inside the content box, create a content DIV that will hold the actual content
+            W.content = jpvs.writeTag(W.contentBox, "div").css({
+                position: "absolute",
+                left: "0px", top: "0px",
+                width: "100%", height: "100%",
+                overflow: "hidden"
+            });
 
-            W.scroller.css({ position: "absolute", left: "0px", top: "0px", overflow: "auto" });
+            //Create a scroller box DIV, that completely overlaps the content box, with overflow auto
+            W.scrollerBox = jpvs.writeTag(W.element, "div").css({
+                position: "absolute",
+                left: "0px", top: "0px",
+                width: "100%", height: "100%",
+                overflow: "auto"
+            });
+
+            //Inside the scroller box, create a DIV that is used as a sizer for the scrollbars of the scroller box
+            W.scrollerSizer = jpvs.writeTag(W.scrollerBox, "div").css({
+                position: "absolute",
+                left: "0px", top: "0px",
+                width: "100%", height: "100%",
+                overflow: "hidden"
+            });
 
             //Measure scrollbars
-            W.scrollerContent.width("100%").height("100%");
-            W.scrollbarW = W.scroller.innerWidth() - W.scrollerContent.innerWidth();
+            var parkOverflow = W.scrollerBox.css("overflow");
+            W.scrollerBox.css("overflow", "scroll");
+            var width1 = W.scrollerSizer.innerWidth();
+            var width2 = W.scrollerBox.innerWidth();
+            W.scrollerBox.css("overflow", parkOverflow);
+
+            W.scrollbarW = Math.abs(width1 - width2);
             W.scrollbarH = W.scrollbarW;
 
-            //Refresh
-            refreshScroller(W);
+            //After measuring scrollbars, set the CSS width to 100%
+            W.scrollerSizer.css({
+                width: "100%", height: "100%"
+            });
 
             //Events
-            W.scroller.scroll(onScroll(W));
+            W.scrollerBox.scroll(onScroll(W));
         },
 
         canAttachTo: function (obj) {
@@ -3183,74 +3282,59 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.width(value.width).height(value.height);
-                    refreshScroller(this);
                 }
             }),
 
-            visibleSize: jpvs.property({
+            scrollableSize: jpvs.property({
                 get: function () {
-                    return this.element.data("visibleSize") || { width: "50", height: "40" };
+                    return {
+                        width: this.scrollerSizer.width(),
+                        height: this.scrollerSizer.height()
+                    };
                 },
                 set: function (value) {
-                    this.element.data("visibleSize", value);
-                    refreshScroller(this);
+                    this.scrollerSizer.width(value.width).height(value.height);
                 }
             }),
 
-            totalSize: jpvs.property({
+            contentSize: jpvs.property({
                 get: function () {
-                    return this.element.data("totalSize") || { width: "500", height: "400" };
+                    return {
+                        width: this.content.width(),
+                        height: this.content.height()
+                    };
                 },
                 set: function (value) {
-                    this.element.data("totalSize", value);
-                    refreshScroller(this);
+                    this.content.width(value.width).height(value.height);
                 }
             }),
 
             scrollPosition: jpvs.property({
                 get: function () {
-                    var st = this.scroller.scrollTop();
-                    var sl = this.scroller.scrollLeft();
+                    var st = this.scrollerBox.scrollTop();
+                    var sl = this.scrollerBox.scrollLeft();
 
-                    var ts = this.totalSize();
+                    return { top: st, left: sl };
+                },
+                set: function (value) {
+                    this.scrollerBox.scrollTop(value.top).scrollLeft(value.left);
+                }
+            }),
 
-                    var ss = {
-                        width: this.scroller.innerWidth(),
-                        height: this.scroller.innerHeight()
-                    };
+            contentPosition: jpvs.property({
+                get: function () {
+                    var st = this.contentBox.scrollTop();
+                    var sl = this.contentBox.scrollLeft();
 
-                    var scs = {
-                        width: this.scrollerContent.innerWidth(),
-                        height: this.scrollerContent.innerHeight()
-                    };
-
-                    var maxST = scs.height - ss.height;
-                    var maxSL = scs.width - ss.width;
-
-                    var T = Math.min(ts.height, st / maxST * ts.height);
-                    var L = Math.min(ts.width, sl / maxSL * ts.width);
-
-                    return { top: T, left: L };
+                    return { top: st, left: sl };
+                },
+                set: function (value) {
+                    this.contentBox.scrollTop(value.top).scrollLeft(value.left);
                 }
             })
         }
     });
 
-
-    function refreshScroller(W) {
-        //Set scroller's size equal to widget's size plus scrollbars
-        var size = W.objectSize();
-        //size.width += W.scrollbarW;
-        size.height += W.scrollbarH;
-        W.scroller.css(size);
-
-        //Set scrollbars, as needed
-        var vs = W.visibleSize();
-        var ts = W.totalSize();
-        var ratioX = ts.width / vs.width * 100 + "%";
-        var ratioY = ts.height / vs.height * 100 + "%";
-        W.scrollerContent.css({ width: ratioX, height: ratioY });
-    }
 
     function onScroll(W) {
         return function () {

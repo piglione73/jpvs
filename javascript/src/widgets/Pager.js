@@ -93,7 +93,7 @@ Depends: core, LinkButton
                         var cmbPages = this.element.data("cmbPages");
                         cmbPages.clearItems();
                         for (var i = 0; i < value; i++)
-                            cmbPages.addItem(i.toString(), jpvs.Pager.strings.pag + " " + (i + 1));
+                            cmbPages.addItem(i.toString(), jpvs.Pager.strings.pag + " " + (i + 1) + " / " + value);
                     }
 
                     this.element.data("totalPages", value);

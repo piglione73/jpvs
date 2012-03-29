@@ -1,7 +1,7 @@
 ﻿/* JPVS
 Module: core
 Classes: jpvs
-Depends:
+Depends: bootstrap
 */
 
 //All widget definitions
@@ -419,3 +419,45 @@ jpvs.readDataSource = function (data, start, count, callback) {
 };
 
 
+jpvs.showDimScreen = function (delayMilliseconds, fadeInDuration, template) {
+    //Schedule creation
+    if (jpvs.showDimScreen.timeout)
+        return;
+
+    jpvs.showDimScreen.timeout = setTimeout(create, delayMilliseconds != null ? delayMilliseconds : 500);
+
+    function create() {
+        jpvs.showDimScreen.timeout = null;
+
+        if (jpvs.showDimScreen.element)
+            return;
+
+        //Create a DIV that covers the entire window
+        jpvs.showDimScreen.element = jpvs.writeTag("body", "div").addClass("DimScreen").css({
+            position: "fixed",
+            top: "0px", left: "0px", width: "100%", height: "100%",
+            display: "none"
+        });
+
+        //If provided, we can use a custom template for filling the DIV
+        jpvs.applyTemplate(jpvs.showDimScreen.element, template);
+
+        //Finally, fade in the DIV
+        jpvs.showDimScreen.element.fadeIn(fadeInDuration != null ? fadeInDuration : 250);
+    }
+};
+
+jpvs.hideDimScreen = function (fadeOutDuration) {
+    //If we are still waiting for the timeout to elapse, simply cancel the timeout
+    if (jpvs.showDimScreen.timeout) {
+        clearTimeout(jpvs.showDimScreen.timeout);
+        jpvs.showDimScreen.timeout = null;
+    }
+
+    //If a screen dimmer is present, fade it out and remove it
+    if (jpvs.showDimScreen.element) {
+        var x = jpvs.showDimScreen.element;
+        jpvs.showDimScreen.element = null;
+        x.fadeOut(fadeOutDuration != null ? fadeOutDuration : 250, function () { x.remove(); });
+    }
+};

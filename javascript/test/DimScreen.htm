@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>DimScreen</title>
+    <style type="text/css">
+        .DimScreen
+        {
+            background-color: rgba(0,0,0,0.5);
+        }
+    </style>
+    <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript">
+        jpvs(function ($W) {
+            $W.btnTest1.click(function () { jpvs.showDimScreen(0); });
+            $W.btnTest2.click(function () { jpvs.showDimScreen(2000); });
+            $W.btnTest3.click(function () { jpvs.showDimScreen(null, null, template); });
+            $W.btnTest4.click(function () { jpvs.showDimScreen(0, 0, template); });
+
+            $(window).keypress(function (e) {
+                if (e.which == 27)
+                    jpvs.hideDimScreen();
+            });
+
+            function template() {
+                var tbl = jpvs.writeTag(this, "table").css({ width: "100%", height: "100%" });
+                var tbody = jpvs.writeTag(tbl, "tbody");
+                var tr = jpvs.writeTag(tbody, "tr");
+                var td = jpvs.writeTag(tr, "td").css("text-align", "center");
+                jpvs.writeTag(td, "img").attr("src", jpvs.Resources.images.loading);
+            }
+        });
+    </script>
+</head>
+<body>
+    <p>Press a button to dim the screen. Press ESC to undim.</p>
+    <button id="btnTest1">Simple with no delay</button>
+    <button id="btnTest2">Simple with delay</button>
+    <button id="btnTest3">Templated</button>
+    <button id="btnTest4">Templated with no delay and no animation</button>
+</body>
+</html>

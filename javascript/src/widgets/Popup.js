@@ -250,7 +250,7 @@ Depends: core, ImageButton
                 continue;
 
             if (typeof (arg) == "string") {
-                //First text then title
+                //First try (text) then (title, text)
                 if (!okText) {
                     params.text = arg;
                     okText = true;

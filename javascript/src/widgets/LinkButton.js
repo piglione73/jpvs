@@ -17,7 +17,6 @@ jpvs.makeWidget({
 
     create: function (container) {
         var obj = document.createElement("a");
-        $(obj).attr("href", "#");
         $(container).append(obj);
         return obj;
     },
@@ -26,6 +25,7 @@ jpvs.makeWidget({
         W.element.attr("href", "#");
         this.element.click(function () {
             W.click.fire(W);
+            return false;
         });
     },
 

@@ -70,10 +70,13 @@
 
             p.customEvent.bind(function () { alert("Composite custom event"); c.checked(!c.checked()); });
 
-            $W.scrl.change(function () {
+            $W.scrl.objectSize({ width: "100%", height: "5em" }).change(function () {
                 var scrlPos = this.scrollPosition();
+                this.contentPosition(scrlPos);
                 $("#lbl").text("TOP=" + scrlPos.top + ", LEFT=" + scrlPos.left);
             });
+
+            jpvs.LinkButton.create("#divLink").text("Click me").click(function () { alert("Thanks!"); });
         });
     </script>
 </head>
@@ -82,6 +85,7 @@
     <div id="pnl2"></div>
 
     <div id="scrl" data-jpvs-type="Scroller">
+        FIRST<br />
         aaaaaaaaaaaaaaaaaaaaa<br />
         aaaaaaaaaaaaaaaaaaaaa<br />
         aaaaaaaaaaaaaaaaaaaaa<br />
@@ -93,13 +97,70 @@
         aaaaaaaaaaaaaaaaaaaaa<br />
         aaaaaaaaaaaaaaaaaaaaa<br />
         aaaaaaaaaaaaaaaaaaaaa<br />
-        aaaaaaaaaaaaaaaaaaaaa<br />
-        bbbbBBBB<br />
+        LAST<br />
     </div>
     <br />
     <br />
     <br />
     <br />
     <div id="lbl"></div>
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <div id="divLink"></div>
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    End of page
 </body>
 </html>

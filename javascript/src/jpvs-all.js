@@ -2754,7 +2754,6 @@ jpvs.makeWidget({
 
     create: function (container) {
         var obj = document.createElement("a");
-        $(obj).attr("href", "#");
         $(container).append(obj);
         return obj;
     },
@@ -2763,6 +2762,7 @@ jpvs.makeWidget({
         W.element.attr("href", "#");
         this.element.click(function () {
             W.click.fire(W);
+            return false;
         });
     },
 
@@ -3268,12 +3268,23 @@ Depends: core
 
         create: function (container) {
             var obj = document.createElement("div");
-            $(obj).css({ position: "relative", width: "200px", height: "200px" });
             $(container).append(obj);
             return obj;
         },
 
         init: function (W) {
+            //Park the size
+            var parkedSize = {
+                width: W.element.width(),
+                height: W.element.height()
+            };
+
+            //Make the div a container for scrolling
+            W.element.css({ position: "relative", width: "200px", height: "200px" });
+
+            //Park the content for later inclusion in the appropriate DIV
+            var parkedContent = W.element.contents();
+
             //Create a content box DIV with overflow hidden, same size as the widget
             W.contentBox = jpvs.writeTag(W.element, "div").css({
                 position: "absolute",
@@ -3323,6 +3334,12 @@ Depends: core
 
             //Events
             W.scrollerBox.scroll(onScroll(W));
+
+            //Finally, copy the content into the "content" DIV and set sizes
+            W.content.append(parkedContent);
+            parkedSize.height += W.scrollbarH;
+            parkedSize.width += W.scrollbarW;
+            W.scrollableSize(parkedSize).contentSize(parkedSize);
         },
 
         canAttachTo: function (obj) {

@@ -3138,7 +3138,7 @@ Depends: core, ImageButton
                 continue;
 
             if (typeof (arg) == "string") {
-                //First text then title
+                //First try (text) then (title, text)
                 if (!okText) {
                     params.text = arg;
                     okText = true;
@@ -3336,10 +3336,12 @@ Depends: core
             W.scrollerBox.scroll(onScroll(W));
 
             //Finally, copy the content into the "content" DIV and set sizes
-            W.content.append(parkedContent);
-            parkedSize.height += W.scrollbarH;
-            parkedSize.width += W.scrollbarW;
-            W.scrollableSize(parkedSize).contentSize(parkedSize);
+            if (parkedContent.length) {
+                W.content.append(parkedContent);
+                parkedSize.height += W.scrollbarH;
+                parkedSize.width += W.scrollbarW;
+                W.scrollableSize(parkedSize).contentSize(parkedSize);
+            }
         },
 
         canAttachTo: function (obj) {

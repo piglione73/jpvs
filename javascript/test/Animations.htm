@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Animations</title>
+    <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Animations.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript">
+        jpvs(function ($W) {
+            $W.btnCont.click(continuous);
+            $W.btnCont2.click(continuous2);
+            $W.btnDisc.click(discrete);
+
+            function dur() { return parseInt($("#dur").val()); }
+
+            function continuous() {
+                jpvs.animate({ t0: 0, t1: 100, duration: dur() }, animFunc);
+                jpvs.animate({ t0: 100, t1: 0, duration: dur() }, animFunc);
+            }
+
+            function continuous2() {
+                jpvs.animate({ t0: 0, t1: 100, duration: dur(), easingFunction: jpvs.animate.linearEasing }, animFunc);
+                jpvs.animate({ t0: 100, t1: 0, duration: dur(), easingFunction: jpvs.animate.linearEasing }, animFunc);
+            }
+
+            function discrete() {
+                jpvs.animate({ t0: 0, t1: 100, step: 25, duration: dur() }, animFunc);
+                jpvs.animate({ t0: 100, t1: 0, step: 25, duration: dur() }, animFunc);
+            }
+
+            function animFunc(t) {
+                var x = t + 100;
+                var y = t + 100;
+
+                $("#obj").css({
+                    top: x + "px",
+                    left: y + "px"
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="obj" style="position: absolute; top: 100px; left: 100px; width: 10px; height: 10px;
+        background: #000">
+    </div>
+    <div style="position: absolute; top: 100px; left: 100px; width: 110px; height: 110px; border:1px solid #800">
+    </div>
+    <button id="btnCont">Continuous</button>
+    <button id="btnCont2">Continuous linear</button>
+    <button id="btnDisc">Discrete</button>
+    <input id="dur" value="1000" />
+</body>
+</html>

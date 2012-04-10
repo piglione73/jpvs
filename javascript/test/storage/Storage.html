@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="../../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../../libs/qunit.js"></script>
+    <link rel="stylesheet" href="../../libs/qunit.css" type="text/css" />
+    <title>Storage</title>
+    <!--
+    *********************************************************
+    Test code
+    *********************************************************
+    -->
+    <script type="text/javascript" src="../../src/jpvs.js"></script>
+    <script type="text/javascript" src="../../src/JSON.js"></script>
+    <script type="text/javascript" src="../../src/Random.js"></script>
+    <script type="text/javascript" src="../../src/storage/Storage.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            test("Domains", function () {
+                sessionStorage.clear();
+
+                var domains = jpvs.Storage.listDomains(sessionStorage);
+                equal(domains.length, 0);
+
+                jpvs.Storage.getDomain(sessionStorage, "Test 1");
+                domains = jpvs.Storage.listDomains(sessionStorage);
+                equal(domains.length, 1);
+
+                jpvs.Storage.getDomain(sessionStorage, "Test 2");
+                domains = jpvs.Storage.listDomains(sessionStorage);
+                equal(domains.length, 2);
+
+                var d1 = jpvs.Storage.getDomain(sessionStorage, "Test 1");
+                var d2 = jpvs.Storage.getDomain(sessionStorage, "Test 2");
+                notEqual(d1.id, d2.id);
+                equal(d1.name, "Test 1");
+                equal(d2.name, "Test 2");
+            });
+
+            test("Data", function () {
+                sessionStorage.clear();
+
+                var d1 = jpvs.Storage.getDomain(sessionStorage, "Test 1");
+                var d2 = jpvs.Storage.getDomain(sessionStorage, "Test 2");
+
+                equal(d1.getCount(), 0);
+                equal(d2.getCount(), 0);
+
+                d1.setItem(0, { A: 1, B: 2 });
+                d1.setItem(1, { A: 2, B: 3 });
+                d1.setItem(1, { A: 3, B: 4 });
+                d1.setItem(10, { A: 5, B: 6 });
+
+                d2.setItem(0, { A: 1, B: 20 });
+
+                equal(d1.getCount(), 11);
+                equal(d2.getCount(), 1);
+
+                d1.removeItem(10);
+                equal(d1.getCount(), 2);
+                equal(d2.getCount(), 1);
+
+                deepEqual(d1.getItem(0), { A: 1, B: 2 });
+                deepEqual(d1.getItem(1), { A: 3, B: 4 });
+                deepEqual(d2.getItem(0), { A: 1, B: 20 });
+
+                var list = d1.listItems();
+                deepEqual(list, [{ A: 1, B: 2 },{ A: 3, B: 4 }]);
+
+                d1.removeItem(0);
+                equal(d1.getCount(), 2);
+                equal(d2.getCount(), 1);
+
+                deepEqual(d1.getItem(0), null);
+                deepEqual(d1.getItem(1), { A: 3, B: 4 });
+
+                list = d1.listItems();
+                deepEqual(list, [null, { A: 3, B: 4}]);
+
+            });
+
+        });
+    </script>
+</head>
+<body>
+    <h1 id="qunit-header">
+        Test</h1>
+    <h2 id="qunit-banner">
+    </h2>
+    <div id="qunit-testrunner-toolbar">
+    </div>
+    <h2 id="qunit-userAgent">
+    </h2>
+    <ol id="qunit-tests">
+    </ol>
+    <div id="qunit-fixture">
+        test markup, will be hidden</div>
+</body>
+</html>

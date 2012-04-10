@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../libs/qunit.js"></script>
+    <link rel="stylesheet" href="../libs/qunit.css" type="text/css" />
+    <title>JSON</title>
+    <!--
+    *********************************************************
+    Test code
+    *********************************************************
+    -->
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/JSON.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            test("Simple objects", function () {
+                strictEqual(jpvs.toJSON(null), "null");
+                strictEqual(jpvs.toJSON(1), "1");
+                strictEqual(jpvs.toJSON("AAA"), "\"AAA\"");
+                strictEqual(jpvs.toJSON([1, 2, 3]), "[1,2,3]");
+                strictEqual(jpvs.toJSON({ A: 1, B: "2", C: false }), "{\"A\":1,\"B\":\"2\",\"C\":false}");
+            });
+
+            test("Complex objects", function () {
+                strictEqual(jpvs.toJSON({ A: "1", B: "2", C: { A: 1, B: 2 }, D: [1, 2] }), "{\"A\":\"1\",\"B\":\"2\",\"C\":{\"A\":1,\"B\":2},\"D\":[1,2]}");
+            });
+
+        });
+    </script>
+</head>
+<body>
+    <h1 id="qunit-header">
+        Test</h1>
+    <h2 id="qunit-banner">
+    </h2>
+    <div id="qunit-testrunner-toolbar">
+    </div>
+    <h2 id="qunit-userAgent">
+    </h2>
+    <ol id="qunit-tests">
+    </ol>
+    <div id="qunit-fixture">
+        test markup, will be hidden</div>
+</body>
+</html>

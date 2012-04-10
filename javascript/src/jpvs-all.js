@@ -1025,6 +1025,160 @@ jpvs.Event.prototype.fire = function (widget, handlerName, params) {
     }
 };
 
+/* JPVS
+Module: utils
+Classes: 
+Depends: core
+*/
+
+/**
+* jQuery JSON Plugin
+* version: 2.3 (2011-09-17)
+*
+* This document is licensed as free software under the terms of the
+* MIT License: http://www.opensource.org/licenses/mit-license.php
+*
+* Brantley Harris wrote this plugin. It is based somewhat on the JSON.org
+* website's http://www.json.org/json2.js, which proclaims:
+* "NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.", a sentiment that
+* I uphold.
+*
+* It is also influenced heavily by MochiKit's serializeJSON, which is
+* copyrighted 2005 by Bob Ippolito.
+*/
+
+(function () {
+
+    var escapeable = /["\\\x00-\x1f\x7f-\x9f]/g,
+		meta = {
+		    '\b': '\\b',
+		    '\t': '\\t',
+		    '\n': '\\n',
+		    '\f': '\\f',
+		    '\r': '\\r',
+		    '"': '\\"',
+		    '\\': '\\\\'
+		};
+
+    /**
+    * jpvs.toJSON
+    * Converts the given argument into a JSON respresentation.
+    *
+    * @param o {Mixed} The json-serializable *thing* to be converted
+    *
+    * If an object has a toJSON prototype, that will be used to get the representation.
+    * Non-integer/string keys are skipped in the object, as are keys that point to a
+    * function.
+    *
+    */
+    jpvs.toJSON = typeof JSON === 'object' && JSON.stringify
+		? JSON.stringify
+		: function (o) {
+
+		    if (o === null) {
+		        return 'null';
+		    }
+
+		    var type = typeof o;
+
+		    if (type === 'undefined') {
+		        return undefined;
+		    }
+		    if (type === 'number' || type === 'boolean') {
+		        return '' + o;
+		    }
+		    if (type === 'string') {
+		        return quoteString(o);
+		    }
+		    if (type === 'object') {
+		        if (typeof o.toJSON === 'function') {
+		            return jpvs.toJSON(o.toJSON());
+		        }
+		        if (o.constructor === Date) {
+		            var month = o.getUTCMonth() + 1,
+					day = o.getUTCDate(),
+					year = o.getUTCFullYear(),
+					hours = o.getUTCHours(),
+					minutes = o.getUTCMinutes(),
+					seconds = o.getUTCSeconds(),
+					milli = o.getUTCMilliseconds();
+
+		            if (month < 10) {
+		                month = '0' + month;
+		            }
+		            if (day < 10) {
+		                day = '0' + day;
+		            }
+		            if (hours < 10) {
+		                hours = '0' + hours;
+		            }
+		            if (minutes < 10) {
+		                minutes = '0' + minutes;
+		            }
+		            if (seconds < 10) {
+		                seconds = '0' + seconds;
+		            }
+		            if (milli < 100) {
+		                milli = '0' + milli;
+		            }
+		            if (milli < 10) {
+		                milli = '0' + milli;
+		            }
+		            return '"' + year + '-' + month + '-' + day + 'T' +
+					hours + ':' + minutes + ':' + seconds +
+					'.' + milli + 'Z"';
+		        }
+		        if (o.constructor === Array) {
+		            var ret = [];
+		            for (var i = 0; i < o.length; i++) {
+		                ret.push(jpvs.toJSON(o[i]) || 'null');
+		            }
+		            return '[' + ret.join(',') + ']';
+		        }
+		        var name,
+				val,
+				pairs = [];
+		        for (var k in o) {
+		            type = typeof k;
+		            if (type === 'number') {
+		                name = '"' + k + '"';
+		            } else if (type === 'string') {
+		                name = quoteString(k);
+		            } else {
+		                // Keys must be numerical or string. Skip others
+		                continue;
+		            }
+		            type = typeof o[k];
+
+		            if (type === 'function' || type === 'undefined') {
+		                // Invalid values like these return undefined
+		                // from toJSON, however those object members
+		                // shouldn't be included in the JSON string at all.
+		                continue;
+		            }
+		            val = jpvs.toJSON(o[k]);
+		            pairs.push(name + ':' + val);
+		        }
+		        return '{' + pairs.join(',') + '}';
+		    }
+		};
+
+    function quoteString(string) {
+        if (string.match(escapeable)) {
+            return '"' + string.replace(escapeable, function (a) {
+                var c = meta[a];
+                if (typeof c === 'string') {
+                    return c;
+                }
+                c = a.charCodeAt();
+                return '\\u00' + Math.floor(c / 16).toString(16) + (c % 16).toString(16);
+            }) + '"';
+        }
+        return '"' + string + '"';
+    }
+
+})();
+
 /*
 ****************************************
 SVG-to-JSON parser
@@ -1937,6 +2091,185 @@ jpvs.Resources = {
         closeButtonHover: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAENSURBVDhPY9TW1v6rqqrKxEAGuHHjBgOjo6Pjn717994lQz+Dk5OTGlk2I1uGYcDs2bNlm5qa1N6+fcuKrPDUqVP8IHEQjdeA1NTUxyAF69atk4ApBBm2Y8cOcQ8Pj5dmZmYf8RoAkoyMjHzy/PlzTphtIMMkJSW/o2sGqcUaBsBY+WZkZPQBZOuWLVvEQIYFBQW9wBbQOAPRx8fnFcjWc+fOCYBcJCws/JskA0CKQTaD6Js3b/LgimacLgDFBsgFINtBrrh9+zYX0S4ABR7M37DwWL58uQxRBiBHGczfoPAAaQa5Ct0QFC+ANE+dOlURW5TBohYUK8iGDHxeYFRRUfkrIyNDVqZ68OABAwDuhIRQ92DTiAAAAABJRU5ErkJggg=="
     }
 };
+
+/*
+*************************************************
+Storage (backed by localStorage/sessionStorage)
+*************************************************
+
+
+
+EXAMPLE
+
+var d1 = Storage.getDomain(localStorage, "Domain 1");
+var d2 = Storage.getDomain(sessionStorage, "Domain 2");
+
+d1.addItem({ col1: "Val 1", col2: "Val2", col3: [ "A", "B", "C" ] });
+d1.addItem({ col1: "Val 1b", col2: "Val2b" });
+
+d2.addItem({ A: "AAA", "B": "BBB" });
+
+d1.each(function(item, i) {
+...
+});
+
+d1.remove(0);
+
+var first = d1.get(0);
+var N = d1.length();
+*/
+
+/* JPVS
+Module: storage
+Classes: Storage
+Depends: core, utils
+*/
+(function () {
+
+    var KEY_PREFIX = "jpvs.Storage.";
+    var KEY_PREFIX_LEN = KEY_PREFIX.length;
+
+    function getObject(storage, key, defaultObj) {
+        var objAsString = storage[KEY_PREFIX + key];
+        if (!objAsString)
+            return defaultObj;
+
+        var obj = $.parseJSON(objAsString);
+        return obj;
+    }
+
+    function setObject(storage, key, obj) {
+        var objAsString = jpvs.toJSON(obj);
+        storage[KEY_PREFIX + key] = objAsString;
+    }
+
+    function removeObject(storage, key) {
+        storage.removeItem(KEY_PREFIX + key);
+    }
+
+    function eachObject(storage, action) {
+        var N = storage.length;
+        for (var i = 0; i < N; i++) {
+            var entireKey = storage.key(i);
+            if (entireKey.indexOf(KEY_PREFIX) != 0)
+                continue;
+
+            var key = entireKey.substring(KEY_PREFIX_LEN);
+            var valueAsString = storage.getItem(key);
+            var value = $.parseJSON(valueAsString);
+
+            if (action(key, value) === false)
+                return;
+        }
+    }
+
+    function getItemKey(domainName, itemIndex) {
+        return domainName + "." + itemIndex;
+    }
+
+    /*
+    Domain class
+    */
+    function Domain(storage, domain) {
+        this.storage = storage;
+        this.id = domain.id;
+        this.name = domain.name;
+    }
+
+
+    /*
+    Get 1 + max(itemIndex)
+    */
+    Domain.prototype.getCount = function () {
+        var prefix = this.name + ".";
+        var prefixLen = prefix.length;
+
+        var N = 0;
+        eachObject(this.storage, function (key, value) {
+            if (key.indexOf(prefix) == 0) {
+                var index = key.substring(prefixLen);
+                var nIndex = parseInt(index);
+                N = Math.max(N, nIndex + 1);
+            }
+        });
+
+        return N;
+    };
+
+    Domain.prototype.getItem = function (itemIndex) {
+        var key = getItemKey(this.name, itemIndex);
+        var item = getObject(this.storage, key, null);
+        return item;
+    };
+
+    Domain.prototype.setItem = function (itemIndex, item) {
+        var key = getItemKey(this.name, itemIndex);
+        setObject(this.storage, key, item);
+    };
+
+    Domain.prototype.removeItem = function (itemIndex) {
+        var key = getItemKey(this.name, itemIndex);
+        removeObject(this.storage, key);
+    };
+
+    Domain.prototype.listItems = function () {
+        var list = [];
+        this.each(function (i, item) {
+            list.push(item);
+        });
+        return list;
+    };
+
+    Domain.prototype.each = function (action) {
+        var N = this.getCount();
+        for (var i = 0; i < N; i++) {
+            if (action(i, this.getItem(i)) === false)
+                return;
+        }
+    };
+
+    jpvs.Storage = {
+        listDomains: function (storage) {
+            var domains = getObject(storage, "Domains", {});
+            var objs = [];
+            $.each(domains, function (key, d) {
+                objs.push(new Domain(storage, d));
+            });
+
+            return objs;
+        },
+
+        getDomain: function (storage, domainName) {
+            //See if the domain is already there
+            var domains = getObject(storage, "Domains", {});
+            var found;
+            $.each(domains, function (id, d) {
+                if (d.name == domainName) {
+                    found = new Domain(storage, d);
+                    return false;
+                }
+            });
+
+            if (found)
+                return found;
+
+            //Not found in list, let's create it now
+            var newD = {
+                id: jpvs.randomString(20),
+                name: domainName
+            };
+
+            var newDomObj = new Domain(storage, newD);
+
+            //Let's add it back into the list of domains
+            domains[newD.id] = newDomObj;
+
+            setObject(storage, "Domains", domains);
+
+            return newDomObj;
+        }
+    };
+})();
 
 /* JPVS
 Module: widgets

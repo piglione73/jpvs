@@ -66,7 +66,7 @@
                 deepEqual(d2.getItem(0), { A: 1, B: 20 });
 
                 var list = d1.listItems();
-                deepEqual(list, [{ A: 1, B: 2 },{ A: 3, B: 4 }]);
+                deepEqual(list, [{ A: 1, B: 2 }, { A: 3, B: 4}]);
 
                 d1.removeItem(0);
                 equal(d1.getCount(), 2);
@@ -78,6 +78,17 @@
                 list = d1.listItems();
                 deepEqual(list, [null, { A: 3, B: 4}]);
 
+                //Delete domains
+                equal(jpvs.Storage.listDomains(sessionStorage).length, 2);
+                d1.deleteDomain();
+                equal(jpvs.Storage.listDomains(sessionStorage).length, 1);
+                d2.deleteDomain();
+                equal(jpvs.Storage.listDomains(sessionStorage).length, 0);
+
+                //Deleted domains are dummy domains after deletion and no longer work
+                equal(d1.getCount(), 0);
+                d1.setItem(0, { A: 1, B: 20 });
+                equal(d1.getCount(), 0);
             });
 
         });

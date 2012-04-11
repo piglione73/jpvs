@@ -31,6 +31,11 @@ jpvs.makeWidget({
         text: jpvs.property({
             get: function () { return this.element.val(); },
             set: function (value) { this.element.val(value); }
+        }),
+
+        width: jpvs.property({
+            get: function () { return this.element.css("width"); },
+            set: function (value) { this.element.css("width", value); }
         })
     }
 });

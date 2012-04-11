@@ -681,6 +681,8 @@ jpvs.makeWidget = function (widgetDef) {
                 widgetDef.focus.call(this, this);
             else
                 this.element.focus();
+
+            return this;
         };
     }
 
@@ -688,6 +690,8 @@ jpvs.makeWidget = function (widgetDef) {
         return function (state) {
             this.element.addClass("Widget-" + state);
             this.element.addClass(wd.cssClass + "-" + state);
+
+            return this;
         };
     }
 
@@ -695,6 +699,8 @@ jpvs.makeWidget = function (widgetDef) {
         return function (state) {
             this.element.removeClass("Widget-" + state);
             this.element.removeClass(wd.cssClass + "-" + state);
+
+            return this;
         };
     }
 };
@@ -814,7 +820,7 @@ jpvs.applyTemplate = function (container, template, dataItem) {
     Or it could be a function. Call it with this = container.
     */
     if (typeof (template) == "function") {
-        template.call(container, dataItem);
+        template.call($(container), dataItem);
         return;
     }
 
@@ -2101,22 +2107,22 @@ Storage (backed by localStorage/sessionStorage)
 
 EXAMPLE
 
-var d1 = Storage.getDomain(localStorage, "Domain 1");
-var d2 = Storage.getDomain(sessionStorage, "Domain 2");
+var d1 = jpvs.Storage.getDomain(localStorage, "Domain 1");
+var d2 = jpvs.Storage.getDomain(sessionStorage, "Domain 2");
 
-d1.addItem({ col1: "Val 1", col2: "Val2", col3: [ "A", "B", "C" ] });
-d1.addItem({ col1: "Val 1b", col2: "Val2b" });
+d1.setItem(0, { col1: "Val 1", col2: "Val2", col3: [ "A", "B", "C" ] });
+d1.setItem(1, { col1: "Val 1b", col2: "Val2b" });
 
-d2.addItem({ A: "AAA", "B": "BBB" });
+d2.setItem(0, { A: "AAA", "B": "BBB" });
 
 d1.each(function(item, i) {
 ...
 });
 
-d1.remove(0);
+d1.removeItem(0);
 
-var first = d1.get(0);
-var N = d1.length();
+var first = d1.getItem(0);
+var N = d1.getCount();
 */
 
 /* JPVS
@@ -2181,6 +2187,9 @@ Depends: core, utils
     Get 1 + max(itemIndex)
     */
     Domain.prototype.getCount = function () {
+        if (this.deleted)
+            return 0;
+
         var prefix = this.name + ".";
         var prefixLen = prefix.length;
 
@@ -2197,22 +2206,43 @@ Depends: core, utils
     };
 
     Domain.prototype.getItem = function (itemIndex) {
+        if (this.deleted)
+            return null;
+
         var key = getItemKey(this.name, itemIndex);
         var item = getObject(this.storage, key, null);
         return item;
     };
 
     Domain.prototype.setItem = function (itemIndex, item) {
+        if (this.deleted)
+            return;
+
         var key = getItemKey(this.name, itemIndex);
         setObject(this.storage, key, item);
     };
 
     Domain.prototype.removeItem = function (itemIndex) {
+        if (this.deleted)
+            return;
+
         var key = getItemKey(this.name, itemIndex);
         removeObject(this.storage, key);
     };
 
+    Domain.prototype.removeAllItems = function () {
+        if (this.deleted)
+            return;
+
+        var N = this.getCount();
+        for (var i = 0; i < N; i++)
+            this.removeItem(i);
+    };
+
     Domain.prototype.listItems = function () {
+        if (this.deleted)
+            return [];
+
         var list = [];
         this.each(function (i, item) {
             list.push(item);
@@ -2221,11 +2251,29 @@ Depends: core, utils
     };
 
     Domain.prototype.each = function (action) {
+        if (this.deleted)
+            return;
+
         var N = this.getCount();
         for (var i = 0; i < N; i++) {
             if (action(i, this.getItem(i)) === false)
                 return;
         }
+    };
+
+    Domain.prototype.deleteDomain = function () {
+        if (this.deleted)
+            return;
+
+        this.removeAllItems();
+
+        //Remove the entry from the list of domains
+        var domains = getObject(this.storage, "Domains", {});
+        delete domains[this.id];
+        setObject(this.storage, "Domains", domains);
+
+        //Deactivate this
+        this.deleted = true;
     };
 
     jpvs.Storage = {
@@ -2262,7 +2310,7 @@ Depends: core, utils
             var newDomObj = new Domain(storage, newD);
 
             //Let's add it back into the list of domains
-            domains[newD.id] = newDomObj;
+            domains[newD.id] = newD;
 
             setObject(storage, "Domains", domains);
 
@@ -3946,6 +3994,11 @@ jpvs.makeWidget({
         text: jpvs.property({
             get: function () { return this.element.val(); },
             set: function (value) { this.element.val(value); }
+        }),
+
+        width: jpvs.property({
+            get: function () { return this.element.css("width"); },
+            set: function (value) { this.element.css("width", value); }
         })
     }
 });

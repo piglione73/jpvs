@@ -174,6 +174,8 @@ jpvs.makeWidget = function (widgetDef) {
                 widgetDef.focus.call(this, this);
             else
                 this.element.focus();
+
+            return this;
         };
     }
 
@@ -181,6 +183,8 @@ jpvs.makeWidget = function (widgetDef) {
         return function (state) {
             this.element.addClass("Widget-" + state);
             this.element.addClass(wd.cssClass + "-" + state);
+
+            return this;
         };
     }
 
@@ -188,6 +192,8 @@ jpvs.makeWidget = function (widgetDef) {
         return function (state) {
             this.element.removeClass("Widget-" + state);
             this.element.removeClass(wd.cssClass + "-" + state);
+
+            return this;
         };
     }
 };
@@ -307,7 +313,7 @@ jpvs.applyTemplate = function (container, template, dataItem) {
     Or it could be a function. Call it with this = container.
     */
     if (typeof (template) == "function") {
-        template.call(container, dataItem);
+        template.call($(container), dataItem);
         return;
     }
 

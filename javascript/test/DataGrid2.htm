@@ -45,6 +45,8 @@
     <script type="text/javascript" src="../src/widgets/DataGrid.js"></script>
     <script type="text/javascript">
         jpvs(function ($W) {
+            jpvs.currentLocale("it");
+
             var tbl1 = $W.tbl1;
             var tbl2 = jpvs.DataGrid.create("#pnl");
 
@@ -91,8 +93,9 @@
             $W.tbl3.template(tmpl);
 
             //$W.tbl1.binder(jpvs.DataGrid.defaultBinder);
+
             $W.tbl1.binder(jpvs.DataGrid.pagingBinder({ pageSize: 17 }));
-            $W.tbl2.binder(jpvs.DataGrid.pagingBinder({ pageSize: 10 }));
+            $W.tbl2.binder(jpvs.DataGrid.pagingBinder({ pageSize: 10, preserveCurrentPage: true }));
             $W.tbl3.binder(jpvs.DataGrid.scrollingBinder({ pageSize: 30, chunkSize: 40 }));
 
             var data = data_async;

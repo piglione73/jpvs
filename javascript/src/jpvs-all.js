@@ -549,6 +549,15 @@ jpvs.property = function (propdef) {
     };
 };
 
+jpvs.currentLocale = (function () {
+    var curLoc = "en";
+
+    return jpvs.property({
+        get: function () { return curLoc; },
+        set: function (value) { curLoc = value; }
+    });
+})();
+
 jpvs.event = function (widget) {
     return new jpvs.Event(widget);
 };
@@ -2350,7 +2359,7 @@ jpvs.makeWidget({
     },
 
     canAttachTo: function (obj) {
-        return $(obj).is("button");
+        return $(obj).is("button,input[type=\"button\"]");
     },
 
     prototype: {
@@ -2389,6 +2398,8 @@ Depends: core
 
 jpvs.CheckBox = function (selector) {
     this.attach(selector);
+
+    this.change = jpvs.event(this);
 };
 
 jpvs.makeWidget({
@@ -2404,6 +2415,13 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
+        //Route both CLICK and CHANGE to out CHANGE event
+        this.element.click(function () {
+            W.change.fire(W);
+        });
+        this.element.change(function () {
+            W.change.fire(W);
+        });
     },
 
     canAttachTo: function (obj) {
@@ -2753,19 +2771,24 @@ Depends: core, Pager
     */
     jpvs.DataGrid.pagingBinder = function (params) {
         var pageSize = (params && params.pageSize) || 10;
+        var preserveCurrentPage = (params && params.preserveCurrentPage);
+
+        var copyOfCurPage = 0;
 
         function binder(section, data) {
             var W = this;
+
             var sectionElement = getSection(W, section);
             var sectionName = decodeSectionName(section);
 
-            var curPage = 0;
+            var curPage = preserveCurrentPage ? copyOfCurPage : 0;
+            copyOfCurPage = curPage;
 
             //Ensure the pager is present
             var pager = getPager();
 
             //Refresh the current page
-            refreshPage(W, section, data, pager);
+            refreshPage();
 
             function getPager() {
                 //Let's see if a pager has already been created for this datagrid
@@ -2796,6 +2819,7 @@ Depends: core, Pager
             function onPageChange() {
                 var newPage = this.page();
                 curPage = newPage;
+                copyOfCurPage = curPage;
                 refreshPage(W, section, data, pager);
             }
 
@@ -2816,11 +2840,20 @@ Depends: core, Pager
 
                     //Update the pager, based on the current situation
                     var totPages = Math.floor((ret.total + pageSize - 1) / pageSize);
-                    pager.page(curPage);
                     pager.totalPages(totPages);
+                    pager.page(curPage);
                 }
             }
         }
+
+        function getCurrentPage() {
+            return copyOfCurPage;
+        }
+
+        binder.currentPage = jpvs.property({
+            get: getCurrentPage
+        });
+
 
         return binder;
     };
@@ -3336,12 +3369,21 @@ Depends: core, LinkButton
         this.change = jpvs.event(this);
     };
 
-    jpvs.Pager.strings = {
-        firstPage: "First page",
-        previousPage: "Previous page",
-        nextPage: "Next page",
-        lastPage: "Last page",
-        pag: "Page"
+    jpvs.Pager.allStrings = {
+        en: {
+            firstPage: "First page",
+            previousPage: "Previous page",
+            nextPage: "Next page",
+            lastPage: "Last page",
+            pag: "Page"
+        },
+        it: {
+            firstPage: "Prima pagina",
+            previousPage: "Pagina precedente",
+            nextPage: "Pagina successiva",
+            lastPage: "Ultima pagina",
+            pag: "Pag."
+        }
     };
 
     jpvs.makeWidget({
@@ -3364,6 +3406,8 @@ Depends: core, LinkButton
             var combo = jpvs.writeTag(tr, "td");
             var next = jpvs.writeTag(tr, "td");
             var last = jpvs.writeTag(tr, "td");
+
+            jpvs.Pager.strings = jpvs.Pager.allStrings[jpvs.currentLocale()];
 
             jpvs.LinkButton.create(first).text(jpvs.Pager.strings.firstPage).click(function () {
                 W.page(Math.min(0, W.totalPages() - 1));
@@ -3969,6 +4013,8 @@ Depends: core
 
 jpvs.TextBox = function (selector) {
     this.attach(selector);
+
+    this.change = jpvs.event(this);
 };
 
 jpvs.makeWidget({
@@ -3984,6 +4030,9 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
+        this.element.change(function () {
+            W.change.fire(W);
+        });
     },
 
     canAttachTo: function (obj) {

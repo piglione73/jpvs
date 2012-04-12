@@ -6,6 +6,8 @@ Depends: core
 
 jpvs.CheckBox = function (selector) {
     this.attach(selector);
+
+    this.change = jpvs.event(this);
 };
 
 jpvs.makeWidget({
@@ -21,6 +23,13 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
+        //Route both CLICK and CHANGE to out CHANGE event
+        this.element.click(function () {
+            W.change.fire(W);
+        });
+        this.element.change(function () {
+            W.change.fire(W);
+        });
     },
 
     canAttachTo: function (obj) {

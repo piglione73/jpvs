@@ -42,6 +42,15 @@ jpvs.property = function (propdef) {
     };
 };
 
+jpvs.currentLocale = (function () {
+    var curLoc = "en";
+
+    return jpvs.property({
+        get: function () { return curLoc; },
+        set: function (value) { curLoc = value; }
+    });
+})();
+
 jpvs.event = function (widget) {
     return new jpvs.Event(widget);
 };

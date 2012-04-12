@@ -331,19 +331,24 @@ Depends: core, Pager
     */
     jpvs.DataGrid.pagingBinder = function (params) {
         var pageSize = (params && params.pageSize) || 10;
+        var preserveCurrentPage = (params && params.preserveCurrentPage);
+
+        var copyOfCurPage = 0;
 
         function binder(section, data) {
             var W = this;
+
             var sectionElement = getSection(W, section);
             var sectionName = decodeSectionName(section);
 
-            var curPage = 0;
+            var curPage = preserveCurrentPage ? copyOfCurPage : 0;
+            copyOfCurPage = curPage;
 
             //Ensure the pager is present
             var pager = getPager();
 
             //Refresh the current page
-            refreshPage(W, section, data, pager);
+            refreshPage();
 
             function getPager() {
                 //Let's see if a pager has already been created for this datagrid
@@ -374,6 +379,7 @@ Depends: core, Pager
             function onPageChange() {
                 var newPage = this.page();
                 curPage = newPage;
+                copyOfCurPage = curPage;
                 refreshPage(W, section, data, pager);
             }
 
@@ -394,11 +400,20 @@ Depends: core, Pager
 
                     //Update the pager, based on the current situation
                     var totPages = Math.floor((ret.total + pageSize - 1) / pageSize);
-                    pager.page(curPage);
                     pager.totalPages(totPages);
+                    pager.page(curPage);
                 }
             }
         }
+
+        function getCurrentPage() {
+            return copyOfCurPage;
+        }
+
+        binder.currentPage = jpvs.property({
+            get: getCurrentPage
+        });
+
 
         return binder;
     };

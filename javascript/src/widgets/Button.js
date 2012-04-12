@@ -29,7 +29,7 @@ jpvs.makeWidget({
     },
 
     canAttachTo: function (obj) {
-        return $(obj).is("button");
+        return $(obj).is("button,input[type=\"button\"]");
     },
 
     prototype: {

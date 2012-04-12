@@ -12,12 +12,21 @@ Depends: core, LinkButton
         this.change = jpvs.event(this);
     };
 
-    jpvs.Pager.strings = {
-        firstPage: "First page",
-        previousPage: "Previous page",
-        nextPage: "Next page",
-        lastPage: "Last page",
-        pag: "Page"
+    jpvs.Pager.allStrings = {
+        en: {
+            firstPage: "First page",
+            previousPage: "Previous page",
+            nextPage: "Next page",
+            lastPage: "Last page",
+            pag: "Page"
+        },
+        it: {
+            firstPage: "Prima pagina",
+            previousPage: "Pagina precedente",
+            nextPage: "Pagina successiva",
+            lastPage: "Ultima pagina",
+            pag: "Pag."
+        }
     };
 
     jpvs.makeWidget({
@@ -40,6 +49,8 @@ Depends: core, LinkButton
             var combo = jpvs.writeTag(tr, "td");
             var next = jpvs.writeTag(tr, "td");
             var last = jpvs.writeTag(tr, "td");
+
+            jpvs.Pager.strings = jpvs.Pager.allStrings[jpvs.currentLocale()];
 
             jpvs.LinkButton.create(first).text(jpvs.Pager.strings.firstPage).click(function () {
                 W.page(Math.min(0, W.totalPages() - 1));

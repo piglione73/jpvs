@@ -6,6 +6,8 @@ Depends: core
 
 jpvs.TextBox = function (selector) {
     this.attach(selector);
+
+    this.change = jpvs.event(this);
 };
 
 jpvs.makeWidget({
@@ -21,6 +23,9 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
+        this.element.change(function () {
+            W.change.fire(W);
+        });
     },
 
     canAttachTo: function (obj) {

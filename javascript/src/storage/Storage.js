@@ -98,7 +98,8 @@ Depends: core, utils
             if (key.indexOf(prefix) == 0) {
                 var index = key.substring(prefixLen);
                 var nIndex = parseInt(index);
-                N = Math.max(N, nIndex + 1);
+                if (isFinite(nIndex))
+                    N = Math.max(N, nIndex + 1);
             }
         });
 

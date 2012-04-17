@@ -21,6 +21,14 @@ jpvs.find = function (selector) {
         elem.each(function () {
             widgets.push($(this).data("jpvs-widget"));
         });
+
+        //Add an "each" method for easily iterating over the returned widgets
+        widgets.each = function (action) {
+            for (var i = 0; i < widgets.length; i++)
+                action(widgets[i]);
+        };
+
+        return widgets;
     }
 };
 

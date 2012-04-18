@@ -24,8 +24,10 @@ jpvs.find = function (selector) {
 
         //Add an "each" method for easily iterating over the returned widgets
         widgets.each = function (action) {
-            for (var i = 0; i < widgets.length; i++)
-                action(widgets[i]);
+            for (var i = 0; i < widgets.length; i++) {
+                var w = widgets[i];
+                action.call(w, w);
+            }
         };
 
         return widgets;

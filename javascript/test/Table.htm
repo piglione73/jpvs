@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>DataGrid</title>
+    <style type="text/css">
+        .Widget-Hover
+        {
+            background-color: Aqua !important;
+        }
+        
+        .Widget-Focus
+        {
+            background-color: Yellow;
+        }
+        
+        .Table
+        {
+            background-color: pink;
+            border: 1px solid red;
+        }
+        .Test 
+        {
+            outline: 3px solid blue;
+        }
+        
+    </style>
+    <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/widgets/Table.js"></script>
+    <script type="text/javascript">
+        jpvs(function ($W) {
+            var tbl1 = $W.tbl1;
+            var tbl2 = jpvs.Table.create();
+
+            tbl1.caption("Table 1");
+            tbl2.caption("Table 2");
+
+            tbl1.css("width", "50%");
+            tbl2.css({ width: "border", height: "10cm" }).addClass("Test").removeClass("Table Mickey Mouse");
+
+            test(tbl1);
+            test(tbl2);
+
+            function test(tbl) {
+                var row1 = tbl.writeHeaderRow();
+                var row2 = tbl.writeRow();
+                var row3 = tbl.writeRow();
+                var row5 = tbl.writeFooterRow();
+                var row4 = tbl.writeRow();
+
+                write(row1, "Row1", "This is row 1 in header");
+                write(row2, "Row2", "This is row 2 in body");
+                write(row3, "Row3", "This is row 3 in body");
+                write(row4, "Row4", "This is row 4 in body");
+                write(row5, "Row5", "This is row 5 in footer");
+
+                function write(row, t1, t2) {
+                    row.writeHeaderCell(t1);
+                    row.writeCell(t2);
+
+                    var c3 = row.writeCell();
+                    jpvs.write(c3, "Normal text ");
+                    jpvs.writeTag(c3, "em", "Text in <em> ");
+                    jpvs.write(c3, "Normal text ");
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <table id="tbl1">
+    </table>
+    <hr />
+</body>
+</html>

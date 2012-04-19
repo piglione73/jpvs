@@ -40,6 +40,25 @@ jpvs.makeWidget({
         checked: jpvs.property({
             get: function () { return this.element.prop("checked"); },
             set: function (value) { this.element.prop("checked", value); }
+        }),
+
+        text: jpvs.property({
+            get: function () {
+                this.ensureId();
+                var lbl = $("label[for=\"" + this.id() + "\"]");
+                return lbl.text();
+            },
+            set: function (value) {
+                this.ensureId();
+                var lbl = $("label[for=\"" + this.id() + "\"]");
+                if (lbl.length == 0) {
+                    lbl = $(document.createElement("label"));
+                    lbl.attr("for", this.id());
+                    lbl.insertAfter(this.element);
+                }
+
+                lbl.text(value);
+            }
         })
     }
 });

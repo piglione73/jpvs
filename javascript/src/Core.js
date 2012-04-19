@@ -103,6 +103,18 @@ jpvs.makeWidget = function (widgetDef) {
     fn.prototype.addState = addState(widgetDef);
     fn.prototype.removeState = removeState(widgetDef);
 
+    fn.prototype.id = jpvs.property({
+        get: function () { return this.element.attr("id"); },
+        set: function (value) { this.element.attr("id", value); }
+    });
+
+    fn.prototype.ensureId = function () {
+        if (this.id() && this.id() != "")
+            return;
+        else
+            this.id(jpvs.randomString(20));
+    };
+
     //Additional prototype methods defined in "widgetDef"
     if (widgetDef.prototype) {
         $.each(widgetDef.prototype, function (memberName, member) {

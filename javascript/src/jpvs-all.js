@@ -610,6 +610,18 @@ jpvs.makeWidget = function (widgetDef) {
     fn.prototype.addState = addState(widgetDef);
     fn.prototype.removeState = removeState(widgetDef);
 
+    fn.prototype.id = jpvs.property({
+        get: function () { return this.element.attr("id"); },
+        set: function (value) { this.element.attr("id", value); }
+    });
+
+    fn.prototype.ensureId = function () {
+        if (this.id() && this.id() != "")
+            return;
+        else
+            this.id(jpvs.randomString(20));
+    };
+
     //Additional prototype methods defined in "widgetDef"
     if (widgetDef.prototype) {
         $.each(widgetDef.prototype, function (memberName, member) {
@@ -2443,6 +2455,25 @@ jpvs.makeWidget({
         checked: jpvs.property({
             get: function () { return this.element.prop("checked"); },
             set: function (value) { this.element.prop("checked", value); }
+        }),
+
+        text: jpvs.property({
+            get: function () {
+                this.ensureId();
+                var lbl = $("label[for=\"" + this.id() + "\"]");
+                return lbl.text();
+            },
+            set: function (value) {
+                this.ensureId();
+                var lbl = $("label[for=\"" + this.id() + "\"]");
+                if (lbl.length == 0) {
+                    lbl = $(document.createElement("label"));
+                    lbl.attr("for", this.id());
+                    lbl.insertAfter(this.element);
+                }
+
+                lbl.text(value);
+            }
         })
     }
 });

@@ -3733,6 +3733,11 @@ Depends: core, ImageButton
                 set: function (value) { this.contentsElement.css("width", value); }
             }),
 
+            maxWidth: jpvs.property({
+                get: function () { return this.contentsElement.css("max-width"); },
+                set: function (value) { this.contentsElement.css("max-width", value); }
+            }),
+
             zIndex: jpvs.property({
                 get: function () {
                     var z = parseInt(this.contentsElement.css("zIndex"));
@@ -3790,7 +3795,7 @@ Depends: core, ImageButton
         var pop = jpvs.Popup.create();
 
         //Set title and text and width
-        pop.width("50%").title(params.title || null);
+        pop.maxWidth("75%").title(params.title || null);
         jpvs.write(pop.bodyElement, params.text);
 
         //Buttons (with pop.close.fire() prepended in the event handlers)
@@ -3805,6 +3810,7 @@ Depends: core, ImageButton
 
         //Show
         pop.show();
+        pop.center();
 
         //Close event --> give focus as requested and destroy
         pop.close.bind(function () {

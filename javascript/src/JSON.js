@@ -22,6 +22,10 @@ Depends: core
 
 (function () {
 
+    jpvs.parseJSON = function (x) {
+        return $.parseJSON(x);
+    };
+
     var escapeable = /["\\\x00-\x1f\x7f-\x9f]/g,
 		meta = {
 		    '\b': '\\b',

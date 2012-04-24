@@ -42,6 +42,13 @@ namespace jpvs.Builder {
                 .ToArray();
         }
 
+        public static string[] GetJSDocFiles() {
+            string javascriptDir = GetJPVSDirectory("javascript/docs");
+            return Directory.GetFiles(javascriptDir, "*.js", SearchOption.AllDirectories)
+                .Where(x => !x.EndsWith("jpvs-doc.js"))
+                .ToArray();
+        }
+
         public static string BundleAllFiles(string[] files) {
             var contents = files
                 .OrderBy(x => {
@@ -56,6 +63,24 @@ namespace jpvs.Builder {
             string single = string.Join("\r\n", contents.ToArray());
 
             string outputName = Path.Combine(GetJPVSDirectory("javascript/src"), "jpvs-all.js");
+            File.WriteAllText(outputName, single);
+            return outputName;
+        }
+
+        public static string BundleAllJsDocFiles(string[] files) {
+            var contents = files
+                .OrderBy(x => {
+                    //We want jpvs.js as the first file to be processed
+                    if (x.EndsWith("jpvs.js"))
+                        return "";
+                    else
+                        return x;
+                })
+                .Select(file => File.ReadAllText(file));
+
+            string single = string.Join("\r\n", contents.ToArray());
+
+            string outputName = Path.Combine(GetJPVSDirectory("javascript/docs"), "jpvs-doc.js");
             File.WriteAllText(outputName, single);
             return outputName;
         }

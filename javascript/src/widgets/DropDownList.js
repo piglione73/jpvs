@@ -38,15 +38,18 @@ jpvs.makeWidget({
         },
 
         addItem: function (value, text) {
+            var V = value;
+            var T = text != null ? text : value;
+
             var opt = document.createElement("option");
-            $(opt).attr("value", value).text(text || value).appendTo(this.element);
+            $(opt).attr("value", V).text(T).appendTo(this.element);
             return this;
         },
 
         addItems: function (items) {
             var W = this;
             $.each(items, function (i, item) {
-                if (item.value)
+                if (item.value != null)
                     W.addItem(item.value, item.text);
                 else
                     W.addItem(item);

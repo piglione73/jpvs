@@ -322,7 +322,7 @@ jpvs.applyTemplate = function (container, template, dataItem) {
     }
 
     /*
-    Or it could be in the form: { fieldName: "ABC", tagName: "TAG", selector: function(fieldValue, dataItem) {} }.
+    Or it could be in the form: { fieldName: "ABC", tagName: "TAG", css: {}, selector: function(fieldValue, dataItem) {} }.
     Extract dataItem.ABC and write it as text (optionally in the specified tag name).
     */
     if (template.fieldName) {
@@ -336,6 +336,10 @@ jpvs.applyTemplate = function (container, template, dataItem) {
             jpvs.writeTag(container, template.tagName, fieldValue);
         else
             jpvs.write(container, fieldValue);
+
+        //Apply CSS by means of jQuery.css()
+        if (template.css)
+            container.css(template.css);
 
         return;
     }

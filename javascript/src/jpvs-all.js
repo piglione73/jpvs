@@ -829,7 +829,7 @@ jpvs.applyTemplate = function (container, template, dataItem) {
     }
 
     /*
-    Or it could be in the form: { fieldName: "ABC", tagName: "TAG", selector: function(fieldValue, dataItem) {} }.
+    Or it could be in the form: { fieldName: "ABC", tagName: "TAG", css: {}, selector: function(fieldValue, dataItem) {} }.
     Extract dataItem.ABC and write it as text (optionally in the specified tag name).
     */
     if (template.fieldName) {
@@ -843,6 +843,10 @@ jpvs.applyTemplate = function (container, template, dataItem) {
             jpvs.writeTag(container, template.tagName, fieldValue);
         else
             jpvs.write(container, fieldValue);
+
+        //Apply CSS by means of jQuery.css()
+        if (template.css)
+            container.css(template.css);
 
         return;
     }
@@ -1085,6 +1089,10 @@ Depends: core
 */
 
 (function () {
+
+    jpvs.parseJSON = function (x) {
+        return $.parseJSON(x);
+    };
 
     var escapeable = /["\\\x00-\x1f\x7f-\x9f]/g,
 		meta = {
@@ -3231,15 +3239,18 @@ jpvs.makeWidget({
         },
 
         addItem: function (value, text) {
+            var V = value;
+            var T = text != null ? text : value;
+
             var opt = document.createElement("option");
-            $(opt).attr("value", value).text(text || value).appendTo(this.element);
+            $(opt).attr("value", V).text(T).appendTo(this.element);
             return this;
         },
 
         addItems: function (items) {
             var W = this;
             $.each(items, function (i, item) {
-                if (item.value)
+                if (item.value != null)
                     W.addItem(item.value, item.text);
                 else
                     W.addItem(item);

@@ -27,6 +27,11 @@ namespace jpvs.Builder {
                 //Copy all (including bundle) to build path
                 Utils.CopyToBuildPath(jsFiles, depMap);
 
+                //Create documentation from "docs/"
+                var jsDocs = Utils.GetJSDocFiles();
+                Console.WriteLine("{0} documentation javascript files found", jsDocs.Length);
+                Utils.BundleAllJsDocFiles(jsDocs);
+
                 //The end
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Build terminated successfully. Press Enter to exit.");

@@ -168,10 +168,16 @@ jpvs.makeWidget = function (widgetDef) {
 
     function destroy(widgetDef) {
         return function () {
-            if (widgetDef.destroy)
-                widgetDef.destroy.call(this, this);
+            var execDefault = true;
 
-            this.element.remove();
+            if (widgetDef.destroy)
+                execDefault = widgetDef.destroy.call(this, this);
+
+            if (execDefault) {
+                //The default behavior is to remove the element from the DOM.
+                //The default behavior is suppressed
+                this.element.remove();
+            }
         };
     }
 

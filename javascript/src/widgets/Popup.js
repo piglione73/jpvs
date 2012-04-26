@@ -124,6 +124,19 @@ Depends: core, ImageButton
             return false;
         },
 
+        destroy: function () {
+            var pop = this;
+
+            //Hide the popup and, only at the end of the animation, destroy the widget
+            this.hide(function () {
+                //Let's effect the default behavior here, AFTER the end of the "hide animation"
+                pop.element.remove();
+            });
+
+            //Suppress the default behavior
+            return false;
+        },
+
         prototype: {
             modal: jpvs.property({
                 get: function () {
@@ -161,9 +174,9 @@ Depends: core, ImageButton
                 return this;
             },
 
-            hide: function () {
+            hide: function (callback) {
                 this.blanketElement.hide();
-                this.contentsElement.fadeOut();
+                this.contentsElement.fadeOut(callback);
 
                 //Keep track
                 allPopups[this.element.attr("id")].open = false;

@@ -35,6 +35,100 @@ jpvs.event = function (widget) {
 jpvs.makeWidget = function (widgetDef) {
     /// <summary>Creates a new widget, given a widget definition.</summary>
     /// <param name="widgetDef" type="Object">Widget definition.</param>
+
+    //Document all the common methods
+    var fn = widgetDef.widget;
+
+    //Static methods
+    fn.create = create_static(widgetDef);
+    fn.attach = attach_static(widgetDef);
+
+    //Instance methods
+    fn.prototype.toString = function () {
+        /// <summary>Returns the widget name (e.g.: Button, TextBox, DataGrid...).</summary>
+        /// <returns type="String">Widget name.</returns>
+        return "";
+    };
+    fn.prototype.attach = attach(widgetDef);
+    fn.prototype.destroy = destroy(widgetDef);
+    fn.prototype.focus = focus(widgetDef);
+    fn.prototype.addState = addState(widgetDef);
+    fn.prototype.removeState = removeState(widgetDef);
+    fn.prototype.getMainContentElement = getMainContentElement(widgetDef);
+
+    fn.prototype.id = function (value) {
+        /// <summary>Property: id of the widget.</summary>
+        /// <param name="value" type="String"></param>
+    };
+
+    fn.prototype.ensureId = function () {
+        /// <summary>Ensure the widget has an id. If no id is set, a new random id is automatically created for the widget.</summary>
+    };
+
+    //Additional prototype methods defined in "widgetDef"
+    if (widgetDef.prototype) {
+        $.each(widgetDef.prototype, function (memberName, member) {
+            fn.prototype[memberName] = member;
+        });
+    }
+
+    function create_static(widgetDef) {
+        return function (container) {
+            /// <summary>Creates a new widget in the given container. If the container specifies more than one element, multiple widgets are created and an array of widgets is returned. Otherwise, the single widget just created is returned (this is the most common case).</summary>
+            /// <param name="container" type="Object">Where to write the widget: jpvs widget or jQuery selector or jQuery object or DOM element. If not specified, the widget is created in the document body.</param>
+            return new widgetDef.widget();
+        };
+    }
+
+    function attach_static(widgetDef) {
+        return function (selector) {
+            /// <summary>Attaches a widget to an existing element.</summary>
+            /// <param name="selector" type="Object">What to attach the widget to: jQuery selector or jQuery object or DOM element.</param>
+            return new widgetDef.widget(selector);
+        };
+    }
+
+    function attach(widgetDef) {
+        return function (selector) {
+            /// <summary>Attaches a widget to an existing element.</summary>
+            /// <param name="selector" type="Object">What to attach the widget to: jpvs widget or jQuery selector or jQuery object or DOM element. If not specified, the widget is created in the document body.</param>
+        };
+    }
+
+    function destroy(widgetDef) {
+        return function () {
+            /// <summary>Destroys the widget and removes it from the document.</summary>
+        };
+    }
+
+    function getMainContentElement(widgetDef) {
+        return function () {
+            /// <summary>Gets the main content element.</summary>
+            return $("*");
+        };
+    }
+
+    function focus(widgetDef) {
+        return function () {
+            /// <summary>Sets the focus to the widget.</summary>
+            return this;
+        };
+    }
+
+    function addState(wd) {
+        return function (state) {
+            /// <summary>Add a "state" to the widget. A "state" is a special CSS class. For example, a Button has classes Widget and Button. Adding state "XYZ" means adding classes "Widget-XYZ" and "Button-XYZ" to the main element.</summary>
+            return this;
+        };
+    }
+
+    function removeState(wd) {
+        return function (state) {
+            /// <summary>Removes a "state" from the widget.</summary>
+            return this;
+        };
+    }
+
 };
 
 

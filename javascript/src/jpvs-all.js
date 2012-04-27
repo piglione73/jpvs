@@ -511,186 +511,220 @@ Classes: jpvs
 Depends: bootstrap
 */
 
-//All widget definitions
-jpvs.widgetDefs = [];
+(function () {
 
-//All widgets, by ID and by element
-jpvs.widgets = {};
+    //If X is a jpvs widget, get the jQuery object representing the main content element of X
+    //Otherwise, return X
+    function toElement(X) {
+        if (!X)
+            return X;
 
-jpvs.find = function (selector) {
-    var elem = $(selector);
-    if (elem.length == 0)
-        return null;
-    else if (elem.length == 1)
-        return elem.data("jpvs-widget");
-    else {
-        var widgets = [];
-        elem.each(function () {
-            widgets.push($(this).data("jpvs-widget"));
-        });
-
-        //Add an "each" method for easily iterating over the returned widgets
-        widgets.each = function (action) {
-            for (var i = 0; i < widgets.length; i++) {
-                var w = widgets[i];
-                action.call(w, w);
-            }
-        };
-
-        return widgets;
-    }
-};
-
-jpvs.states = {
-    HOVER: "Hover",
-    FOCUS: "Focus",
-    ERROR: "Error",
-    DISABLED: "Disabled"
-};
-
-jpvs.property = function (propdef) {
-    return function (value) {
-        if (value === undefined)
-            return propdef.get.call(this);
-        else {
-            propdef.set.call(this, value);
-            return this;
-        }
-    };
-};
-
-jpvs.currentLocale = (function () {
-    var curLoc = "en";
-
-    return jpvs.property({
-        get: function () { return curLoc; },
-        set: function (value) { curLoc = value; }
-    });
-})();
-
-jpvs.event = function (widget) {
-    return new jpvs.Event(widget);
-};
-
-jpvs.makeWidget = function (widgetDef) {
-    //Keep track of all widget definitions for function createAllWidgets
-    jpvs.widgetDefs.push(widgetDef);
-
-    //Widget
-    var fn = widgetDef.widget;
-    if (!fn)
-        throw "Missing widget field in widget definition";
-
-    //Widget creator
-    if (!widgetDef.create)
-        throw "Missing create function in widget definition";
-
-    //Widget initialization
-    if (!widgetDef.init)
-        throw "Missing init function in widget definition";
-
-    //Widget name
-    fn.__WIDGET__ = widgetDef.type;
-    if (!fn.__WIDGET__)
-        throw "Missing type field in widget definition";
-
-    //Widget CSS class
-    if (!widgetDef.cssClass)
-        throw "Missing cssClass field in widget definition";
-
-    //Static methods
-    fn.create = create_static(widgetDef);
-    fn.attach = attach_static(widgetDef);
-
-    //Instance methods
-    fn.prototype.toString = function () { return this.__WIDGET__; };
-    fn.prototype.attach = attach(widgetDef);
-    fn.prototype.destroy = destroy(widgetDef);
-    fn.prototype.focus = focus(widgetDef);
-    fn.prototype.addState = addState(widgetDef);
-    fn.prototype.removeState = removeState(widgetDef);
-
-    fn.prototype.id = jpvs.property({
-        get: function () { return this.element.attr("id"); },
-        set: function (value) { this.element.attr("id", value); }
-    });
-
-    fn.prototype.ensureId = function () {
-        if (this.id() && this.id() != "")
-            return;
+        if (X.getMainContentElement)
+            return X.getMainContentElement();
         else
-            this.id(jpvs.randomString(20));
-    };
-
-    //Additional prototype methods defined in "widgetDef"
-    if (widgetDef.prototype) {
-        $.each(widgetDef.prototype, function (memberName, member) {
-            fn.prototype[memberName] = member;
-        });
+            return X;
     }
 
-    function create_static(widgetDef) {
-        return function (selector) {
-            var objs = [];
-            selector = selector || document.body;
+    jpvs.getElementIfWidget = toElement;
 
-            $(selector).each(function (i, elem) {
-                var obj = widgetDef.create(elem);
-                objs.push(widgetDef.widget.attach(obj));
+    //All widget definitions
+    jpvs.widgetDefs = [];
+
+    //All widgets, by ID and by element
+    jpvs.widgets = {};
+
+    jpvs.find = function (selector) {
+        var elem = $(selector);
+        if (elem.length == 0)
+            return null;
+        else if (elem.length == 1)
+            return elem.data("jpvs-widget");
+        else {
+            var widgets = [];
+            elem.each(function () {
+                widgets.push($(this).data("jpvs-widget"));
             });
 
-            if (objs.length == 1)
-                return objs[0];
-            else if (objs.length == 0)
-                return undefined;
-            else
-                return objs;
-        };
-    }
+            //Add an "each" method for easily iterating over the returned widgets
+            widgets.each = function (action) {
+                for (var i = 0; i < widgets.length; i++) {
+                    var w = widgets[i];
+                    action.call(w, w);
+                }
+            };
 
-    function attach_static(widgetDef) {
-        return function (selector) {
-            return new widgetDef.widget(selector);
-        };
-    }
+            return widgets;
+        }
+    };
 
-    function attach(widgetDef) {
-        return function (selector) {
-            this.__WIDGET__ = widgetDef.type;
-            this.element = $(selector);
+    jpvs.states = {
+        HOVER: "Hover",
+        FOCUS: "Focus",
+        ERROR: "Error",
+        DISABLED: "Disabled"
+    };
 
-            //Decorate with CSS
-            this.element.addClass("Widget");
-            this.element.addClass(widgetDef.cssClass);
-
-            //Initialize widget behavior
-            init(this);
-            widgetDef.init.call(this, this);
-
-            //Put in collection
-            jpvs.widgets[this.element.attr("id")] = this;
-            this.element.data("jpvs-widget", this);
-        };
-    }
-
-    function destroy(widgetDef) {
-        return function () {
-            var execDefault = true;
-
-            if (widgetDef.destroy)
-                execDefault = widgetDef.destroy.call(this, this);
-
-            if (execDefault) {
-                //The default behavior is to remove the element from the DOM.
-                //The default behavior is suppressed
-                this.element.remove();
+    jpvs.property = function (propdef) {
+        return function (value) {
+            if (value === undefined)
+                return propdef.get.call(this);
+            else {
+                propdef.set.call(this, value);
+                return this;
             }
         };
-    }
+    };
 
-    function init(W) {
-        //Hovering
-        W.element.hover(
+    jpvs.currentLocale = (function () {
+        var curLoc = "en";
+
+        return jpvs.property({
+            get: function () { return curLoc; },
+            set: function (value) { curLoc = value; }
+        });
+    })();
+
+    jpvs.event = function (widget) {
+        return new jpvs.Event(widget);
+    };
+
+    jpvs.makeWidget = function (widgetDef) {
+        //Keep track of all widget definitions for function createAllWidgets
+        jpvs.widgetDefs.push(widgetDef);
+
+        //Widget
+        var fn = widgetDef.widget;
+        if (!fn)
+            throw "Missing widget field in widget definition";
+
+        //Widget creator
+        if (!widgetDef.create)
+            throw "Missing create function in widget definition";
+
+        //Widget initialization
+        if (!widgetDef.init)
+            throw "Missing init function in widget definition";
+
+        //Widget name
+        fn.__WIDGET__ = widgetDef.type;
+        if (!fn.__WIDGET__)
+            throw "Missing type field in widget definition";
+
+        //Widget CSS class
+        if (!widgetDef.cssClass)
+            throw "Missing cssClass field in widget definition";
+
+        //Static methods
+        fn.create = create_static(widgetDef);
+        fn.attach = attach_static(widgetDef);
+
+        //Instance methods
+        fn.prototype.toString = function () { return this.__WIDGET__; };
+        fn.prototype.attach = attach(widgetDef);
+        fn.prototype.destroy = destroy(widgetDef);
+        fn.prototype.focus = focus(widgetDef);
+        fn.prototype.addState = addState(widgetDef);
+        fn.prototype.removeState = removeState(widgetDef);
+        fn.prototype.getMainContentElement = getMainContentElement(widgetDef);
+
+        fn.prototype.id = jpvs.property({
+            get: function () { return this.element.attr("id"); },
+            set: function (value) { this.element.attr("id", value); }
+        });
+
+        fn.prototype.ensureId = function () {
+            if (this.id() && this.id() != "")
+                return;
+            else
+                this.id(jpvs.randomString(20));
+        };
+
+        //Additional prototype methods defined in "widgetDef"
+        if (widgetDef.prototype) {
+            $.each(widgetDef.prototype, function (memberName, member) {
+                fn.prototype[memberName] = member;
+            });
+        }
+
+        function create_static(widgetDef) {
+            return function (selector) {
+                var objs = [];
+                selector = selector || document.body;
+
+                //The "selector" may also be a jpvs widget. The following line handles this case
+                selector = toElement(selector);
+
+                $(selector).each(function (i, elem) {
+                    var obj = widgetDef.create(elem);
+                    objs.push(widgetDef.widget.attach(obj));
+                });
+
+                if (objs.length == 1)
+                    return objs[0];
+                else if (objs.length == 0)
+                    return undefined;
+                else
+                    return objs;
+            };
+        }
+
+        function attach_static(widgetDef) {
+            return function (selector) {
+                return new widgetDef.widget(selector);
+            };
+        }
+
+        function attach(widgetDef) {
+            return function (selector) {
+                //The "selector" may also be a jpvs widget. The following line handles this case
+                selector = toElement(selector);
+
+                this.__WIDGET__ = widgetDef.type;
+                this.element = $(selector);
+
+                //Decorate with CSS
+                this.element.addClass("Widget");
+                this.element.addClass(widgetDef.cssClass);
+
+                //Initialize widget behavior
+                init(this);
+                widgetDef.init.call(this, this);
+
+                //Put in collection
+                jpvs.widgets[this.element.attr("id")] = this;
+                this.element.data("jpvs-widget", this);
+            };
+        }
+
+        function destroy(widgetDef) {
+            return function () {
+                var execDefault = true;
+
+                if (widgetDef.destroy)
+                    execDefault = widgetDef.destroy.call(this, this);
+
+                if (execDefault) {
+                    //The default behavior is to remove the element from the DOM.
+                    //The default behavior is suppressed
+                    this.element.remove();
+                }
+            };
+        }
+
+        function getMainContentElement(widgetDef) {
+            return function () {
+                //If the widget definition defines a "getMainContentElement" function, let's call it
+                if (widgetDef.getMainContentElement)
+                    return widgetDef.getMainContentElement.call(this, this);
+
+                //Otherwise, the default behavior: let's return THE "element"
+                return this.element;
+            };
+        }
+
+        function init(W) {
+            //Hovering
+            W.element.hover(
             function () {
                 W.addState(jpvs.states.HOVER);
             },
@@ -699,322 +733,336 @@ jpvs.makeWidget = function (widgetDef) {
             }
         );
 
-        //Focusing
-        W.element.focusin(
+            //Focusing
+            W.element.focusin(
             function () {
                 W.addState(jpvs.states.FOCUS);
             }
         );
-        W.element.focusout(
+            W.element.focusout(
             function () {
                 W.removeState(jpvs.states.FOCUS);
             }
         );
-    }
+        }
 
-    function focus(widgetDef) {
-        return function () {
-            if (widgetDef.focus)
-                widgetDef.focus.call(this, this);
-            else
-                this.element.focus();
+        function focus(widgetDef) {
+            return function () {
+                if (widgetDef.focus)
+                    widgetDef.focus.call(this, this);
+                else
+                    this.element.focus();
 
-            return this;
-        };
-    }
+                return this;
+            };
+        }
 
-    function addState(wd) {
-        return function (state) {
-            this.element.addClass("Widget-" + state);
-            this.element.addClass(wd.cssClass + "-" + state);
+        function addState(wd) {
+            return function (state) {
+                this.element.addClass("Widget-" + state);
+                this.element.addClass(wd.cssClass + "-" + state);
 
-            return this;
-        };
-    }
+                return this;
+            };
+        }
 
-    function removeState(wd) {
-        return function (state) {
-            this.element.removeClass("Widget-" + state);
-            this.element.removeClass(wd.cssClass + "-" + state);
+        function removeState(wd) {
+            return function (state) {
+                this.element.removeClass("Widget-" + state);
+                this.element.removeClass(wd.cssClass + "-" + state);
 
-            return this;
-        };
-    }
-};
+                return this;
+            };
+        }
+    };
 
 
-jpvs.createAllWidgets = function () {
-    $("*").each(function () {
-        //Loop over all elements and attach a widget, as appropriate
-        var obj = this;
-        var $this = $(obj);
-        var type = $this.data("jpvsType");
-        if (type) {
-            //If "data-jpvs-type" is specified, apply it
-            var widget = jpvs[type];
-            if (widget) {
-                widget.attach(this);
-                return;
+    jpvs.createAllWidgets = function () {
+        $("*").each(function () {
+            //Loop over all elements and attach a widget, as appropriate
+            var obj = this;
+            var $this = $(obj);
+            var type = $this.data("jpvsType");
+            if (type) {
+                //If "data-jpvs-type" is specified, apply it
+                var widget = jpvs[type];
+                if (widget) {
+                    widget.attach(this);
+                    return;
+                }
             }
-        }
 
-        //If no "data-jpvs-type" is specified or if didn't manage to attach anything, then select the first appropriate widget, if any,
-        //and attach it (default behavior)
-        $.each(jpvs.widgetDefs, function (i, wd) {
-            //Let's see if "wd" is an appropriate widget definition for "obj"
-            if (wd.canAttachTo && wd.canAttachTo(obj)) {
-                //Yes, the widget said it can be attached to "obj"
-                wd.widget.attach(obj);
-                return false;
-            }
-        });
-    });
-};
-
-
-jpvs.write = function (container, text) {
-    if (!container)
-        return;
-
-    if (text) {
-        //Handle multiple lines
-        text = text.replace("\r", "");
-        var lines = text.split("\n");
-        if (lines.length == 1)
-            $(container).append(document.createTextNode(lines[0]));
-        else if (lines.length > 1) {
-            $.each(lines, function (i, line) {
-                $(container).append(document.createTextNode(line));
-                $(container).append(document.createElement("br"));
+            //If no "data-jpvs-type" is specified or if didn't manage to attach anything, then select the first appropriate widget, if any,
+            //and attach it (default behavior)
+            $.each(jpvs.widgetDefs, function (i, wd) {
+                //Let's see if "wd" is an appropriate widget definition for "obj"
+                if (wd.canAttachTo && wd.canAttachTo(obj)) {
+                    //Yes, the widget said it can be attached to "obj"
+                    wd.widget.attach(obj);
+                    return false;
+                }
             });
-        }
-    }
-};
-
-jpvs.writeln = function (container, text) {
-    if (!container)
-        return;
-
-    jpvs.write(container, text);
-    $(container).append(document.createElement("br"));
-};
-
-jpvs.writeTag = function (container, tagName, text) {
-    if (!container)
-        return;
-    if (!tagName)
-        return;
-
-    var tag = document.createElement(tagName);
-    $(container).append(tag);
-    jpvs.write(tag, text);
-
-    return $(tag);
-};
-
-jpvs.applyTemplate = function (container, template, dataItem) {
-    if (!container)
-        return;
-    if (!template)
-        return;
-
-    /*
-    When used with DataGrid, the template might be in the form { isHeader: true, template: .... }
-    */
-    if (template.template) {
-        jpvs.applyTemplate(container, template.template, dataItem);
-        return;
-    }
-
-    /*
-    The template might be a string, in which case we just write it
-    */
-    if (typeof (template) == "string") {
-        jpvs.write(container, template);
-        return;
-    }
-
-    /*
-    Or it could be in the form: { fieldName: "ABC", tagName: "TAG", css: {}, selector: function(fieldValue, dataItem) {} }.
-    Extract dataItem.ABC and write it as text (optionally in the specified tag name).
-    */
-    if (template.fieldName) {
-        var fieldValue = dataItem && dataItem[template.fieldName];
-        if (template.selector)
-            fieldValue = template.selector(fieldValue, dataItem);
-        else
-            fieldValue = fieldValue && fieldValue.toString();
-
-        if (template.tagName)
-            jpvs.writeTag(container, template.tagName, fieldValue);
-        else
-            jpvs.write(container, fieldValue);
-
-        //Apply CSS by means of jQuery.css()
-        if (template.css)
-            container.css(template.css);
-
-        return;
-    }
-
-    /*
-    Or it could be a function. Call it with this = container.
-    */
-    if (typeof (template) == "function") {
-        template.call($(container), dataItem);
-        return;
-    }
-
-    /*
-    Don't know what to do here.
-    */
-    jpvs.alert("JPVS Error", "The specified template is not valid.");
-};
-
-/*
-This function handles extraction of data from various types of data sources and returns data asynchronously to a callback.
-The object passed to the callback is as follows: 
-{
-total: total number of records in the full data set,
-start: offset in the data set of the first record returned in the "data" field,
-count: number of records returned in the "data" field; this is <= total,
-data: array with the returned records
-}
-
-Parameter "start" is optional. When not specified (null or undefined), 0 is implied.
-Parameter "count" is optional. When not specified (null or undefined), the entire data set is returned.
-*/
-jpvs.readDataSource = function (data, start, count, callback) {
-    if (!data) {
-        //No data source provided. Return no data.
-        returnNoData();
-    }
-    else if (typeof (data) == "function") {
-        //The data source is a function. It might be either synchronous or asynchronous.
-        //Let's try to call it and see what comes back. Pass whatever comes back to our internalCallback function.
-        var ret = data(start, count, internalCallback);
-
-        if (ret === undefined) {
-            //No return value. The function is probably asynchronous. The internalCallback will receive the data.
-        }
-        else if (ret === null) {
-            //The function explicitly returned null. Means "no data". Let's return no data.
-            returnNoData();
-        }
-        else {
-            //The function explicitly returned something. That's the data we are looking for. Let's pass it to the internal callback
-            internalCallback(ret);
-        }
-    }
-    else if (data.length) {
-        //"data" is a static collection of records, not a function. We are supposed to return records between start and start+count
-        var tot = data.length;
-        var sliceStart = Math.max(0, start || 0);
-        var dataPortion;
-        if (count === undefined || count === null) {
-            //Get from start to end
-            dataPortion = data.slice(sliceStart);
-        }
-        else {
-            //Get from start to start+count
-            var sliceCount = Math.max(0, count || 0);
-            var sliceEnd = sliceStart + sliceCount;
-            dataPortion = data.slice(sliceStart, sliceEnd);
-        }
-
-        callback({
-            total: tot,
-            start: sliceStart,
-            count: dataPortion.length,
-            data: dataPortion
         });
-    }
-    else {
-        //"data" is not an array-like object. Let's return no data
-        returnNoData();
-    }
-
-    function returnNoData() {
-        callback({
-            total: 0,
-            start: 0,
-            count: 0,
-            data: []
-        });
-    }
-
-    function internalCallback(val) {
-        /*
-        "val" is the return value of the "data" function. It might be a plain array or it might be structured as a partial data set.
-        */
-        if (val.total && val.data) {
-            //Return it directly
-            callback({
-                total: val.total,
-                start: val.start || 0,
-                count: val.data.length || 0,
-                data: val.data
-            });
-        }
-        else if (val.length) {
-            //The function returned an array. We must assume this is the entire data set, since we have no info as to which part it is.
-            callback({
-                total: val.length,
-                start: 0,
-                count: val.length,
-                data: val
-            });
-        }
-        else {
-            //No data or unknown format
-            returnNoData();
-        }
-    }
-};
+    };
 
 
-jpvs.showDimScreen = function (delayMilliseconds, fadeInDuration, template) {
-    //Schedule creation
-    if (jpvs.showDimScreen.timeout)
-        return;
-
-    jpvs.showDimScreen.timeout = setTimeout(create, delayMilliseconds != null ? delayMilliseconds : 500);
-
-    function create() {
-        jpvs.showDimScreen.timeout = null;
-
-        if (jpvs.showDimScreen.element)
+    jpvs.write = function (container, text) {
+        if (!container)
             return;
 
-        //Create a DIV that covers the entire window
-        jpvs.showDimScreen.element = jpvs.writeTag("body", "div").addClass("DimScreen").css({
-            position: "fixed",
-            top: "0px", left: "0px", width: "100%", height: "100%",
-            display: "none"
-        });
+        //This line allows us to accept DOM elements, jQuery objects AND jpvs widgets
+        container = toElement(container);
 
-        //If provided, we can use a custom template for filling the DIV
-        jpvs.applyTemplate(jpvs.showDimScreen.element, template);
+        if (text) {
+            //Handle multiple lines
+            text = text.replace("\r", "");
+            var lines = text.split("\n");
+            if (lines.length == 1)
+                $(container).append(document.createTextNode(lines[0]));
+            else if (lines.length > 1) {
+                $.each(lines, function (i, line) {
+                    $(container).append(document.createTextNode(line));
+                    $(container).append(document.createElement("br"));
+                });
+            }
+        }
+    };
 
-        //Finally, fade in the DIV
-        jpvs.showDimScreen.element.fadeIn(fadeInDuration != null ? fadeInDuration : 250);
+    jpvs.writeln = function (container, text) {
+        if (!container)
+            return;
+
+        //This line allows us to accept DOM elements, jQuery objects AND jpvs widgets
+        container = toElement(container);
+
+        jpvs.write(container, text);
+        $(container).append(document.createElement("br"));
+    };
+
+    jpvs.writeTag = function (container, tagName, text) {
+        if (!container)
+            return;
+        if (!tagName)
+            return;
+
+        //This line allows us to accept DOM elements, jQuery objects AND jpvs widgets
+        container = toElement(container);
+
+        var tag = document.createElement(tagName);
+        $(container).append(tag);
+        jpvs.write(tag, text);
+
+        return $(tag);
+    };
+
+    jpvs.applyTemplate = function (container, template, dataItem) {
+        if (!container)
+            return;
+        if (!template)
+            return;
+
+        //This line allows us to accept DOM elements, jQuery objects AND jpvs widgets
+        container = toElement(container);
+
+        /*
+        When used with DataGrid, the template might be in the form { isHeader: true, template: .... }
+        */
+        if (template.template) {
+            jpvs.applyTemplate(container, template.template, dataItem);
+            return;
+        }
+
+        /*
+        The template might be a string, in which case we just write it
+        */
+        if (typeof (template) == "string") {
+            jpvs.write(container, template);
+            return;
+        }
+
+        /*
+        Or it could be in the form: { fieldName: "ABC", tagName: "TAG", css: {}, selector: function(fieldValue, dataItem) {} }.
+        Extract dataItem.ABC and write it as text (optionally in the specified tag name).
+        */
+        if (template.fieldName) {
+            var fieldValue = dataItem && dataItem[template.fieldName];
+            if (template.selector)
+                fieldValue = template.selector(fieldValue, dataItem);
+            else
+                fieldValue = fieldValue && fieldValue.toString();
+
+            if (template.tagName)
+                jpvs.writeTag(container, template.tagName, fieldValue);
+            else
+                jpvs.write(container, fieldValue);
+
+            //Apply CSS by means of jQuery.css()
+            if (template.css)
+                container.css(template.css);
+
+            return;
+        }
+
+        /*
+        Or it could be a function. Call it with this = container.
+        */
+        if (typeof (template) == "function") {
+            template.call($(container), dataItem);
+            return;
+        }
+
+        /*
+        Don't know what to do here.
+        */
+        jpvs.alert("JPVS Error", "The specified template is not valid.");
+    };
+
+    /*
+    This function handles extraction of data from various types of data sources and returns data asynchronously to a callback.
+    The object passed to the callback is as follows: 
+    {
+    total: total number of records in the full data set,
+    start: offset in the data set of the first record returned in the "data" field,
+    count: number of records returned in the "data" field; this is <= total,
+    data: array with the returned records
     }
-};
 
-jpvs.hideDimScreen = function (fadeOutDuration) {
-    //If we are still waiting for the timeout to elapse, simply cancel the timeout
-    if (jpvs.showDimScreen.timeout) {
-        clearTimeout(jpvs.showDimScreen.timeout);
-        jpvs.showDimScreen.timeout = null;
-    }
+    Parameter "start" is optional. When not specified (null or undefined), 0 is implied.
+    Parameter "count" is optional. When not specified (null or undefined), the entire data set is returned.
+    */
+    jpvs.readDataSource = function (data, start, count, callback) {
+        if (!data) {
+            //No data source provided. Return no data.
+            returnNoData();
+        }
+        else if (typeof (data) == "function") {
+            //The data source is a function. It might be either synchronous or asynchronous.
+            //Let's try to call it and see what comes back. Pass whatever comes back to our internalCallback function.
+            var ret = data(start, count, internalCallback);
 
-    //If a screen dimmer is present, fade it out and remove it
-    if (jpvs.showDimScreen.element) {
-        var x = jpvs.showDimScreen.element;
-        jpvs.showDimScreen.element = null;
-        x.fadeOut(fadeOutDuration != null ? fadeOutDuration : 250, function () { x.remove(); });
-    }
-};
+            if (ret === undefined) {
+                //No return value. The function is probably asynchronous. The internalCallback will receive the data.
+            }
+            else if (ret === null) {
+                //The function explicitly returned null. Means "no data". Let's return no data.
+                returnNoData();
+            }
+            else {
+                //The function explicitly returned something. That's the data we are looking for. Let's pass it to the internal callback
+                internalCallback(ret);
+            }
+        }
+        else if (data.length) {
+            //"data" is a static collection of records, not a function. We are supposed to return records between start and start+count
+            var tot = data.length;
+            var sliceStart = Math.max(0, start || 0);
+            var dataPortion;
+            if (count === undefined || count === null) {
+                //Get from start to end
+                dataPortion = data.slice(sliceStart);
+            }
+            else {
+                //Get from start to start+count
+                var sliceCount = Math.max(0, count || 0);
+                var sliceEnd = sliceStart + sliceCount;
+                dataPortion = data.slice(sliceStart, sliceEnd);
+            }
+
+            callback({
+                total: tot,
+                start: sliceStart,
+                count: dataPortion.length,
+                data: dataPortion
+            });
+        }
+        else {
+            //"data" is not an array-like object. Let's return no data
+            returnNoData();
+        }
+
+        function returnNoData() {
+            callback({
+                total: 0,
+                start: 0,
+                count: 0,
+                data: []
+            });
+        }
+
+        function internalCallback(val) {
+            /*
+            "val" is the return value of the "data" function. It might be a plain array or it might be structured as a partial data set.
+            */
+            if (val.total && val.data) {
+                //Return it directly
+                callback({
+                    total: val.total,
+                    start: val.start || 0,
+                    count: val.data.length || 0,
+                    data: val.data
+                });
+            }
+            else if (val.length) {
+                //The function returned an array. We must assume this is the entire data set, since we have no info as to which part it is.
+                callback({
+                    total: val.length,
+                    start: 0,
+                    count: val.length,
+                    data: val
+                });
+            }
+            else {
+                //No data or unknown format
+                returnNoData();
+            }
+        }
+    };
+
+
+    jpvs.showDimScreen = function (delayMilliseconds, fadeInDuration, template) {
+        //Schedule creation
+        if (jpvs.showDimScreen.timeout)
+            return;
+
+        jpvs.showDimScreen.timeout = setTimeout(create, delayMilliseconds != null ? delayMilliseconds : 500);
+
+        function create() {
+            jpvs.showDimScreen.timeout = null;
+
+            if (jpvs.showDimScreen.element)
+                return;
+
+            //Create a DIV that covers the entire window
+            jpvs.showDimScreen.element = jpvs.writeTag("body", "div").addClass("DimScreen").css({
+                position: "fixed",
+                top: "0px", left: "0px", width: "100%", height: "100%",
+                display: "none"
+            });
+
+            //If provided, we can use a custom template for filling the DIV
+            jpvs.applyTemplate(jpvs.showDimScreen.element, template);
+
+            //Finally, fade in the DIV
+            jpvs.showDimScreen.element.fadeIn(fadeInDuration != null ? fadeInDuration : 250);
+        }
+    };
+
+    jpvs.hideDimScreen = function (fadeOutDuration) {
+        //If we are still waiting for the timeout to elapse, simply cancel the timeout
+        if (jpvs.showDimScreen.timeout) {
+            clearTimeout(jpvs.showDimScreen.timeout);
+            jpvs.showDimScreen.timeout = null;
+        }
+
+        //If a screen dimmer is present, fade it out and remove it
+        if (jpvs.showDimScreen.element) {
+            var x = jpvs.showDimScreen.element;
+            jpvs.showDimScreen.element = null;
+            x.fadeOut(fadeOutDuration != null ? fadeOutDuration : 250, function () { x.remove(); });
+        }
+    };
+
+})();
 
 /* JPVS
 Module: core
@@ -2414,6 +2462,9 @@ jpvs.writeButtonBar = function (container, buttons) {
     if (!buttons)
         return;
 
+    //Handle the case when container is a jpvs widget
+    container = jpvs.getElementIfWidget(container);
+
     //Create buttonbar
     var bar = $(document.createElement("div"));
     $(bar).addClass("ButtonBar").appendTo(container);
@@ -3669,6 +3720,10 @@ Depends: core, ImageButton
             return false;
         },
 
+        getMainContentElement: function () {
+            return this.bodyElement;
+        },
+
         prototype: {
             modal: jpvs.property({
                 get: function () {
@@ -3683,19 +3738,29 @@ Depends: core, ImageButton
             }),
 
             show: function () {
+                var pop = this;
+
                 //Show popup
                 this.element.show();
+
+                //First attempt to center (BEFORE the animation)
+                this.center();
+
+                //Second attempt to center (DURING the fadeIn animation)
+                setTimeout(function () { pop.center(); }, 0);
+
                 this.contentsElement.hide();
-                this.contentsElement.fadeIn();
+                this.contentsElement.fadeIn(function () {
+                    //Third attempt to center (at the END of the animation), in case the first and second attempts failed because the layout was not
+                    //available yet
+                    pop.center();
+                });
 
                 //Dim screen if modal
                 if (this.modal())
                     this.blanketElement.show();
                 else
                     this.blanketElement.hide();
-
-                //Center in screen
-                this.center();
 
                 //Keep track
                 allPopups[this.element.attr("id")].open = true;
@@ -4009,6 +4074,10 @@ Depends: core
 
         canAttachTo: function (obj) {
             return false;
+        },
+
+        getMainContentElement: function () {
+            return this.content;
         },
 
         prototype: {

@@ -45,19 +45,19 @@ jpvs.createAllWidgets = function () {
 
 jpvs.write = function (container, text) {
     /// <summary>Writes text.</summary>
-    /// <param name="container" type="String">Where to write the text: jQuery selector or jQuery object.</param>
+    /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="text" type="String">The text to write. Newlines in the string are handled correctly.</param>
 };
 
 jpvs.writeln = function (container, text) {
     /// <summary>Writes text and terminates the current line.</summary>
-    /// <param name="container" type="String">Where to write the text: jQuery selector or jQuery object.</param>
+    /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="text" type="String">The text to write. Newlines in the string are handled correctly.</param>
 };
 
 jpvs.writeTag = function (container, tagName, text) {
     /// <summary>Writes a tag with optional text inside.</summary>
-    /// <param name="container" type="String">Where to write: jQuery selector or jQuery object.</param>
+    /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="tagName" type="String">The tag name to write.</param>
     /// <param name="text" type="String">Optional: the text to write. Newlines in the string are handled correctly.</param>
     /// <returns type="jQuery">A jQuery object that wraps the element just written.</returns>
@@ -65,7 +65,7 @@ jpvs.writeTag = function (container, tagName, text) {
 
 jpvs.applyTemplate = function (container, template, dataItem) {
     /// <summary>Writes content according to a template.</summary>
-    /// <param name="container" type="String">Where to write: jQuery selector or jQuery object.</param>
+    /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="template" type="Object">The template may be any of the following: (1) a string; (2) an object like this: { fieldName: "ABC", tagName: "TAG", css: {}, selector: function(fieldValue, dataItem) {} }; (3) a function(dataItem) {} that will receive the container as the "this" object.</param>
     /// <param name="dataItem" type="String">Optional: the data item that will be consumed by the template.</param>
 };

@@ -137,6 +137,10 @@ Depends: core, ImageButton
             return false;
         },
 
+        getMainContentElement: function () {
+            return this.bodyElement;
+        },
+
         prototype: {
             modal: jpvs.property({
                 get: function () {
@@ -151,19 +155,29 @@ Depends: core, ImageButton
             }),
 
             show: function () {
+                var pop = this;
+
                 //Show popup
                 this.element.show();
+
+                //First attempt to center (BEFORE the animation)
+                this.center();
+
+                //Second attempt to center (DURING the fadeIn animation)
+                setTimeout(function () { pop.center(); }, 0);
+
                 this.contentsElement.hide();
-                this.contentsElement.fadeIn();
+                this.contentsElement.fadeIn(function () {
+                    //Third attempt to center (at the END of the animation), in case the first and second attempts failed because the layout was not
+                    //available yet
+                    pop.center();
+                });
 
                 //Dim screen if modal
                 if (this.modal())
                     this.blanketElement.show();
                 else
                     this.blanketElement.hide();
-
-                //Center in screen
-                this.center();
 
                 //Keep track
                 allPopups[this.element.attr("id")].open = true;

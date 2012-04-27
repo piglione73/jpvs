@@ -99,6 +99,10 @@ Depends: core
             return false;
         },
 
+        getMainContentElement: function () {
+            return this.content;
+        },
+
         prototype: {
             objectSize: jpvs.property({
                 get: function () {

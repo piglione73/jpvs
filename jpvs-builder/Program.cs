@@ -32,6 +32,10 @@ namespace jpvs.Builder {
                 Console.WriteLine("{0} documentation javascript files found", jsDocs.Length);
                 Utils.BundleAllJsDocFiles(jsDocs);
 
+                //Copy the two outputs outside
+                File.Copy(Utils.GetJPVSDirectory("javascript/build/min/jpvs-all.js"), Utils.GetJPVSDirectory("jpvs-all.js"), true);
+                File.Copy(Utils.GetJPVSDirectory("javascript/docs/jpvs-doc.js"), Utils.GetJPVSDirectory("jpvs-doc.js"), true);
+
                 //The end
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Build terminated successfully. Press Enter to exit.");

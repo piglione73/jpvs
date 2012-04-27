@@ -47,6 +47,9 @@ jpvs.writeButtonBar = function (container, buttons) {
     if (!buttons)
         return;
 
+    //Handle the case when container is a jpvs widget
+    container = jpvs.getElementIfWidget(container);
+
     //Create buttonbar
     var bar = $(document.createElement("div"));
     $(bar).addClass("ButtonBar").appendTo(container);

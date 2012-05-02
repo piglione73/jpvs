@@ -676,6 +676,9 @@ Depends: bootstrap
 
         function attach(widgetDef) {
             return function (selector) {
+                if (!selector)
+                    return;
+
                 //The "selector" may also be a jpvs widget. The following line handles this case
                 selector = toElement(selector);
 
@@ -2623,18 +2626,22 @@ Depends: core, Pager
 
             clear: function () {
                 this.element.find("tr").remove();
+                return this;
             },
 
             dataBind: function (data) {
                 dataBind(this, "tbody", data);
+                return this;
             },
 
             dataBindHeader: function (data) {
                 dataBind(this, "thead", data);
+                return this;
             },
 
             dataBindFooter: function (data) {
                 dataBind(this, "tfoot", data);
+                return this;
             },
 
             addBodyRow: function (item, index) {
@@ -2642,6 +2649,7 @@ Depends: core, Pager
                 var sectionElement = getSection(this, section);
                 var sectionName = decodeSectionName(section);
                 addRow(this, sectionName, sectionElement, item, index);
+                return this;
             },
 
             addHeaderRow: function (item, index) {
@@ -2649,6 +2657,7 @@ Depends: core, Pager
                 var sectionElement = getSection(this, section);
                 var sectionName = decodeSectionName(section);
                 addRow(this, sectionName, sectionElement, item, index);
+                return this;
             },
 
             addFooterRow: function (item, index) {
@@ -2656,42 +2665,49 @@ Depends: core, Pager
                 var sectionElement = getSection(this, section);
                 var sectionName = decodeSectionName(section);
                 addRow(this, sectionName, sectionElement, item, index);
+                return this;
             },
 
             removeBodyRow: function (index) {
                 var section = "tbody";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index);
+                return this;
             },
 
             removeHeaderRow: function (index) {
                 var section = "thead";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index);
+                return this;
             },
 
             removeFooterRow: function (index) {
                 var section = "tfoot";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index);
+                return this;
             },
 
             removeBodyRows: function (index, count) {
                 var section = "tbody";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index, count);
+                return this;
             },
 
             removeHeaderRows: function (index, count) {
                 var section = "thead";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index, count);
+                return this;
             },
 
             removeFooterRows: function (index, count) {
                 var section = "tfoot";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index, count);
+                return this;
             }
         }
     });

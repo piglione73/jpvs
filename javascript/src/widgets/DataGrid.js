@@ -8,6 +8,8 @@ Depends: core, Pager
 
     jpvs.DataGrid = function (selector) {
         this.attach(selector);
+
+        this.dataItemClick = jpvs.event(this);
     };
 
     jpvs.makeWidget({
@@ -22,6 +24,10 @@ Depends: core, Pager
         },
 
         init: function (W) {
+            //Attach a click handler to all rows, even those we will add later
+            this.element.on("click", "tr", function (e) {
+                onRowClicked(W, e.currentTarget);
+            });
         },
 
         canAttachTo: function (obj) {
@@ -76,18 +82,22 @@ Depends: core, Pager
 
             clear: function () {
                 this.element.find("tr").remove();
+                return this;
             },
 
             dataBind: function (data) {
                 dataBind(this, "tbody", data);
+                return this;
             },
 
             dataBindHeader: function (data) {
                 dataBind(this, "thead", data);
+                return this;
             },
 
             dataBindFooter: function (data) {
                 dataBind(this, "tfoot", data);
+                return this;
             },
 
             addBodyRow: function (item, index) {
@@ -95,6 +105,7 @@ Depends: core, Pager
                 var sectionElement = getSection(this, section);
                 var sectionName = decodeSectionName(section);
                 addRow(this, sectionName, sectionElement, item, index);
+                return this;
             },
 
             addHeaderRow: function (item, index) {
@@ -102,6 +113,7 @@ Depends: core, Pager
                 var sectionElement = getSection(this, section);
                 var sectionName = decodeSectionName(section);
                 addRow(this, sectionName, sectionElement, item, index);
+                return this;
             },
 
             addFooterRow: function (item, index) {
@@ -109,42 +121,49 @@ Depends: core, Pager
                 var sectionElement = getSection(this, section);
                 var sectionName = decodeSectionName(section);
                 addRow(this, sectionName, sectionElement, item, index);
+                return this;
             },
 
             removeBodyRow: function (index) {
                 var section = "tbody";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index);
+                return this;
             },
 
             removeHeaderRow: function (index) {
                 var section = "thead";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index);
+                return this;
             },
 
             removeFooterRow: function (index) {
                 var section = "tfoot";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index);
+                return this;
             },
 
             removeBodyRows: function (index, count) {
                 var section = "tbody";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index, count);
+                return this;
             },
 
             removeHeaderRows: function (index, count) {
                 var section = "thead";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index, count);
+                return this;
             },
 
             removeFooterRows: function (index, count) {
                 var section = "tfoot";
                 var sectionElement = getSection(this, section);
                 removeRow(this, sectionElement, index, count);
+                return this;
             }
         }
     });
@@ -273,6 +292,9 @@ Depends: core, Pager
 
             //Keep track of the fact we are NOT using the empty row template
             tr.data("fromEmptyRowTemplate", false);
+
+            //Keep track of the data item (used for the dataItemClick event)
+            tr.data("dataItem", item);
         }
         else {
             //We don't have a record. Let's use the empty row template, if any, or the default empty row template
@@ -295,6 +317,12 @@ Depends: core, Pager
             //Then let's create an invisible dummy text so the row has the correct height automagically
             jpvs.writeTag(singleTD, "span", ".").css("visibility", "hidden");
         };
+    }
+
+    function onRowClicked(grid, tr) {
+        var dataItem = $(tr).data("dataItem");
+        if (dataItem)
+            grid.dataItemClick.fire(grid, null, dataItem);
     }
 
 

@@ -19,7 +19,7 @@
             border: 1px solid red;
         }
     </style>
-    <script type="text/javascript" src="../libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
@@ -34,6 +34,11 @@
         jpvs(function ($W) {
             var tbl1 = $W.tbl1;
             var tbl2 = jpvs.DataGrid.create("#pnl");
+
+            tbl1.dataItemClick(function (dataItem) {
+                if (dataItem.A)
+                    jpvs.alert("Row click", "Clicked: " + dataItem.A);
+            });
 
             var data1 = [
                 { A: "A1", B: "B1", C: "C1" },
@@ -52,6 +57,7 @@
                     body: function (item) {
                         jpvs.Button.create(this).text("Click me").click.bind(function () {
                             jpvs.alert("Member A", item.A);
+                            return false;
                         });
                     },
                     footer: function (item) {

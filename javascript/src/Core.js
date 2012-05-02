@@ -169,6 +169,9 @@ Depends: bootstrap
 
         function attach(widgetDef) {
             return function (selector) {
+                if (!selector)
+                    return;
+
                 //The "selector" may also be a jpvs widget. The following line handles this case
                 selector = toElement(selector);
 

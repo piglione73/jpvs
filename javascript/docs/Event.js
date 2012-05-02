@@ -5,7 +5,7 @@ jpvs.Event = function (widget) {
     /// <param name="widget" type="Widget">The widget to which the event is to be attached.</param>
     /// <returns type="jpvs.Event">The newly-created event.</returns>
     var obj = function (handlerName, handler) {
-        /// <summary>Binds an handler to this event.</summary>
+        /// <summary>Binds a handler to this event.</summary>
         /// <param name="handlerName" type="String">Optional: the handler name. This argument may be omitted.</param>
         /// <param name="handler" type="Function">The event handler to bind to this event. The event handler is a function handler(widget) {} that receives the widget that received the event as the argument. Also, in the handler function body, "this" refers to the same widget that is passed as the argument.</param>
         /// <returns type="Widget">The widget.</returns>
@@ -22,14 +22,14 @@ jpvs.Event = function (widget) {
 };
 
 jpvs.Event.prototype.bind = function (handlerName, handler) {
-    /// <summary>Binds an handler to this event.</summary>
+    /// <summary>Binds a handler to this event.</summary>
     /// <param name="handlerName" type="String">Optional: the handler name. This argument may be omitted.</param>
     /// <param name="handler" type="Function">The event handler to bind to this event. The event handler is a function handler(widget) {} that receives the widget that received the event as the argument. Also, in the handler function body, "this" refers to the same widget that is passed as the argument.</param>
     /// <returns type="Widget">The widget.</returns>
 };
 
 jpvs.Event.prototype.unbind = function (handlerName) {
-    /// <summary>Unbinds an handler that has been bound by name.</summary>
+    /// <summary>Unbinds a handler that has been bound by name.</summary>
     /// <param name="handlerName" type="String">Name of the handler to unbound.</param>
     /// <returns type="Widget">The widget.</returns>
 };

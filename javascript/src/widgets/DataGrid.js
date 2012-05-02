@@ -26,7 +26,7 @@ Depends: core, Pager
         init: function (W) {
             //Attach a click handler to all rows, even those we will add later
             this.element.on("click", "tr", function (e) {
-                onRowClicked(W, e.currentTarget);
+                return onRowClicked(W, e.currentTarget);
             });
         },
 
@@ -322,7 +322,7 @@ Depends: core, Pager
     function onRowClicked(grid, tr) {
         var dataItem = $(tr).data("dataItem");
         if (dataItem)
-            grid.dataItemClick.fire(grid, null, dataItem);
+            return grid.dataItemClick.fire(grid, null, dataItem);
     }
 
 

@@ -24,7 +24,7 @@ jpvs.makeWidget({
 
     init: function (W) {
         this.element.change(function () {
-            W.change.fire(W);
+            return W.change.fire(W);
         });
     },
 

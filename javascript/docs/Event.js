@@ -7,7 +7,7 @@ jpvs.Event = function (widget) {
     var obj = function (handlerName, handler) {
         /// <summary>Binds a handler to this event.</summary>
         /// <param name="handlerName" type="String">Optional: the handler name. This argument may be omitted.</param>
-        /// <param name="handler" type="Function">The event handler to bind to this event. The event handler is a function handler(widget) {} that receives the widget that received the event as the argument. Also, in the handler function body, "this" refers to the same widget that is passed as the argument.</param>
+        /// <param name="handler" type="Function">The event handler to bind to this event. The event handler is a function handler(widget) {} that receives the widget that received the event as the argument. Also, in the handler function body, "this" refers to the same widget that is passed as the argument. If the handler returns false, then the event is not bubbled up the document hierarchy.</param>
         /// <returns type="Widget">The widget.</returns>
     };
 
@@ -39,5 +39,4 @@ jpvs.Event.prototype.fire = function (widget, handlerName, params) {
     /// <param name="widget" type="Widget">The widget that is generating the event.</param>
     /// <param name="handlerName" type="String">Optional: name of the handler to trigger, in case only a specific handler must be triggered. This argument may be omitted.</param>
     /// <param name="params" type="Object">Parameters that are passed to the handler. The handler is called as handler(params) and inside the handler "this" refers to the "widget".</param>
-    /// <returns type="Widget">The widget.</returns>
 };

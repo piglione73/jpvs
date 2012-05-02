@@ -42,7 +42,7 @@ jpvs.makeWidget({
 
         //Click
         this.element.click(function () {
-            W.click.fire(W);
+            return W.click.fire(W);
         });
     },
 

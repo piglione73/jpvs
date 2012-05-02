@@ -24,7 +24,7 @@ jpvs.makeWidget({
 
     init: function (W) {
         this.element.click(function () {
-            W.click.fire(W);
+            return W.click.fire(W);
         });
     },
 

@@ -1107,19 +1107,23 @@ jpvs.Event.prototype.unbind = function (handlerName) {
 
 jpvs.Event.prototype.fire = function (widget, handlerName, params) {
     if (handlerName)
-        fireHandler(this.handlers[handlerName], params);
+        return fireHandler(this.handlers[handlerName], params);
     else {
+        var ret = true;
         for (var hn in this.handlers) {
             var h = this.handlers[hn];
-            fireHandler(h, params);
-        }
-    }
+            var ret2 = fireHandler(h, params);
 
-    return this.widget;
+            //Combine the return values of all handlers. If any returns false, we return false
+            ret = ret && ret2;
+        }
+
+        return ret;
+    }
 
     function fireHandler(handler) {
         if (handler)
-            handler.call(widget, params);
+            return handler.call(widget, params);
     }
 };
 
@@ -2442,7 +2446,7 @@ jpvs.makeWidget({
 
     init: function (W) {
         this.element.click(function () {
-            W.click.fire(W);
+            return W.click.fire(W);
         });
     },
 
@@ -2508,10 +2512,10 @@ jpvs.makeWidget({
     init: function (W) {
         //Route both CLICK and CHANGE to out CHANGE event
         this.element.click(function () {
-            W.change.fire(W);
+            return W.change.fire(W);
         });
         this.element.change(function () {
-            W.change.fire(W);
+            return W.change.fire(W);
         });
     },
 
@@ -2558,6 +2562,8 @@ Depends: core, Pager
 
     jpvs.DataGrid = function (selector) {
         this.attach(selector);
+
+        this.dataItemClick = jpvs.event(this);
     };
 
     jpvs.makeWidget({
@@ -2572,6 +2578,10 @@ Depends: core, Pager
         },
 
         init: function (W) {
+            //Attach a click handler to all rows, even those we will add later
+            this.element.on("click", "tr", function (e) {
+                return onRowClicked(W, e.currentTarget);
+            });
         },
 
         canAttachTo: function (obj) {
@@ -2836,6 +2846,9 @@ Depends: core, Pager
 
             //Keep track of the fact we are NOT using the empty row template
             tr.data("fromEmptyRowTemplate", false);
+
+            //Keep track of the data item (used for the dataItemClick event)
+            tr.data("dataItem", item);
         }
         else {
             //We don't have a record. Let's use the empty row template, if any, or the default empty row template
@@ -2858,6 +2871,12 @@ Depends: core, Pager
             //Then let's create an invisible dummy text so the row has the correct height automagically
             jpvs.writeTag(singleTD, "span", ".").css("visibility", "hidden");
         };
+    }
+
+    function onRowClicked(grid, tr) {
+        var dataItem = $(tr).data("dataItem");
+        if (dataItem)
+            return grid.dataItemClick.fire(grid, null, dataItem);
     }
 
 
@@ -3297,7 +3316,7 @@ jpvs.makeWidget({
 
     init: function (W) {
         this.element.change(function () {
-            W.change.fire(W);
+            return W.change.fire(W);
         });
     },
 
@@ -3388,7 +3407,7 @@ jpvs.makeWidget({
 
         //Click
         this.element.click(function () {
-            W.click.fire(W);
+            return W.click.fire(W);
         });
     },
 
@@ -3461,8 +3480,7 @@ jpvs.makeWidget({
     init: function (W) {
         W.element.attr("href", "#");
         this.element.click(function () {
-            W.click.fire(W);
-            return false;
+            return W.click.fire(W);
         });
     },
 
@@ -4320,7 +4338,7 @@ jpvs.makeWidget({
 
     init: function (W) {
         this.element.change(function () {
-            W.change.fire(W);
+            return W.change.fire(W);
         });
     },
 

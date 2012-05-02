@@ -25,10 +25,10 @@ jpvs.makeWidget({
     init: function (W) {
         //Route both CLICK and CHANGE to out CHANGE event
         this.element.click(function () {
-            W.change.fire(W);
+            return W.change.fire(W);
         });
         this.element.change(function () {
-            W.change.fire(W);
+            return W.change.fire(W);
         });
     },
 

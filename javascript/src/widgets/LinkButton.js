@@ -23,7 +23,10 @@ jpvs.makeWidget({
 
     init: function (W) {
         W.element.attr("href", "#");
-        this.element.click(function () {
+        this.element.click(function (e) {
+            //Prevent the link from being navigated to
+            e.preventDefault();
+
             return W.click.fire(W);
         });
     },

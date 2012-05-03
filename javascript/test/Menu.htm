@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Menu</title>
+    <style type="text/css">
+        .TextBox
+        {
+            border: 1px solid red;
+        }
+        
+        .TextBox-Focus
+        {
+            outline: green solid 2px;
+        }
+        
+        .Button
+        {
+            background-color: pink;
+            border: 1px solid red;
+        }
+    </style>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/Menu.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+            var menuItems = [
+                { name: "cmdFile", text: "File", items: [
+                    { name: "cmdNew", text: "New", href: "http://www.google.com" },
+                    { name: "cmdOpen", text: "Open", href: "http://www.yahoo.com" },
+                    { name: "cmdSave", text: "Save" }
+                ]
+                },
+                { text: "Edit", href: "http://www.microsoft.com" },
+                { text: "Tools", items: [
+                    { text: "Options" },
+                    { text: "Customize" },
+                    { text: "File manager", items: [
+                        { name: "cmdFolders", text: "Folders" },
+                        { name: "cmdFiles", text: "Files" }
+                    ]
+                    }
+                ]
+                }
+            ];
+
+            var menuTemplate = [
+                jpvs.Menu.Templates.HorizontalMenuBar,
+                jpvs.Menu.Templates.PopupMenu,
+                jpvs.Menu.Templates.PopupMenu
+            ];
+
+            function level0_MenuTemplate(menuItems) {
+            }
+
+
+            function onItemClick(menuItem) {
+                jpvs.alert("Clicked menu item", menuItem.text);
+            }
+        });
+    </script>
+</head>
+<body>
+    <div data-jpvs-type="Menu" data-jpvs-template="HorizontalMenuBar,PopupMenu,PopupMenu">
+        <ul>
+            <li>
+                File
+                <ul>
+                    <li>New</li>
+                    <li>Open</li>
+                    <li>Save</li>
+                </ul>
+            </li>
+            <li>Edit</li>
+            <li>
+                Tools
+                <ul>
+                    <li>Options</li>
+                    <li>Customize</li>
+                    <li>File manager</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div data-jpvs-type="Menu" data-jpvs-template="HorizontalMenuBar,HorizontalMenuBar,PopupMenu">
+        <div>
+            File
+            <div>New</div>
+            <div>Open</div>
+            <div>Save</div>
+        </div>
+        <div>Edit</div>
+        <div>
+            Tools
+            <div>Options</div>
+            <div>Customize</div>
+            <div>File manager</div>
+        </div>
+    </div>
+</body>
+</html>

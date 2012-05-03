@@ -3847,6 +3847,8 @@ Depends: core, ImageButton
                 }
                 else
                     this.zIndex(10000);
+
+                return this;
             },
 
             title: jpvs.property({
@@ -4275,6 +4277,7 @@ Depends: core
 
             clear: function () {
                 this.element.find("tr").remove();
+                return this;
             }
         }
     });

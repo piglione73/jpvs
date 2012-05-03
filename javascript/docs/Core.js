@@ -67,9 +67,10 @@ jpvs.makeWidget = function (widgetDef) {
 
     //Additional prototype methods defined in "widgetDef"
     if (widgetDef.prototype) {
-        $.each(widgetDef.prototype, function (memberName, member) {
+        for (var memberName in widgetDef.prototype) {
+            var member = widgetDef.prototype[memberName];
             fn.prototype[memberName] = member;
-        });
+        }
     }
 
     function create_static(widgetDef) {
@@ -147,6 +148,7 @@ jpvs.writeln = function (container, text) {
     /// <summary>Writes text and terminates the current line.</summary>
     /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="text" type="String">The text to write. Newlines in the string are handled correctly.</param>
+    return $("");
 };
 
 jpvs.writeTag = function (container, tagName, text) {
@@ -155,6 +157,7 @@ jpvs.writeTag = function (container, tagName, text) {
     /// <param name="tagName" type="String">The tag name to write.</param>
     /// <param name="text" type="String">Optional: the text to write. Newlines in the string are handled correctly.</param>
     /// <returns type="jQuery">A jQuery object that wraps the element just written.</returns>
+    return $("");
 };
 
 jpvs.applyTemplate = function (container, template, dataItem) {

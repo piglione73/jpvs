@@ -227,6 +227,8 @@ Depends: core, ImageButton
                 }
                 else
                     this.zIndex(10000);
+
+                return this;
             },
 
             title: jpvs.property({

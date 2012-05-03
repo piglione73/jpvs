@@ -84,6 +84,7 @@ Depends: core
 
             clear: function () {
                 this.element.find("tr").remove();
+                return this;
             }
         }
     });

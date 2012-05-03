@@ -96,9 +96,10 @@ jpvs.makeWidget = function (widgetDef) {
 
     //Additional prototype methods defined in "widgetDef"
     if (widgetDef.prototype) {
-        $.each(widgetDef.prototype, function (memberName, member) {
+        for (var memberName in widgetDef.prototype) {
+            var member = widgetDef.prototype[memberName];
             fn.prototype[memberName] = member;
-        });
+        }
     }
 
     function create_static(widgetDef) {
@@ -176,6 +177,7 @@ jpvs.writeln = function (container, text) {
     /// <summary>Writes text and terminates the current line.</summary>
     /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="text" type="String">The text to write. Newlines in the string are handled correctly.</param>
+    return $("");
 };
 
 jpvs.writeTag = function (container, tagName, text) {
@@ -184,6 +186,7 @@ jpvs.writeTag = function (container, tagName, text) {
     /// <param name="tagName" type="String">The tag name to write.</param>
     /// <param name="text" type="String">Optional: the text to write. Newlines in the string are handled correctly.</param>
     /// <returns type="jQuery">A jQuery object that wraps the element just written.</returns>
+    return $("");
 };
 
 jpvs.applyTemplate = function (container, template, dataItem) {
@@ -619,4 +622,287 @@ jpvs.makeWidget({
         }
     }
 });
+
+
+window.jpvs = window.jpvs || {};
+
+jpvs.LinkButton = function (selector) {
+    /// <summary>Attaches the widget to an existing element.</summary>
+    /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+
+    this.click = jpvs.event(this);
+};
+
+jpvs.makeWidget({
+    widget: jpvs.LinkButton,
+    type: "LinkButton",
+
+    prototype: {
+        text: function (value) {
+            /// <summary>Property: text of the link button.</summary>
+            return this;
+        }
+    }
+});
+
+
+window.jpvs = window.jpvs || {};
+
+
+jpvs.Pager = function (selector) {
+    /// <summary>Attaches the widget to an existing element.</summary>
+    /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+
+    this.change = jpvs.event(this);
+};
+
+jpvs.makeWidget({
+    widget: jpvs.Pager,
+    type: "Pager",
+
+    prototype: {
+        page: function (value) {
+            /// <summary>Property: current page index.</summary>
+            return this;
+        },
+
+        totalPages: function (value) {
+            /// <summary>Property: total number of pages.</summary>
+            return this;
+        }
+    }
+});
+
+window.jpvs = window.jpvs || {};
+
+
+jpvs.Popup = function (selector) {
+    /// <summary>Attaches the widget to an existing element.</summary>
+    /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+
+    this.close = jpvs.event(this);
+};
+
+jpvs.Popup.getTopMost = function () {
+    /// <summary>Returns the top-most popup at any given time. Returns null if no popup is currently active.</summary>
+    return new jpvs.Popup();
+};
+
+jpvs.makeWidget({
+    widget: jpvs.Popup,
+    type: "Popup",
+
+    prototype: {
+        modal: function (value) {
+            /// <summary>Property: modal flag (true/false).</summary>
+            return this;
+        },
+
+        show: function () {
+            /// <summary>Shows the popup.</summary>
+            return this;
+        },
+
+        hide: function (callback) {
+            /// <summary>Hides the popup.</summary>
+            /// <param name="callback" type="Function">Optional: Function that will be called at the end of the hiding animation.</param>
+            return this;
+        },
+
+        center: function () {
+            /// <summary>Centers the popup in the browser window.</summary>
+            return this;
+        },
+
+        bringForward: function () {
+            /// <summary>Brings the popup on top.</summary>
+            return this;
+        },
+
+        title: function (value) {
+            /// <summary>Property: title of the popup.</summary>
+            return this;
+        },
+
+        width: function (value) {
+            /// <summary>Property: width of the popup in CSS units (e.g.: 400px or 30em).</summary>
+            return this;
+        },
+
+        maxWidth: function (value) {
+            /// <summary>Property: maximum width of the popup in CSS units (e.g.: 400px or 30em).</summary>
+            return this;
+        },
+
+        zIndex: function (value) {
+            /// <summary>Property: z-index of the popup.</summary>
+            return this;
+        }
+    }
+});
+
+
+
+jpvs.alert = function (title, text, onclose, buttons) {
+    /// <summary>Displays an alert popup with a title, a text, an on-close action, and one or more buttons.</summary>
+    /// <param name="title" type="String">Optional: Title of the popup.</param>
+    /// <param name="text" type="String">Text of the popup.</param>
+    /// <param name="onclose" type="Function">Optional: Function that will be called when the popup is closed or jpvs widget to be focused when the popup is closed.</param>
+    /// <param name="buttons" type="Array">Optional: Array of button definitions. A button definition is like this: { text: "OK", click: eventHandler }. The jpvs.writeButtonBar is used; see it for additional info.</param>
+};
+
+
+jpvs.confirm = function (title, text, onYes, onNo, textYes, textNo) {
+    /// <summary>Displays a confirmation popup with two customizable Yes/No buttons.</summary>
+    /// <param name="title" type="String">Title of the popup.</param>
+    /// <param name="text" type="String">Text of the popup.</param>
+    /// <param name="onYes" type="Function">Optional: Function that will be called if the user clicks the Yes button.</param>
+    /// <param name="onNo" type="Function">Optional: Function that will be called if the user clicks the No button.</param>
+    /// <param name="textYes" type="String">Optional: Text of the Yes button (default = "OK").</param>
+    /// <param name="textNo" type="String">Optional: Text of the No button (default = "Cancel").</param>
+};
+
+window.jpvs = window.jpvs || {};
+
+
+jpvs.Scroller = function (selector) {
+    /// <summary>Attaches the widget to an existing element.</summary>
+    /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+
+    this.change = jpvs.event(this);
+};
+
+jpvs.makeWidget({
+    widget: jpvs.Scroller,
+    type: "Scroller",
+
+    prototype: {
+        objectSize: function (value) {
+            /// <summary>Property: total object size { width: CSS units, height: CSS units }. This is the visible size of the widget, which looks like a box with scrollbars inside.</summary>
+            return this;
+        },
+
+        scrollableSize: function (value) {
+            /// <summary>Property: size of the scrollable area ({ width: CSS units, height: CSS units }). The scrollable area is used only for sizing the scrollbars. It is assumed that this area is the total area that will be scrolled inside the object's visible viewport (the object size property).</summary>
+            return this;
+        },
+
+        contentSize: function (value) {
+            /// <summary>Property: size of the content area ({ width: CSS units, height: CSS units }). It may be different from the scrollable size because the jpvs Scroller decouples the amount of scrolling set by the scrollbars from the actual amount of scrolling of the contents.</summary>
+            return this;
+        },
+
+        scrollPosition: function (value) {
+            /// <summary>Property: scroll position as specified by the scrollbars ({ top: pixels, left: pixels }). Setting this property only affects the scrollbars, not the content.</summary>
+            return this;
+        },
+
+        contentPosition: function (value) {
+            /// <summary>Property: content position ({ top: pixels, left: pixels }). Setting this property only affects the content, not the scrollbars.</summary>
+            return this;
+        }
+    }
+});
+
+window.jpvs = window.jpvs || {};
+
+
+jpvs.Table = function (selector) {
+    /// <summary>Attaches the widget to an existing element.</summary>
+    /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+};
+
+jpvs.makeWidget({
+    widget: jpvs.Table,
+    type: "Table",
+
+    prototype: {
+        addClass: function (classNames) {
+            /// <summary>Proxy to jQuery addClass function.</summary>
+            return this;
+        },
+
+        removeClass: function (classNames) {
+            /// <summary>Proxy to jQuery removeClass function.</summary>
+            return this;
+        },
+
+        css: function () {
+            /// <summary>Proxy to jQuery css function.</summary>
+            return this;
+        },
+
+        writeHeaderRow: function () {
+            /// <summary>Writes a new row in the header.</summary>
+            return new JPVS_RowObject();
+        },
+
+        writeBodyRow: function () {
+            /// <summary>Writes a new row in the body.</summary>
+            return new JPVS_RowObject();
+        },
+
+        writeRow: function () {
+            /// <summary>Writes a new row in the body.</summary>
+            return new JPVS_RowObject();
+        },
+
+        writeFooterRow: function () {
+            /// <summary>Writes a new row in the footer.</summary>
+            return new JPVS_RowObject();
+        },
+
+        caption: function (value) {
+            /// <summary>Property: table caption.</summary>
+            return this;
+        },
+
+        clear: function () {
+            /// <summary>Removes all rows from header, body and footer.</summary>
+            return this;
+        }
+    }
+});
+
+function JPVS_RowObject() {
+}
+
+JPVS_RowObject.prototype.writeHeaderCell = function (text) {
+    /// <summary>Writes a header cell (TH) and returns the jQuery object that represents the cell.</summary>
+    /// <param name="text" type="String">Optional: text to write in the cell.</param>
+    return $("");
+};
+
+JPVS_RowObject.prototype.writeCell = function (text) {
+    /// <summary>Writes a cell (TD) and returns the jQuery object that represents the cell.</summary>
+    /// <param name="text" type="String">Optional: text to write in the cell.</param>
+    return $("");
+};
+
+window.jpvs = window.jpvs || {};
+
+jpvs.TextBox = function (selector) {
+    /// <summary>Attaches the widget to an existing element.</summary>
+    /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+
+    this.change = jpvs.event(this);
+};
+
+jpvs.makeWidget({
+    widget: jpvs.TextBox,
+    type: "TextBox",
+
+    prototype: {
+        text: function (value) {
+            /// <summary>Property: text of the textbox.</summary>
+            return this;
+        },
+
+        width: function (value) {
+            /// <summary>Property: width in CSS units (e.g.: 200px or 25em).</summary>
+            return this;
+        }
+    }
+});
+
 

@@ -9,12 +9,124 @@ Depends: core, Table
 
 (function () {
 
+    //Keep track of all menus
+    var allMenus = {};
+
+    //Attach global events for handling menus
+    $(document).ready(function () {
+        $(document).on("mouseover.jpvsMenu", ".Menu .Item", onItemMouseOver);
+        $(document).on("mouseout.jpvsMenu", ".Menu .Item", onItemMouseOut);
+        $(document).on("click.jpvsMenu", onGlobalClick);
+    });
+
     jpvs.Menu = function (selector) {
         this.attach(selector);
 
         this.click = jpvs.event(this);
     };
 
+    jpvs.Menu.MenuElement = function (element, menuItems, level, isPopup, childrenAlignment) {
+        this.element = element;
+        this.menuItems = menuItems;
+        this.level = level;
+        this.isPopup = isPopup;
+        this.childrenAlignment = childrenAlignment;
+
+        this.itemElements = element.find(".Item");
+
+        //This member is loaded just after the rendering function finishes
+        this.parentElement = null;
+    };
+
+    jpvs.Menu.MenuElement.prototype.show = function () {
+        //When showing a "MenuElement", first make sure all other non-root menus of all menus are hidden
+        $.each(allMenus, function (i, menu) {
+            closeAllNonRoot(menu);
+        });
+
+        //Then show this "MenuElement", its parent, ..., up to the root element
+        var allLine = [];
+        for (var x = this; x != null; x = x.parentElement)
+            allLine.unshift(x);
+
+        //allLine has all the MenuElements that we must show
+        for (var i = 0; i < allLine.length; i++) {
+            var me = allLine[i];
+            if (me.isPopup) {
+                //A popup menu must appear close to the parent menu item
+                var parentElement = me.parentElement;
+
+                //Find the item (in the parent menu element) that has "me" as submenu
+                var parentMenuItem = findParentItem(parentElement, me);
+
+                //Determine the coordinates and show
+                var box = getBox(parentMenuItem);
+                var coords = getPopupCoords(box, parentElement.childrenAlignment);
+
+                me.element.show().css({
+                    position: "absolute",
+                    left: coords.x + "px",
+                    top: coords.y + "px"
+                });
+
+                //Then fit in visible area
+                jpvs.fitInWindow(me.element);
+            }
+            else {
+                //A non-popup menu, must just appear
+                me.element.show();
+            }
+        }
+
+        function findParentItem(parentElement, menuElement) {
+            for (var i = 0; i < parentElement.itemElements.length; i++) {
+                var itemElement = $(parentElement.itemElements[i]);
+                var subMenu = itemElement.data("subMenu");
+
+                //If this item's submenu is the menuElement, we have found the parent menu item of the "menuElement"
+                if (subMenu === menuElement)
+                    return itemElement;
+            }
+        }
+
+        function getBox(elem) {
+            var pos = elem.offset();
+            var w = elem.outerWidth();
+            var h = elem.outerHeight();
+
+            return { x: pos.left, y: pos.top, w: w, h: h };
+        }
+
+        function getPopupCoords(box, align) {
+            if (align == "right")
+                return { x: box.x + box.w, y: box.y };
+            else if (align == "bottom")
+                return { x: box.x, y: box.y + box.h };
+            else
+                return box;
+        }
+    };
+
+    jpvs.Menu.MenuElement.prototype.hide = function () {
+        this.element.hide();
+    };
+
+    jpvs.Menu.MenuElement.prototype.hideIfNonRoot = function () {
+        if (this.level != 0)
+            this.element.hide();
+    };
+
+    jpvs.Menu.MenuElement.prototype.getChildren = function () {
+        //Each itemElement may have an associated submenu
+        var subMenus = [];
+        $.each(this.itemElements, function (i, itemElem) {
+            //It may also be null/undefined if this menu item has no submenu
+            var subMenu = $(itemElem).data("subMenu");
+            subMenus.push(subMenu);
+        });
+
+        return subMenus;
+    };
 
     jpvs.Menu.Templates = {
 
@@ -34,19 +146,12 @@ Depends: core, Table
             $.each(menuItems, function (i, item) {
                 var cell = row.writeCell().addClass("Item");
 
-                //Hovering effect
-                cell.hover(function () {
-                    cell.addClass("Item-Hover");
-                }, function () {
-                    cell.removeClass("Item-Hover");
-                });
-
                 //Write the menu item using the menu item template
                 jpvs.applyTemplate(cell, menuItemTemplate, item);
             });
 
-            //The menu template must return the DOM element
-            return tbl.element;
+            //The menu template must return a MenuElement
+            return new jpvs.Menu.MenuElement(tbl.element, menuItems, level != 0, false, "bottom");
         },
 
         VerticalMenuBar: function (menuData) {
@@ -57,27 +162,20 @@ Depends: core, Table
 
             /*
             A vertical menu bar is a vertical table of items.
-            Each menu item is a TD.
+            Each menu item is a TR.
             */
             var tbl = jpvs.Table.create(this).addClass("VerticalMenuBar").addClass("VerticalMenuBar-Level" + level);
 
             $.each(menuItems, function (i, item) {
                 var row = tbl.writeBodyRow();
-                var cell = row.writeCell().addClass("Item");
-
-                //Hovering effect
-                cell.hover(function () {
-                    cell.addClass("Item-Hover");
-                }, function () {
-                    cell.removeClass("Item-Hover");
-                });
+                row.element.addClass("Item");
 
                 //Write the menu item using the menu item template
-                jpvs.applyTemplate(cell, menuItemTemplate, item);
+                jpvs.applyTemplate(row, menuItemTemplate, item);
             });
 
-            //The menu template must return the DOM element
-            return tbl.element;
+            //The menu template must return a MenuElement
+            return new jpvs.Menu.MenuElement(tbl.element, menuItems, level != 0, false, "right");
         },
 
         PopupMenu: function (menuData) {
@@ -88,27 +186,20 @@ Depends: core, Table
 
             /*
             A popup menu is a vertical table of items.
-            Each menu item is a TD.
+            Each menu item is a TR.
             */
             var tbl = jpvs.Table.create(this).addClass("PopupMenu").addClass("PopupMenu-Level" + level);
 
             $.each(menuItems, function (i, item) {
                 var row = tbl.writeBodyRow();
-                var cell = row.writeCell().addClass("Item");
-
-                //Hovering effect
-                cell.hover(function () {
-                    cell.addClass("Item-Hover");
-                }, function () {
-                    cell.removeClass("Item-Hover");
-                });
+                row.element.addClass("Item");
 
                 //Write the menu item using the menu item template
-                jpvs.applyTemplate(cell, menuItemTemplate, item);
+                jpvs.applyTemplate(row, menuItemTemplate, item);
             });
 
-            //The menu template must return the DOM element
-            return tbl.element;
+            //The menu template must return a MenuElement
+            return new jpvs.Menu.MenuElement(tbl.element, menuItems, level != 0, true, "right");
         }
 
     };
@@ -116,15 +207,21 @@ Depends: core, Table
     jpvs.Menu.ItemTemplates = {
 
         HorizontalMenuBarItem: function (menuItem) {
+            //In the HorizontalMenuBar, "this" is a TD
             jpvs.write(this, menuItem.text);
         },
 
         VerticalMenuBarItem: function (menuItem) {
-            jpvs.write(this, menuItem.text);
+            //In the VerticalMenuBar, "this" is a TR
+            jpvs.writeTag(this, "td", menuItem.text);
         },
 
         PopupMenuItem: function (menuItem) {
-            jpvs.write(this, menuItem.text);
+            //In the PopupMenu, "this" is a TR
+            jpvs.writeTag(this, "td", menuItem.text);
+
+            if (menuItem.items && menuItem.items.length)
+                jpvs.writeTag(this, "td", " --> ");
         }
 
     };
@@ -159,6 +256,10 @@ Depends: core, Table
 
             //...and recreate the content
             this.menuItems(menuItems);
+
+            //Register the menu
+            this.ensureId();
+            allMenus[this.id()] = this;
         },
 
         canAttachTo: function (obj) {
@@ -284,7 +385,27 @@ Depends: core, Table
         //itemTemplate[1] is the item template for the first nesting level
         //itemTemplate[2] is the item template for the second nesting level
         //...
-        render(W.element, template, itemTemplate, 0, menuItems);
+
+        //Store the root element
+        W.rootElement = render(W.element, template, itemTemplate, 0, menuItems);
+
+        //Recursively navigate all the structure, starting from the root element and fill the MenuElement.parentElement of
+        //all MenuElements
+        recursivelySetParent(null, W.rootElement);
+
+        function recursivelySetParent(parentElement, currentElement) {
+            if (!currentElement)
+                return;
+
+            //Assign the parent to the currentElement
+            currentElement.parentElement = parentElement;
+
+            //Then do the same on currentElement's children
+            var children = currentElement.getChildren();
+            $.each(children, function (i, child) {
+                recursivelySetParent(currentElement, child);
+            });
+        }
 
         function render(elem, tpl, itemTpl, level, items) {
             if (!items || items.length == 0)
@@ -294,7 +415,7 @@ Depends: core, Table
             var curLevelTemplate = getTemplate(tpl[level], level, jpvs.Menu.Templates);
             var curLevelItemTemplate = getTemplate(itemTpl[level], level, jpvs.Menu.ItemTemplates);
 
-            //Apply the template. The menu templates must return the element, so we can hide/show it as needed by the menu behavior
+            //Apply the template. The menu templates must return a MenuElement, so we can hide/show it as needed by the menu behavior
             var levelElem = jpvs.applyTemplate(elem, curLevelTemplate, { items: items, itemTemplate: curLevelItemTemplate, level: level });
 
             //The root level is always visible. The inner levels are hidden.
@@ -303,10 +424,24 @@ Depends: core, Table
             else
                 levelElem.hide();
 
-            //Then render the next inner level
+            //Get all items that have just been created (they have the "Item" class)...
+            var itemElements = levelElem.element.find(".Item");
+
+            //...and associate the corresponding menuitem to each
+            //Then render the next inner level and keep track of the submenu of each item
             $.each(items, function (i, item) {
-                render(elem, tpl, itemTpl, level + 1, item.items);
+                var itemElement = itemElements[i];
+                if (itemElement) {
+                    var $itemElem = $(itemElement);
+                    $itemElem.data("menuItem", item);
+
+                    var subMenu = render(elem, tpl, itemTpl, level + 1, item.items);
+                    if (subMenu)
+                        $itemElem.data("subMenu", subMenu);
+                }
             });
+
+            return levelElem;
         }
     }
 
@@ -333,6 +468,81 @@ Depends: core, Table
 
         //Here we have a template
         return tpl;
+    }
+
+    function closeAllNonRoot(menu) {
+        var root = menu.rootElement;
+
+        recursivelyClosePopups(root);
+
+        function recursivelyClosePopups(menuElement) {
+            if (!menuElement)
+                return;
+
+            menuElement.hideIfNonRoot();
+
+            var childMenuElements = menuElement.getChildren();
+            $.each(childMenuElements, function (i, cme) {
+                //Only menu elements with submenu have children. The others are undefined.
+                recursivelyClosePopups(cme);
+            });
+        }
+    }
+
+    function onItemMouseOver(e) {
+        var item = $(e.currentTarget);
+
+        //Hovering effect
+        item.addClass("Item-Hover");
+    }
+
+    function onItemMouseOut(e) {
+        var item = $(e.currentTarget);
+
+        //Hovering effect
+        item.removeClass("Item-Hover");
+    }
+
+    function onGlobalClick(e) {
+        var clickedElem = $(e.target);
+        var clickedItem = clickedElem.closest(".Menu .Item");
+        var clickedMenu = clickedItem.closest(".Menu");
+
+        //If no menu item clicked, then hide all non-root menus
+        if (clickedItem.length == 0) {
+            $.each(allMenus, function (i, menu) {
+                closeAllNonRoot(menu);
+            });
+        }
+        else {
+            //Menu item clicked
+            var menuItem = clickedItem.data("menuItem");
+
+            //Menu clicked
+            var menu = jpvs.find(clickedMenu);
+
+            //Show the submenu, if any
+            var subMenu = clickedItem.data("subMenu");
+            if (subMenu)
+                subMenu.show();
+            else {
+                //If no submenu, hide all non-root
+                closeAllNonRoot(menu);
+            }
+
+            //Finally handle events
+            //Trigger the click event
+            menu.click.fire(menu, null, menuItem);
+
+            //Call the menu item click function, if any.
+            //Pass the menuItem as the "this" and as the first argument
+            if (menuItem.click)
+                menuItem.click.call(menuItem, menuItem);
+
+            //Follow the href, if any
+            if (menuItem.href)
+                window.location = menuItem.href;
+        }
     }
 
 })();

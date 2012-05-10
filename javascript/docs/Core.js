@@ -187,3 +187,9 @@ jpvs.hideDimScreen = function (fadeOutDuration) {
     /// <summary>Hides, if currently displayed, the screen-dimming DIV created by jpvs.showDimScreen.</summary>
     /// <param name="fadeOutDuration" type="Number">Duration in milliseconds (default: 250) of the fade-out animation used to undim the screen.</param>
 };
+
+jpvs.fitInWindow = function (element) {
+    /// <summary>Takes an absolutely positioned element and makes sure it fits into the visible window.</summary>
+    /// <param name="element" type="Object">jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+};
+

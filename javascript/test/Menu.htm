@@ -3,12 +3,12 @@
 <head>
     <title>Menu</title>
     <style type="text/css">
-        .HorizontalMenuBar 
+        .HorizontalMenuBar
         {
             background-color: #ccc;
         }
         
-        .HorizontalMenuBar .Item 
+        .HorizontalMenuBar .Item
         {
         }
         
@@ -18,13 +18,31 @@
             cursor: pointer;
         }
         
+        .PopupMenu
+        {
+            background-color: #ccc;
+            border: 1px solid #aaa;
+        }
+        
+        .PopupMenu .Item
+        {
+        }
+        
+        .PopupMenu .Item-Hover
+        {
+            background-color: #ff0;
+            cursor: pointer;
+        }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
     <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
     <script type="text/javascript" src="../src/widgets/Table.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
     <script type="text/javascript" src="../src/widgets/Popup.js"></script>
     <script type="text/javascript" src="../src/widgets/Menu.js"></script>
     <script type="text/javascript">
@@ -36,10 +54,20 @@
                     { name: "cmdSave", text: "Save" }
                 ]
                 },
-                { text: "Edit", href: "http://www.microsoft.com" },
+                { text: "Edit", click: function () { jpvs.alert("Hello", this.text); } },
                 { text: "Tools", items: [
                     { text: "Options" },
-                    { text: "Customize" },
+                    { text: "Customize", items: [
+                        { name: "cmdCust", text: "Customize settings" },
+                        { name: "cmdOpt", text: "Options" },
+                        { name: "cmdExt", text: "External tools", items: [
+                            { text: "Tool 1", click: function () { jpvs.alert("Tools", "Tool 1 clicked"); } },
+                            { text: "Tool 2", click: function () { jpvs.alert("Tools", "Tool 2 clicked"); } },
+                            { text: "Tool 3", click: function () { jpvs.alert("Tools", "Tool 3 clicked"); } }
+                        ]
+                        }
+                    ]
+                    },
                     { text: "File manager", items: [
                         { name: "cmdFolders", text: "Folders" },
                         { name: "cmdFiles", text: "Files" }
@@ -49,7 +77,7 @@
                 }
             ];
 
-            jpvs.Menu.create("#mnuCustom").menuItems(menuItems);
+            jpvs.Menu.create("#mnuCustom").menuItems(menuItems).click(onItemClick);
 
             function onItemClick(menuItem) {
                 jpvs.alert("Clicked menu item", menuItem.text);
@@ -61,8 +89,7 @@
     Menu with nested UL/LI:
     <div data-jpvs-type="Menu" data-jpvs-template="HorizontalMenuBar,PopupMenu,PopupMenu">
         <ul>
-            <li>
-                File
+            <li>File
                 <ul>
                     <li>New</li>
                     <li><a href="link:Open">Open</a></li>
@@ -70,38 +97,45 @@
                 </ul>
             </li>
             <li>Edit</li>
-            <li>
-                Tools
+            <li>Tools
                 <ul>
                     <li>Options</li>
                     <li>Customize</li>
                     <li>File manager</li>
                 </ul>
-				for everybody
-            </li>
+                for everybody </li>
         </ul>
     </div>
     <hr />
     Menu with nested DIVs:
     <div data-jpvs-type="Menu" data-jpvs-template="HorizontalMenuBar,HorizontalMenuBar,PopupMenu">
         <div>
-            <button onclick="alert('Hello');">File</button>
-            <div><a href="link:New">New</a></div>
-            <div>Open</div>
-            <div>Save</div>
+            <button onclick="alert('Hello');">
+                File</button>
+            <div>
+                <a href="link:New">New</a></div>
+            <div>
+                Open</div>
+            <div>
+                Save</div>
         </div>
-        <div>Edit</div>
+        <div>
+            Edit</div>
         <div>
             Tools
-            <div>Options</div>
-			for
-            <div>Customize</div>
-			everybody
-            <div>File manager</div>
+            <div>
+                Options</div>
+            for
+            <div>
+                Customize</div>
+            everybody
+            <div>
+                File manager</div>
         </div>
     </div>
     <hr />
     Custom menu:
-    <div id="mnuCustom"></div>
+    <div id="mnuCustom">
+    </div>
 </body>
 </html>

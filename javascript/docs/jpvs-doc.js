@@ -190,7 +190,7 @@ jpvs.writeTag = function (container, tagName, text) {
 };
 
 jpvs.applyTemplate = function (container, template, dataItem) {
-    /// <summary>Writes content according to a template.</summary>
+    /// <summary>Writes content according to a template. If the template is a function, then applyTemplate returns whatever is returned by the template function call.</summary>
     /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="template" type="Object">The template may be any of the following: (1) a string; (2) an object like this: { fieldName: "ABC", tagName: "TAG", css: {}, selector: function(fieldValue, dataItem) {} }; (3) a function(dataItem) {} that will receive the container as the "this" object.</param>
     /// <param name="dataItem" type="String">Optional: the data item that will be consumed by the template.</param>
@@ -216,6 +216,12 @@ jpvs.hideDimScreen = function (fadeOutDuration) {
     /// <summary>Hides, if currently displayed, the screen-dimming DIV created by jpvs.showDimScreen.</summary>
     /// <param name="fadeOutDuration" type="Number">Duration in milliseconds (default: 250) of the fade-out animation used to undim the screen.</param>
 };
+
+jpvs.fitInWindow = function (element) {
+    /// <summary>Takes an absolutely positioned element and makes sure it fits into the visible window.</summary>
+    /// <param name="element" type="Object">jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+};
+
 
 window.jpvs = window.jpvs || {};
 
@@ -645,6 +651,37 @@ jpvs.makeWidget({
     }
 });
 
+
+window.jpvs = window.jpvs || {};
+
+jpvs.Menu = function (selector) {
+    /// <summary>Attaches the widget to an existing element.</summary>
+    /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+
+    this.click = jpvs.event(this);
+};
+
+jpvs.makeWidget({
+    widget: jpvs.Menu,
+    type: "Menu",
+
+    prototype: {
+        template: function (value) {
+            /// <summary>Property: menu template. The menu template is an array of strings or functions. Each array item represents the template to be used for each menu level. Calling "arr" the menu template array, the root level is arr[0], the first level of submenus is arr[1], ... Possible values for each item: "HorizontalMenuBar", "VerticalMenuBar", "PopupMenu", jpvs.Menu.Templates.HorizontalMenuBar, ..., a custom function.</summary>
+            return this;
+        },
+
+        itemTemplate: function (value) {
+            /// <summary>Property: menu item template. The menu item template is an array of strings or functions. Each array item represents the item template to be used for each menu level. Calling "arr" the menu item template array, the root level is arr[0], the first level of submenus is arr[1], ... Possible values for each item: "HorizontalMenuBarItem", "VerticalMenuBarItem", "PopupMenuItem", jpvs.Menu.ItemTemplates.HorizontalMenuBarItem, ..., a custom function.</summary>
+            return this;
+        },
+
+        menuItems: function (value) {
+            /// <summary>Property: array of menu items. Each menu item is in this form: { text: String, click: Function, href: String, items: Array }. Every field is optional.</summary>
+            return this;
+        }
+    }
+});
 
 window.jpvs = window.jpvs || {};
 

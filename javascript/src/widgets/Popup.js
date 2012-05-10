@@ -378,7 +378,7 @@ Depends: core, ImageButton
 
     //ESC button must close the topmost popup currently open
     $(document).ready(function () {
-        $(document.body).keydown(function (e) {
+        $(document).keydown(function (e) {
             if (e.which == 27) {
                 //ESC key pressed: search for the topmost popup
                 var topMost = jpvs.Popup.getTopMost();

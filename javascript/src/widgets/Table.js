@@ -123,4 +123,8 @@ Depends: core
     RowObject.prototype.writeCell = function (text) {
         return jpvs.writeTag(this.element, "td", text);
     };
+
+    RowObject.prototype.getMainContentElement = function () {
+        return this.element;
+    };
 })();

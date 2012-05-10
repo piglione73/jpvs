@@ -15,7 +15,7 @@ Depends: bootstrap
         if (X.getMainContentElement)
             return X.getMainContentElement();
         else
-            return X;
+            return $(X);
     }
 
     jpvs.getElementIfWidget = toElement;
@@ -551,6 +551,52 @@ Depends: bootstrap
             var x = jpvs.showDimScreen.element;
             jpvs.showDimScreen.element = null;
             x.fadeOut(fadeOutDuration != null ? fadeOutDuration : 250, function () { x.remove(); });
+        }
+    };
+
+    jpvs.fitInWindow = function (element) {
+        if (!element)
+            return;
+
+        //This line allows us to accept DOM elements, jQuery objects AND jpvs widgets
+        element = toElement(element);
+
+        //Measure the element, relative to the document
+        var pos = element.offset();
+        var x = pos.left;
+        var y = pos.top;
+        var w = element.outerWidth();
+        var h = element.outerHeight();
+
+        //Measure the window, relative to the document and account for scrolling
+        var wnd = $(window);
+        var wx = wnd.scrollLeft();
+        var wy = wnd.scrollTop();
+        var ww = wnd.width();
+        var wh = wnd.height();
+
+        //Now move x and y, trying to make sure "element" [valMin, valMax] is entirely visible in the window [min, max]
+        var dx = translate(wx, wx + ww, x, x + w);
+        var dy = translate(wy, wy + wh, y, y + h);
+
+        if (dx != 0 || dy != 0) {
+            var newX = x + dx;
+            var newY = y + dy;
+
+            element.show().css({
+                position: "absolute",
+                left: newX + "px",
+                top: newY + "px"
+            });
+        }
+
+        function translate(min, max, valMin, valMax) {
+            if (valMin < min)
+                return min - valMin;
+            else if (valMax > max)
+                return max - valMax;
+            else
+                return 0;
         }
     };
 

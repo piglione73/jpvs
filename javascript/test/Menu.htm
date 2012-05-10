@@ -3,27 +3,28 @@
 <head>
     <title>Menu</title>
     <style type="text/css">
-        .TextBox
+        .HorizontalMenuBar 
         {
-            border: 1px solid red;
+            background-color: #ccc;
         }
         
-        .TextBox-Focus
+        .HorizontalMenuBar .Item 
         {
-            outline: green solid 2px;
         }
         
-        .Button
+        .HorizontalMenuBar .Item-Hover
         {
-            background-color: pink;
-            border: 1px solid red;
+            background-color: #ff0;
+            cursor: pointer;
         }
+        
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
     <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/widgets/Table.js"></script>
     <script type="text/javascript" src="../src/widgets/Popup.js"></script>
     <script type="text/javascript" src="../src/widgets/Menu.js"></script>
     <script type="text/javascript">
@@ -48,15 +49,7 @@
                 }
             ];
 
-            var menuTemplate = [
-                jpvs.Menu.Templates.HorizontalMenuBar,
-                jpvs.Menu.Templates.PopupMenu,
-                jpvs.Menu.Templates.PopupMenu
-            ];
-
-            function level0_MenuTemplate(menuItems) {
-            }
-
+            jpvs.Menu.create("#mnuCustom").menuItems(menuItems);
 
             function onItemClick(menuItem) {
                 jpvs.alert("Clicked menu item", menuItem.text);
@@ -65,6 +58,7 @@
     </script>
 </head>
 <body>
+    Menu with nested UL/LI:
     <div data-jpvs-type="Menu" data-jpvs-template="HorizontalMenuBar,PopupMenu,PopupMenu">
         <ul>
             <li>
@@ -87,7 +81,8 @@
             </li>
         </ul>
     </div>
-
+    <hr />
+    Menu with nested DIVs:
     <div data-jpvs-type="Menu" data-jpvs-template="HorizontalMenuBar,HorizontalMenuBar,PopupMenu">
         <div>
             <button onclick="alert('Hello');">File</button>
@@ -105,5 +100,8 @@
             <div>File manager</div>
         </div>
     </div>
+    <hr />
+    Custom menu:
+    <div id="mnuCustom"></div>
 </body>
 </html>

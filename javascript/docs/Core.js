@@ -161,7 +161,7 @@ jpvs.writeTag = function (container, tagName, text) {
 };
 
 jpvs.applyTemplate = function (container, template, dataItem) {
-    /// <summary>Writes content according to a template.</summary>
+    /// <summary>Writes content according to a template. If the template is a function, then applyTemplate returns whatever is returned by the template function call.</summary>
     /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="template" type="Object">The template may be any of the following: (1) a string; (2) an object like this: { fieldName: "ABC", tagName: "TAG", css: {}, selector: function(fieldValue, dataItem) {} }; (3) a function(dataItem) {} that will receive the container as the "this" object.</param>
     /// <param name="dataItem" type="String">Optional: the data item that will be consumed by the template.</param>

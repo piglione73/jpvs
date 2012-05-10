@@ -363,10 +363,8 @@ Depends: bootstrap
         /*
         When used with DataGrid, the template might be in the form { isHeader: true, template: .... }
         */
-        if (template.template) {
-            jpvs.applyTemplate(container, template.template, dataItem);
-            return;
-        }
+        if (template.template)
+            return jpvs.applyTemplate(container, template.template, dataItem);
 
         /*
         The template might be a string, in which case we just write it
@@ -402,10 +400,8 @@ Depends: bootstrap
         /*
         Or it could be a function. Call it with this = container.
         */
-        if (typeof (template) == "function") {
-            template.call($(container), dataItem);
-            return;
-        }
+        if (typeof (template) == "function")
+            return template.call($(container), dataItem);
 
         /*
         Don't know what to do here.

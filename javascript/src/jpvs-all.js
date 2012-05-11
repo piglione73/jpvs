@@ -3783,6 +3783,9 @@ Depends: core, Table
             else {
                 //Normal item
                 jpvs.write(this, menuItem && menuItem.text);
+
+                if (menuItem && menuItem.tooltip)
+                    this.attr("title", menuItem.tooltip);
             }
         },
 
@@ -3805,6 +3808,10 @@ Depends: core, Table
                 var td1 = jpvs.writeTag(this, "td").addClass("Icon");
                 var td2 = jpvs.writeTag(this, "td", menuItem && menuItem.text).addClass("Text");
                 var td3 = jpvs.writeTag(this, "td").addClass("SubMenu");
+
+
+                if (menuItem && menuItem.tooltip)
+                    td2.attr("title", menuItem.tooltip);
 
                 if (menuItem && menuItem.icon) {
                     var icon = jpvs.writeTag(td1, "img");

@@ -2236,7 +2236,9 @@ jpvs.Resources = {
         loading: "data:image/gif;base64,R0lGODlhGAAIAPcAAAAAAP8A3ICAgP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQJCgABACwAAAAAGAAIAAAIRAADCBxIsKBBggASKhSocGGAhgkZCpgoAADDARgHWHyYUaNEihsBdAw58uNEkhlRYgxJseLFlC9XMoQ4s2FNhwdz5gwIACH5BAkKAAEALAAAAAAYAAgAAAhDAAMIHEiwoEGCABIqFKhwYYCGCRkOmDgAAEMBGAVYfEixokSKGwFk1PhxYsiOIUeeBFnS40OVLUNCZDjzYc2DOHEGBAAh+QQJCgABACwAAAAAGAAIAAAIQwADCBxIsKBBggASKhSocGGAhgkZDpg4AIBEihYfCtgoICMAihUvTvTIsaPIkA9BkuToUeXJlRs9QmQ482HNgzhxBgQAIfkECQoAAQAsAAAAABgACAAACEMAAwgcSLCgQYIAEioUqHBhgIYJGQ6YOAAAQwEYBVh8SLGiRIobAWTU+HFiyI4hR54EWdLjQ5UtQ0JkOPNhzYM4cQYEADs=",
 
         closeButton: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAADzSURBVDhPY2BmZv7EwMDwn1zMyMrK+uXnz5/7gQaQDJiYmHyYSNaFpgHDAD09PSuQyRcvXuRCVtvW1iYHEgfRKGaAvPDv37/NyBgUHjo6Om9hYufPn98LEmtpabmIrg6rF1avXn38ypUrQjDbYmNjDYAGvquqqnqE4WVsLgDZEhUVdQ9kK4wGuQKbS/HGAig8QC4BuSg4OPgtuu0EYwGkGaRp/fr1ErhiC2c0gmwH+Rtk+7JlyxTXrl0rjNUQbGEACm2Q/2H+hoUDtjBgQDcAX5QhRy3IMHDyRzYAphldIUgx0CvHYLECcwmIP/B5gYHS7AwAM9IzlWy9T8kAAAAASUVORK5CYII=",
-        closeButtonHover: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAENSURBVDhPY9TW1v6rqqrKxEAGuHHjBgOjo6Pjn717994lQz+Dk5OTGlk2I1uGYcDs2bNlm5qa1N6+fcuKrPDUqVP8IHEQjdeA1NTUxyAF69atk4ApBBm2Y8cOcQ8Pj5dmZmYf8RoAkoyMjHzy/PlzTphtIMMkJSW/o2sGqcUaBsBY+WZkZPQBZOuWLVvEQIYFBQW9wBbQOAPRx8fnFcjWc+fOCYBcJCws/JskA0CKQTaD6Js3b/LgimacLgDFBsgFINtBrrh9+zYX0S4ABR7M37DwWL58uQxRBiBHGczfoPAAaQa5Ct0QFC+ANE+dOlURW5TBohYUK8iGDHxeYFRRUfkrIyNDVqZ68OABAwDuhIRQ92DTiAAAAABJRU5ErkJggg=="
+        closeButtonHover: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAENSURBVDhPY9TW1v6rqqrKxEAGuHHjBgOjo6Pjn717994lQz+Dk5OTGlk2I1uGYcDs2bNlm5qa1N6+fcuKrPDUqVP8IHEQjdeA1NTUxyAF69atk4ApBBm2Y8cOcQ8Pj5dmZmYf8RoAkoyMjHzy/PlzTphtIMMkJSW/o2sGqcUaBsBY+WZkZPQBZOuWLVvEQIYFBQW9wBbQOAPRx8fnFcjWc+fOCYBcJCws/JskA0CKQTaD6Js3b/LgimacLgDFBsgFINtBrrh9+zYX0S4ABR7M37DwWL58uQxRBiBHGczfoPAAaQa5Ct0QFC+ANE+dOlURW5TBohYUK8iGDHxeYFRRUfkrIyNDVqZ68OABAwDuhIRQ92DTiAAAAABJRU5ErkJggg==",
+
+        subMenuMarker: "data:image/gif;base64,R0lGODlhBAAHAPAAAAAAAP///yH5BAEAAAEALAAAAAAEAAcAAAIIRA4WaeyrVCgAOw=="
     }
 };
 
@@ -3565,12 +3567,22 @@ Depends: core, Table
         $(document).on("click.jpvsMenu", onGlobalClick);
     });
 
+
+    //Menu object
     jpvs.Menu = function (selector) {
         this.attach(selector);
 
         this.click = jpvs.event(this);
     };
 
+    //Special menu item: separator. Usually rendered as a line.
+    jpvs.Menu.Separator = {};
+
+
+    /*
+    The MenuElement object is a special object that must be returned by the menu template functions.
+    It allows the Menu object to show/hide all the menu levels.
+    */
     jpvs.Menu.MenuElement = function (element, menuItems, level, isPopup, childrenAlignment) {
         this.element = element;
         this.menuItems = menuItems;
@@ -3674,6 +3686,11 @@ Depends: core, Table
         return subMenus;
     };
 
+
+
+    /*
+    Standard menu templates
+    */
     jpvs.Menu.Templates = {
 
         HorizontalMenuBar: function (menuData) {
@@ -3750,24 +3767,55 @@ Depends: core, Table
 
     };
 
+
+    /*
+    Standard menu item templates
+    */
     jpvs.Menu.ItemTemplates = {
 
         HorizontalMenuBarItem: function (menuItem) {
             //In the HorizontalMenuBar, "this" is a TD
-            jpvs.write(this, menuItem.text);
+            if (menuItem === jpvs.Menu.Separator) {
+                //Separator
+                this.addClass("Separator");
+                jpvs.write(this, "|");
+            }
+            else {
+                //Normal item
+                jpvs.write(this, menuItem.text);
+            }
         },
 
         VerticalMenuBarItem: function (menuItem) {
             //In the VerticalMenuBar, "this" is a TR
-            jpvs.writeTag(this, "td", menuItem.text);
+            //Render as a PopupMenuItem
+            jpvs.Menu.ItemTemplates.PopupMenuItem.call(this, menuItem);
         },
 
         PopupMenuItem: function (menuItem) {
             //In the PopupMenu, "this" is a TR
-            jpvs.writeTag(this, "td", menuItem.text);
+            if (menuItem === jpvs.Menu.Separator) {
+                //Separator
+                this.addClass("Separator");
+                var td = jpvs.writeTag(this, "td").attr("colspan", 3);
+                jpvs.writeTag(td, "hr");
+            }
+            else {
+                //Normal item: 3 cells (icon, text, submenu arrow)
+                var td1 = jpvs.writeTag(this, "td").addClass("Icon");
+                var td2 = jpvs.writeTag(this, "td", menuItem.text).addClass("Text");
+                var td3 = jpvs.writeTag(this, "td").addClass("SubMenu");
 
-            if (menuItem.items && menuItem.items.length)
-                jpvs.writeTag(this, "td", " --> ");
+                if (menuItem.icon) {
+                    var icon = jpvs.writeTag(td1, "img");
+                    icon.attr("src", menuItem.icon);
+                }
+
+                if (menuItem.items && menuItem.items.length) {
+                    var arrow = jpvs.writeTag(td3, "img");
+                    arrow.attr("src", jpvs.Resources.images.subMenuMarker);
+                }
+            }
         }
 
     };
@@ -3855,9 +3903,15 @@ Depends: core, Table
     }
 
     function parseContent(elem) {
-        //Parses the element recursively and fills a menu items array
+        //Parses the element recursively and fills a menu items tree
         var menuItems = [];
         process(elem, null, menuItems);
+
+        //After filling the tree, process it recursively and replace items with no text and no subitems
+        //with a jpvs.Menu.Separator
+        lookForSeparators(menuItems);
+
+        //Finally, return the menu items tree
         return menuItems;
 
         function process(curElem, curItem, curLevel) {
@@ -3907,6 +3961,23 @@ Depends: core, Table
                     }
                 }
             });
+        }
+
+        function lookForSeparators(menuItems) {
+            if (!menuItems)
+                return;
+
+            for (var i = 0; i < menuItems.length; i++) {
+                var item = menuItems[i];
+                var hasText = (item.text != null && $.trim(item.text) != "");
+                var hasChildren = (item.items != null && item.items.length != 0);
+
+                if (!hasText && !hasChildren)
+                    menuItems[i] = jpvs.Menu.Separator;
+
+                //If has children, do the same on them
+                lookForSeparators(item.items);
+            }
         }
 
         function concatTextNode(text, textToAdd) {
@@ -4038,6 +4109,13 @@ Depends: core, Table
     function onItemMouseOver(e) {
         var item = $(e.currentTarget);
 
+        //Menu item clicked
+        var menuItem = item.data("menuItem");
+
+        //If separator, do nothing
+        if (menuItem === jpvs.Menu.Separator)
+            return;
+
         //Hovering effect
         item.addClass("Item-Hover");
     }
@@ -4063,6 +4141,10 @@ Depends: core, Table
         else {
             //Menu item clicked
             var menuItem = clickedItem.data("menuItem");
+
+            //If separator, do nothing
+            if (menuItem === jpvs.Menu.Separator)
+                return;
 
             //Menu clicked
             var menu = jpvs.find(clickedMenu);

@@ -23,7 +23,7 @@ jpvs.makeWidget({
         },
 
         menuItems: function (value) {
-            /// <summary>Property: array of menu items. Each menu item is in this form: { text: String, click: Function, href: String, items: Array }. Every field is optional.</summary>
+            /// <summary>Property: array of menu items. Each menu item is in this form: { text: String, click: Function, href: String, items: Array }. Every field is optional. A separator can be specified as jpvs.Menu.Separator.</summary>
             return this;
         }
     }

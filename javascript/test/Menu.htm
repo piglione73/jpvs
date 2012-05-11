@@ -3,16 +3,16 @@
 <head>
     <title>Menu</title>
     <style type="text/css">
-        .HorizontalMenuBar
+        .HorizontalMenuBar, .VerticalMenuBar
         {
             background-color: #ccc;
         }
         
-        .HorizontalMenuBar .Item
+        .HorizontalMenuBar .Item, .VerticalMenuBar .Item
         {
         }
         
-        .HorizontalMenuBar .Item-Hover
+        .HorizontalMenuBar .Item-Hover, .VerticalMenuBar .Item-Hover
         {
             background-color: #ff0;
             cursor: pointer;
@@ -55,11 +55,13 @@
                 ]
                 },
                 { text: "Edit", click: function () { jpvs.alert("Hello", this.text); } },
+                jpvs.Menu.Separator,
                 { text: "Tools", items: [
                     { text: "Options" },
                     { text: "Customize", items: [
                         { name: "cmdCust", text: "Customize settings" },
                         { name: "cmdOpt", text: "Options" },
+                        jpvs.Menu.Separator,
                         { name: "cmdExt", text: "External tools", items: [
                             { text: "Tool 1", click: function () { jpvs.alert("Tools", "Tool 1 clicked"); } },
                             { text: "Tool 2", click: function () { jpvs.alert("Tools", "Tool 2 clicked"); } },
@@ -69,7 +71,7 @@
                     ]
                     },
                     { text: "File manager", items: [
-                        { name: "cmdFolders", text: "Folders" },
+                        { icon: "dummy-images/close.png", name: "cmdFolders", text: "Folders" },
                         { name: "cmdFiles", text: "Files" }
                     ]
                     }
@@ -97,10 +99,12 @@
                 </ul>
             </li>
             <li>Edit</li>
+            <li></li>
             <li>Tools
                 <ul>
                     <li>Options</li>
                     <li>Customize</li>
+                    <li></li>
                     <li>File manager</li>
                 </ul>
                 for everybody </li>
@@ -108,7 +112,7 @@
     </div>
     <hr />
     Menu with nested DIVs:
-    <div data-jpvs-type="Menu" data-jpvs-template="HorizontalMenuBar,HorizontalMenuBar,PopupMenu">
+    <div data-jpvs-type="Menu" data-jpvs-template="VerticalMenuBar,PopupMenu,PopupMenu" data-jpvs-item-template="VerticalMenuBarItem,PopupMenuItem,PopupMenuItem">
         <div>
             <button onclick="alert('Hello');">
                 File</button>
@@ -121,16 +125,13 @@
         </div>
         <div>
             Edit</div>
+        <div></div>
         <div>
-            Tools
-            <div>
-                Options</div>
-            for
-            <div>
-                Customize</div>
-            everybody
-            <div>
-                File manager</div>
+            Tools for everybody
+            <div>Options</div>
+            <div>Customize</div>
+            <div></div>
+            <div>File manager</div>
         </div>
     </div>
     <hr />

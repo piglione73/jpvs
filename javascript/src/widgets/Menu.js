@@ -234,7 +234,7 @@ Depends: core, Table
             }
             else {
                 //Normal item
-                jpvs.write(this, menuItem.text);
+                jpvs.write(this, menuItem && menuItem.text);
             }
         },
 
@@ -255,15 +255,15 @@ Depends: core, Table
             else {
                 //Normal item: 3 cells (icon, text, submenu arrow)
                 var td1 = jpvs.writeTag(this, "td").addClass("Icon");
-                var td2 = jpvs.writeTag(this, "td", menuItem.text).addClass("Text");
+                var td2 = jpvs.writeTag(this, "td", menuItem && menuItem.text).addClass("Text");
                 var td3 = jpvs.writeTag(this, "td").addClass("SubMenu");
 
-                if (menuItem.icon) {
+                if (menuItem && menuItem.icon) {
                     var icon = jpvs.writeTag(td1, "img");
                     icon.attr("src", menuItem.icon);
                 }
 
-                if (menuItem.items && menuItem.items.length) {
+                if (menuItem && menuItem.items && menuItem.items.length) {
                     var arrow = jpvs.writeTag(td3, "img");
                     arrow.attr("src", jpvs.Resources.images.subMenuMarker);
                 }
@@ -504,7 +504,7 @@ Depends: core, Table
                     var $itemElem = $(itemElement);
                     $itemElem.data("menuItem", item);
 
-                    var subMenu = render(elem, tpl, itemTpl, level + 1, item.items);
+                    var subMenu = render(elem, tpl, itemTpl, level + 1, item && item.items);
                     if (subMenu)
                         $itemElem.data("subMenu", subMenu);
                 }
@@ -616,11 +616,11 @@ Depends: core, Table
 
             //Call the menu item click function, if any.
             //Pass the menuItem as the "this" and as the first argument
-            if (menuItem.click)
+            if (menuItem && menuItem.click)
                 menuItem.click.call(menuItem, menuItem);
 
             //Follow the href, if any
-            if (menuItem.href)
+            if (menuItem && menuItem.href)
                 window.location = menuItem.href;
         }
     }

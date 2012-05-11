@@ -373,12 +373,12 @@ Depends: core, Table
                 var child = this;
                 var $child = $(this);
 
-                if (child.nodeType == Node.TEXT_NODE) {
+                if (child.nodeType == 3) {
                     //Child is a text node. We consider it part of the current item text
                     if (curItem)
                         curItem.text = concatTextNode(curItem.text, $child.text());
                 }
-                else if (child.nodeType == Node.ELEMENT_NODE) {
+                else if (child.nodeType == 1) {
                     //Child is an element. Let's see what type
                     var nodeName = child.nodeName.toLowerCase();
                     if (nodeName == "ul" || nodeName == "ol") {

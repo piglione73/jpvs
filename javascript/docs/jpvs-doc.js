@@ -452,6 +452,21 @@ jpvs.makeWidget({
             return this;
         },
 
+        enableSorting: function (value) {
+            /// <summary>Property: true to enable sorting.</summary>
+            return this;
+        },
+
+        enableFiltering: function (value) {
+            /// <summary>Property: true to enable filtering.</summary>
+            return this;
+        },
+
+        sortingExpressions: function (value) {
+            /// <summary>Property: list of combobox items used to prompt the user with a list of sorting expressions. It must be an array of items in the form: { value: sorting expression, text: textual representation of the sorting expression }. Example: { value: "FirstName", text: "First name" }.</summary>
+            return this;
+        },
+
         clear: function (value) {
             /// <summary>Removes all header, body and footer rows from the grid.</summary>
             return this;

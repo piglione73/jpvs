@@ -12,6 +12,42 @@ Depends: core, Pager
         this.dataItemClick = jpvs.event(this);
     };
 
+    jpvs.DataGrid.allStrings = {
+        en: {
+            clickToSortAndFilter: "Click here for sorting/filtering options",
+            clickToSort: "Click here for sorting options",
+            clickToFilter: "Click here for filtering options",
+
+            titleSortAndFilter: "Sorting/filtering options",
+            titleSort: "Sorting options",
+            titleFilter: "Filtering options",
+
+            ok: "OK",
+            cancel: "Cancel",
+
+            orderBy: "Order by",
+            thenBy: "Then by",
+            descending: "Descending"
+        },
+
+        it: {
+            clickToSortAndFilter: "Clicca qui per ordinare/filtrare i dati",
+            clickToSort: "Clicca qui per ordinare i dati",
+            clickToFilter: "Clicca qui per filtrare i dati",
+
+            titleSortAndFilter: "Ordinamento/filtro",
+            titleSort: "Ordinamento",
+            titleFilter: "Filtro",
+
+            ok: "OK",
+            cancel: "Annulla",
+
+            orderBy: "Ordina per",
+            thenBy: "Poi per",
+            descending: "Ordine inverso"
+        }
+    };
+
     jpvs.makeWidget({
         widget: jpvs.DataGrid,
         type: "DataGrid",
@@ -24,9 +60,19 @@ Depends: core, Pager
         },
 
         init: function (W) {
+            jpvs.DataGrid.strings = jpvs.DataGrid.allStrings[jpvs.currentLocale()];
+
             //Attach a click handler to all rows, even those we will add later
             this.element.on("click", "tr", function (e) {
                 return onRowClicked(W, e.currentTarget);
+            });
+
+            //Attach a hovering effect on the header row, for handling sorting/filtering
+            this.element.on("mouseenter", "thead > tr", function (e) {
+                onHeaderRowMouseOver(W, e.currentTarget);
+            });
+            this.element.on("mouseleave", "thead > tr", function (e) {
+                onHeaderRowMouseOut(W, e.currentTarget);
             });
         },
 
@@ -78,6 +124,47 @@ Depends: core, Pager
                         return true;    //Default value
                 },
                 set: function (value) { this.element.data("enableEvenOdd", value); }
+            }),
+
+            enableSorting: jpvs.property({
+                get: function () {
+                    var val = this.element.data("enableSorting");
+                    if (val === true || val === false)
+                        return val;
+                    else
+                        return false;    //Default value
+                },
+                set: function (value) { this.element.data("enableSorting", value); }
+            }),
+
+            enableFiltering: jpvs.property({
+                get: function () {
+                    var val = this.element.data("enableFiltering");
+                    if (val === true || val === false)
+                        return val;
+                    else
+                        return false;    //Default value
+                },
+                set: function (value) { this.element.data("enableFiltering", value); }
+            }),
+
+            sortingExpressions: jpvs.property({
+                get: function () {
+                    var val = this.element.data("sortingExpressions");
+                    if (!val) {
+                        //If not initialized, attempt to determine a list of expressions (the header texts)
+                        val = [];
+                        this.element.find("thead > tr > th").each(function () {
+                            var txt = $(this).text();
+                            val.push({ value: txt, text: txt });
+                        });
+                    }
+
+                    return val;
+                },
+                set: function (value) {
+                    this.element.data("sortingExpressions", value);
+                }
             }),
 
             clear: function () {
@@ -325,6 +412,159 @@ Depends: core, Pager
             return grid.dataItemClick.fire(grid, null, dataItem);
     }
 
+    function onHeaderRowMouseOver(grid, tr) {
+        //If neither sorting nor filtering are enabled, no hovering effect
+        var enableSorting = grid.enableSorting();
+        var enableFiltering = grid.enableFiltering();
+        if (!enableSorting && !enableFiltering)
+            return;
+
+        var tooltip = "";
+        if (enableSorting && enableFiltering)
+            tooltip = jpvs.DataGrid.strings.clickToSortAndFilter;
+        else if (enableSorting)
+            tooltip = jpvs.DataGrid.strings.clickToSort;
+        else if (enableFiltering)
+            tooltip = jpvs.DataGrid.strings.clickToFilter;
+
+        //Otherwise, let's give visual cues so the user can sort/filter
+        //Let's add an unobtrusive button to each cell, unless the buttons are already displayed
+        var buttons = $(tr).data("jpvsColButtons") || [];
+        if (buttons.length == 0) {
+            $(tr).find("td,th").each(function (index) {
+                //Measure the cell
+                var cell = $(this);
+                var pos = cell.position();
+                var x = pos.left;
+                var y = pos.top;
+                var w = cell.innerWidth();
+                var h = cell.outerHeight();
+
+                var imgTop = y;
+                var imgLeft = x + w;
+
+                var img = jpvs.ImageButton.create(cell).imageUrls({
+                    normal: jpvs.Resources.images.dataGridColumnButton,
+                    hover: jpvs.Resources.images.dataGridColumnButtonHover
+                });
+
+                imgLeft -= img.element.width();
+
+                img.element.css({
+                    position: "absolute",
+                    left: imgLeft + "px",
+                    top: imgTop + "px"
+                }).attr("title", tooltip);
+
+                img.click(onHeaderButtonClickFunc(grid, index));
+
+                buttons.push(img);
+            });
+
+            //Keep track of the buttons
+            $(tr).data("jpvsColButtons", buttons);
+        }
+    }
+
+    function onHeaderRowMouseOut(grid, tr) {
+        //Let's make the buttons disappear
+        var buttons = $(tr).data("jpvsColButtons");
+        if (buttons) {
+            setTimeout(function () {
+                $.each(buttons, function (i, button) {
+                    button.destroy();
+                });
+            }, 5000);
+        }
+        $(tr).data("jpvsColButtons", null);
+    }
+
+    function onHeaderButtonClickFunc(grid, colIndex) {
+        return function () {
+            onHeaderButtonClick(grid, colIndex);
+        };
+    }
+
+    function onHeaderButtonClick(grid, colIndex) {
+        var enableSorting = grid.enableSorting();
+        var enableFiltering = grid.enableFiltering();
+        if (!enableSorting && !enableFiltering)
+            return;
+
+        var title = "";
+        if (enableSorting && enableFiltering)
+            title = jpvs.DataGrid.strings.titleSortAndFilter;
+        else if (enableSorting)
+            title = jpvs.DataGrid.strings.titleSort;
+        else if (enableFiltering)
+            title = jpvs.DataGrid.strings.titleFilter;
+
+        //Open a popup with sorting/filtering options
+        var pop = jpvs.Popup.create().title(title).show();
+
+        var bothEnabled = enableSorting && enableFiltering;
+
+        //If both are enabled, group fields together for clarity
+        var pnlSort = pop;
+        var pnlFilter = pop;
+        if (bothEnabled) {
+            pnlSort = jpvs.writeTag(pop, "fieldset");
+            pnlFilter = jpvs.writeTag(pop, "fieldset");
+
+            jpvs.writeTag(pnlSort, "legend", jpvs.DataGrid.strings.titleSort);
+            jpvs.writeTag(pnlFilter, "legend", jpvs.DataGrid.strings.titleFilter);
+        }
+
+        //Sorting panel
+        var sortControls = [];
+        if (enableSorting) {
+            var tblSort = jpvs.Table.create(pnlSort);
+
+            sortControls.push(writeSortingRow(tblSort, jpvs.DataGrid.strings.orderBy));
+            sortControls.push(writeSortingRow(tblSort, jpvs.DataGrid.strings.thenBy));
+            sortControls.push(writeSortingRow(tblSort, jpvs.DataGrid.strings.thenBy));
+            sortControls.push(writeSortingRow(tblSort, jpvs.DataGrid.strings.thenBy));
+        }
+
+        //Filtering panel
+        if (enableFiltering) {
+            jpvs.write(pnlFilter, "TODO: Filter");
+        }
+
+        //Finally, button bar and close button
+        jpvs.writeButtonBar(pop, [
+            { text: jpvs.DataGrid.strings.ok, click: onOK },
+            { text: jpvs.DataGrid.strings.cancel, click: onCancel }
+        ]);
+        pop.close(onCancel);
+
+        //Events
+        function onCancel() {
+            pop.destroy();
+        }
+
+        function onOK() {
+            jpvs.alert("Test", "OK!!!");
+            pop.destroy();
+        }
+
+        //Utilities
+        function writeSortingRow(tblSort, caption) {
+            //Order by: COMBO (field name) CHECKBOX (ascending/descending)
+            var row = tblSort.writeRow();
+            row.writeCell(caption + ": ");
+            var cmbSort = jpvs.DropDownList.create(row.writeCell());
+            var chkDesc = jpvs.CheckBox.create(row.writeCell());
+            chkDesc.text(jpvs.DataGrid.strings.descending);
+
+            //Fill the combo with the header names
+            cmbSort.addItem("");
+            cmbSort.addItems(grid.sortingExpressions());
+
+            return { cmbSort: cmbSort, chkDesc: chkDesc };
+        }
+
+    }
 
     /*
     Default binder

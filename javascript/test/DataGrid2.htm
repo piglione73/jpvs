@@ -3,16 +3,6 @@
 <head>
     <title>DataGrid2</title>
     <style type="text/css">
-        .Widget-Hover
-        {
-            background-color: Aqua !important;
-        }
-        
-        .Widget-Focus
-        {
-            background-color: Yellow;
-        }
-        
         .DataGrid
         {
             background-color: pink;
@@ -27,6 +17,45 @@
         {
             background-color:Silver;
         }
+
+        .Popup .Contents
+        {
+            background-color: #fff;
+	        border-right: #3300cc 1px solid;
+	        border-top: #3300cc 1px solid;
+	        border-left: #3300cc 1px solid;
+	        border-bottom: #3300cc 1px solid;
+        }
+        .Popup .Title
+        {
+	        background-color: #3869ff;
+            cursor: move;
+            padding: 1mm;
+        }
+        .Popup .Title H1
+        {
+            border-style: none;
+            margin: 1px 0px 1px 0px;
+            padding: 0px 5mm 0px 0px;
+            background-color: transparent;
+            text-align: left;
+            font-weight: bold;
+            text-transform: none;
+            color: #ffffff;
+            font-style: normal;
+            font-variant: small-caps;
+            text-decoration: none;
+            font-size: 1.25em;
+        }
+        .Popup .Body
+        {
+            padding: 1mm;
+        }
+        .Popup .Title .ImageButton
+        {
+            float: right;
+            cursor: pointer;
+        }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
@@ -35,6 +64,8 @@
     <script type="text/javascript" src="../src/Event.js"></script>
     <script type="text/javascript" src="../src/Random.js"></script>
     <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/CheckBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/Table.js"></script>
     <script type="text/javascript" src="../src/widgets/Popup.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
     <script type="text/javascript" src="../src/widgets/DropDownList.js"></script>
@@ -53,7 +84,7 @@
             $W.btnRebind.click(bind);
 
             function data_sync(start, count) {
-                var TOTRECS = 2000;
+                var TOTRECS = 200;
                 start = start || 0;
                 if (!count)
                     count = TOTRECS;
@@ -73,7 +104,7 @@
                 setTimeout(function () {
                     var recs = data_sync(start, count);
                     callback(data_sync(start, count));
-                }, 2000);
+                }, 500);
             }
 
             var tmpl = [
@@ -88,13 +119,11 @@
                 { body: { fieldName: "C"} }
             ];
 
-            $W.tbl1.template(tmpl);
-            $W.tbl2.template(tmpl);
-            $W.tbl3.template(tmpl);
+            $W.tbl1.enableSorting(true).enableFiltering(false).template(tmpl);
+            $W.tbl2.enableSorting(false).enableFiltering(true).template(tmpl);
+            $W.tbl3.enableSorting(true).enableFiltering(true).template(tmpl);
 
-            //$W.tbl1.binder(jpvs.DataGrid.defaultBinder);
-
-            $W.tbl1.binder(jpvs.DataGrid.pagingBinder({ pageSize: 17 }));
+            $W.tbl1.binder(jpvs.DataGrid.defaultBinder);
             $W.tbl2.binder(jpvs.DataGrid.pagingBinder({ pageSize: 10, preserveCurrentPage: true }));
             $W.tbl3.binder(jpvs.DataGrid.scrollingBinder({ pageSize: 30, chunkSize: 40 }));
 

@@ -196,11 +196,12 @@ jpvs.applyTemplate = function (container, template, dataItem) {
     /// <param name="dataItem" type="String">Optional: the data item that will be consumed by the template.</param>
 };
 
-jpvs.readDataSource = function (data, start, count, callback) {
+jpvs.readDataSource = function (data, start, count, options, callback) {
     /// <summary>This function handles extraction of data from various types of data sources and returns data asynchronously to a callback.</summary>
-    /// <param name="data" type="Array">Array of records or function(start, count) that returns the data or function(start, count, callback) that asynchronously fetches the data and passes it to the callback.</param>
+    /// <param name="data" type="Array">Array of records or function(start, count, options) that returns the data or function(start, count, options, callback) that asynchronously fetches the data and passes it to the callback.</param>
     /// <param name="start" type="Number">Index of the first element desired. If null or undefined, 0 is implied.</param>
     /// <param name="count" type="Number">Number of elements desired. If null or undefined, the entire data set is fetched.</param>
+    /// <param name="options" type="Object">Sorting/filtering options. It is an object in the form: { sort: [ { name: ..., descending: true/false }, ...], filter: [ { name: ..., operand: ..., value: ....}, ... ] }. It may be null. This parameter is passed to the datasource when the datasource is a function. If the datasource is an array, this parameter is not taken into account. Therefore, in order to support sorting/filtering, the datasource must be a function. This parameter is passed to the datasource function directly.</param>
     /// <param name="callback" type="Function">Function(obj) that gets the data. The object passed to the callback is as follows: { total: total number of records in the full data set, start: offset in the data set of the first record returned in the "data" field, count: number of records returned in the "data" field; this is &lt;= total, data: array with the returned records }</param>
 };
 
@@ -420,7 +421,15 @@ jpvs.DataGrid = function (selector) {
     /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
 
     this.dataItemClick = jpvs.event(this);
+    this.changedSortFilter = jpvs.event(this);
 };
+
+
+jpvs.DataGrid.getFilteringOperands = function () {
+    /// <summary>Returns the list of combobox items for the operand combobox in the filtering options popup.</summary>
+    return [];
+};
+
 
 jpvs.makeWidget({
     widget: jpvs.DataGrid,
@@ -462,8 +471,18 @@ jpvs.makeWidget({
             return this;
         },
 
-        sortingExpressions: function (value) {
-            /// <summary>Property: list of combobox items used to prompt the user with a list of sorting expressions. It must be an array of items in the form: { value: sorting expression, text: textual representation of the sorting expression }. Example: { value: "FirstName", text: "First name" }.</summary>
+        sortAndFilterExpressions: function (value) {
+            /// <summary>Property: list of combobox items used to prompt the user with a list of sort/filter expressions. Typically, a sort/filter expression is a column name on which the user may perform sorting/filtering. The value of this property is an array of items in the form: { value: sort/filter expression name, text: textual representation of the sort/filter expression }. Example: grid.sortAndFilterExpressions([{ value: "FirstName", text: "First name" }]).</summary>
+            return this;
+        },
+
+        currentSort: function (value) {
+            /// <summary>Property: list of items that specify how the records of the datasource must be sorted. Array items must be in the form: { name: sort expression name, descending: true/false }. Example: grid.currentSort([{ name: "FirstName", descending: false }, { name: "LastName", descending: true }]).</summary>
+            return this;
+        },
+
+        currentFilter: function (value) {
+            /// <summary>Property: list of items that specify how the records of the datasource must be filtered. Array items must be in the form: { name: filter expression name, operand: LT|LTE|EQ|NEQ|GT|GTE|CONTAINS|NCONTAINS|STARTS|NSTARTS, value: ... }. Example: grid.currentFilter([{ name: "FirstName", operand: "GTE", value: "John" }, { name: "FirstName", operand: "LTE", value: "Tom" }]). This filter extracts all records whose FirstName is between "John" and "Tom".</summary>
             return this;
         },
 

@@ -76,6 +76,13 @@
     <script type="text/javascript" src="../src/widgets/Scroller.js"></script>
     <script type="text/javascript" src="../src/widgets/DataGrid.js"></script>
     <script type="text/javascript">
+        //Sample data
+        var TOTRECS = 200;
+        var recs = [];
+        for (var i = 0; i < TOTRECS; i++)
+            recs.push({ A: "A" + i, B: "B" + i, C: "C" + i, D: jpvs.randomString(20) });
+
+
         jpvs(function ($W) {
             var tbl1 = $W.tbl1;
             var tbl2 = jpvs.DataGrid.create("#pnl");
@@ -83,19 +90,23 @@
             $W.btnRebind.click(bind);
 
             function data_sync(start, count, options) {
-                var TOTRECS = 200;
                 start = start || 0;
                 if (!count)
                     count = TOTRECS;
 
-                var ret = [];
-                for (var i = start; i < Math.min(TOTRECS, start + count); i++)
-                    ret.push({ A: "A" + i, B: "B" + i, C: "C" + i, D: jpvs.randomString(20) });
+                //Entire data set
+                var ret = Enumerable.From(recs);
 
-                ret = Enumerable.From(ret);
+                //Filter
+                var filterExpr = (options && options.filter) || [];
+                for (var i = 0; i < filterExpr.length; i++) {
+                    var x = filterExpr[i];
+                    if (x)
+                        ret = ret.Where(applyFilter(x));
+                }
 
                 //Sort
-                var sortExpr = (options && options.sortExpression) || [];
+                var sortExpr = (options && options.sort) || [];
                 for (var i = 0; i < sortExpr.length; i++) {
                     var x = sortExpr[i];
                     if (x) {
@@ -110,12 +121,47 @@
                     }
                 }
 
+                //Extract "count" records from "start" 
+                var filteredCount = ret.Count();
+                ret = ret.Skip(start).Take(count);
+
                 //Return to caller
                 return ({
-                    total: TOTRECS,
+                    total: filteredCount,
                     start: start,
                     data: ret.ToArray()
                 });
+            }
+
+            function applyFilter(filterPred) {
+                return function (rec) {
+                    var fieldValue = rec[filterPred.name];
+                    var value = filterPred.value;
+                    var op = filterPred.operand;
+
+                    if (op == "EQ")
+                        return fieldValue.toUpperCase() == value.toUpperCase();
+                    else if (op == "NEQ")
+                        return fieldValue.toUpperCase() != value.toUpperCase();
+                    else if (op == "LT")
+                        return fieldValue.toUpperCase() < value.toUpperCase();
+                    else if (op == "LTE")
+                        return fieldValue.toUpperCase() <= value.toUpperCase();
+                    else if (op == "GT")
+                        return fieldValue.toUpperCase() > value.toUpperCase();
+                    else if (op == "GTE")
+                        return fieldValue.toUpperCase() >= value.toUpperCase();
+                    else if (op == "STARTS")
+                        return fieldValue.toUpperCase().indexOf(value.toUpperCase()) == 0;
+                    else if (op == "NSTARTS")
+                        return fieldValue.toUpperCase().indexOf(value.toUpperCase()) != 0;
+                    else if (op == "CONTAINS")
+                        return fieldValue.toUpperCase().indexOf(value.toUpperCase()) >= 0;
+                    else if (op == "NCONTAINS")
+                        return fieldValue.toUpperCase().indexOf(value.toUpperCase()) < 0;
+                    else
+                        return false;
+                };
             }
 
             function data_async(start, count, options, callback) {
@@ -144,9 +190,9 @@
                 { value: "D", text: "Random text" }
             ];
 
-            $W.tbl1.sortExpressions(sortExprs);
-            $W.tbl2.sortExpressions(sortExprs);
-            $W.tbl3.sortExpressions(sortExprs);
+            $W.tbl1.sortAndFilterExpressions(sortExprs);
+            $W.tbl2.sortAndFilterExpressions(sortExprs);
+            $W.tbl3.sortAndFilterExpressions(sortExprs);
 
             $W.tbl1.enableSorting(true).enableFiltering(true).template(tmpl);
             $W.tbl2.enableSorting(true).enableFiltering(true).template(tmpl);

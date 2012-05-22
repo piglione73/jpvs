@@ -9,6 +9,13 @@ jpvs.DataGrid = function (selector) {
     this.changedSortFilter = jpvs.event(this);
 };
 
+
+jpvs.DataGrid.getFilteringOperands = function () {
+    /// <summary>Returns the list of combobox items for the operand combobox in the filtering options popup.</summary>
+    return [];
+};
+
+
 jpvs.makeWidget({
     widget: jpvs.DataGrid,
     type: "DataGrid",
@@ -49,13 +56,18 @@ jpvs.makeWidget({
             return this;
         },
 
-        sortExpressions: function (value) {
-            /// <summary>Property: list of combobox items used to prompt the user with a list of sort expressions. It must be an array of items in the form: { value: sort expression name, text: textual representation of the sorting expression }. Example: grid.sortExpressions([{ value: "FirstName", text: "First name" }]).</summary>
+        sortAndFilterExpressions: function (value) {
+            /// <summary>Property: list of combobox items used to prompt the user with a list of sort/filter expressions. Typically, a sort/filter expression is a column name on which the user may perform sorting/filtering. The value of this property is an array of items in the form: { value: sort/filter expression name, text: textual representation of the sort/filter expression }. Example: grid.sortAndFilterExpressions([{ value: "FirstName", text: "First name" }]).</summary>
             return this;
         },
 
-        currentSortExpression: function (value) {
-            /// <summary>Property: list of items that specify how the records of the datasource must be sorted. Array items must be in the form: { name: sort expression name, descending: true/false }. Example: grid.currentSortExpression([{ name: "FirstName", descending: false }, { name: "LastName", descending: true }]).</summary>
+        currentSort: function (value) {
+            /// <summary>Property: list of items that specify how the records of the datasource must be sorted. Array items must be in the form: { name: sort expression name, descending: true/false }. Example: grid.currentSort([{ name: "FirstName", descending: false }, { name: "LastName", descending: true }]).</summary>
+            return this;
+        },
+
+        currentFilter: function (value) {
+            /// <summary>Property: list of items that specify how the records of the datasource must be filtered. Array items must be in the form: { name: filter expression name, operand: LT|LTE|EQ|NEQ|GT|GTE|CONTAINS|NCONTAINS|STARTS|NSTARTS, value: ... }. Example: grid.currentFilter([{ name: "FirstName", operand: "GTE", value: "John" }, { name: "FirstName", operand: "LTE", value: "Tom" }]). This filter extracts all records whose FirstName is between "John" and "Tom".</summary>
             return this;
         },
 

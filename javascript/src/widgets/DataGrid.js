@@ -28,7 +28,18 @@ Depends: core
 
             orderBy: "Order by",
             thenBy: "Then by",
-            descending: "Descending"
+            descending: "Descending",
+
+            op_EQ: "is equal to",
+            op_NEQ: "is not equal to",
+            op_CONTAINS: "contains",
+            op_NCONTAINS: "does not contain",
+            op_STARTS: "starts with",
+            op_NSTARTS: "does not start with",
+            op_LT: "is less than",
+            op_LTE: "is less than or equal to",
+            op_GT: "is greater than",
+            op_GTE: "is greater than or equal to"
         },
 
         it: {
@@ -45,8 +56,34 @@ Depends: core
 
             orderBy: "Ordina per",
             thenBy: "Poi per",
-            descending: "Ordine inverso"
+            descending: "Ordine inverso",
+
+            op_EQ: "è uguale a",
+            op_NEQ: "è diverso da",
+            op_CONTAINS: "contiene",
+            op_NCONTAINS: "non contiene",
+            op_STARTS: "inizia per",
+            op_NSTARTS: "non inizia per",
+            op_LT: "è minore di",
+            op_LTE: "è minore o uguale a",
+            op_GT: "è maggiore di",
+            op_GTE: "è maggiore o uguale a"
         }
+    };
+
+    jpvs.DataGrid.getFilteringOperands = function () {
+        return [
+            { value: "EQ", text: jpvs.DataGrid.strings.op_EQ },
+            { value: "NEQ", text: jpvs.DataGrid.strings.op_NEQ },
+            { value: "CONTAINS", text: jpvs.DataGrid.strings.op_CONTAINS },
+            { value: "NCONTAINS", text: jpvs.DataGrid.strings.op_NCONTAINS },
+            { value: "STARTS", text: jpvs.DataGrid.strings.op_STARTS },
+            { value: "NSTARTS", text: jpvs.DataGrid.strings.op_NSTARTS },
+            { value: "LT", text: jpvs.DataGrid.strings.op_LT },
+            { value: "LTE", text: jpvs.DataGrid.strings.op_LTE },
+            { value: "GT", text: jpvs.DataGrid.strings.op_GT },
+            { value: "GTE", text: jpvs.DataGrid.strings.op_GTE }
+        ];
     };
 
     jpvs.makeWidget({
@@ -149,10 +186,10 @@ Depends: core
                 set: function (value) { this.element.data("enableFiltering", value); }
             }),
 
-            //This is used for filling the "order by" combos in the "Sorting options" popup
-            sortExpressions: jpvs.property({
+            //This is used for filling the "order by" combos in the "Sorting/filtering options" popup
+            sortAndFilterExpressions: jpvs.property({
                 get: function () {
-                    var val = this.element.data("sortExpressions");
+                    var val = this.element.data("sortAndFilterExpressions");
                     if (!val) {
                         //If not initialized, attempt to determine a list of expressions (the header texts)
                         val = [];
@@ -165,16 +202,25 @@ Depends: core
                     return val;
                 },
                 set: function (value) {
-                    this.element.data("sortExpressions", value);
+                    this.element.data("sortAndFilterExpressions", value);
                 }
             }),
 
-            currentSortExpression: jpvs.property({
+            currentSort: jpvs.property({
                 get: function () {
-                    return this.element.data("currentSortExpression");
+                    return this.element.data("currentSort");
                 },
                 set: function (value) {
-                    this.element.data("currentSortExpression", value);
+                    this.element.data("currentSort", value);
+                }
+            }),
+
+            currentFilter: jpvs.property({
+                get: function () {
+                    return this.element.data("currentFilter");
+                },
+                set: function (value) {
+                    this.element.data("currentFilter", value);
                 }
             }),
 
@@ -538,9 +584,9 @@ Depends: core
 
             //Set the combos to the current sort expression, if any, otherwise set only the first combo to the "colIndex" (the
             //clicked column)
-            var sortExpr = grid.currentSortExpression();
+            var sortExpr = grid.currentSort();
             if (!sortExpr) {
-                var allExprs = grid.sortExpressions();
+                var allExprs = grid.sortAndFilterExpressions();
                 var colIndexName = allExprs && allExprs[colIndex] && allExprs[colIndex].value;
                 if (colIndexName)
                     sortExpr = [{ name: colIndexName}];
@@ -554,8 +600,21 @@ Depends: core
         }
 
         //Filtering panel
+        var filterControls = [];
         if (enableFiltering) {
-            jpvs.write(pnlFilter, "TODO: Filter");
+            var tblFilter = jpvs.Table.create(pnlFilter);
+
+            filterControls.push(writeFilteringRow(tblFilter));
+            filterControls.push(writeFilteringRow(tblFilter));
+            filterControls.push(writeFilteringRow(tblFilter));
+            filterControls.push(writeFilteringRow(tblFilter));
+
+            //Set the combos to the current filter expression, if any
+            var filterExpr = grid.currentFilter() || [];
+
+            //Set the combos to "filterExpr"
+            for (var i = 0; i < filterControls.length; i++)
+                setFilteringRowValue(filterControls[i], filterExpr[i]);
         }
 
         //Finally, button bar and close button
@@ -581,12 +640,29 @@ Depends: core
 
                     var name = cmb.selectedValue();
                     var desc = chk.checked();
-                    if (name && name != "") {
+                    if (name && name != "")
                         sortExpr.push({ name: name, descending: desc });
-                    }
                 }
 
-                grid.currentSortExpression(sortExpr);
+                grid.currentSort(sortExpr);
+            }
+
+            if (enableFiltering) {
+                //Save the filtering settings
+                var filterExpr = [];
+                for (var i = 0; i < filterControls.length; i++) {
+                    var cmb1 = filterControls[i].cmbFilter;
+                    var cmb2 = filterControls[i].cmbOp;
+                    var txt = filterControls[i].txtValue;
+
+                    var name = cmb1.selectedValue();
+                    var op = cmb2.selectedValue();
+                    var val = txt.text();
+                    if (name && name != "" && op && op != "")
+                        filterExpr.push({ name: name, operand: op, value: val });
+                }
+
+                grid.currentFilter(filterExpr);
             }
 
             //Finally, close the popup and fire event that sort/filter has just changed, so that binders
@@ -596,9 +672,9 @@ Depends: core
         }
 
         //Utilities
-        function writeSortingRow(tblSort, caption) {
+        function writeSortingRow(tbl, caption) {
             //Order by: COMBO (field name) CHECKBOX (ascending/descending)
-            var row = tblSort.writeRow();
+            var row = tbl.writeRow();
             row.writeCell(caption + ": ");
             var cmbSort = jpvs.DropDownList.create(row.writeCell());
             var chkDesc = jpvs.CheckBox.create(row.writeCell());
@@ -606,7 +682,7 @@ Depends: core
 
             //Fill the combo with the header names
             cmbSort.addItem("");
-            cmbSort.addItems(grid.sortExpressions());
+            cmbSort.addItems(grid.sortAndFilterExpressions());
 
             return { cmbSort: cmbSort, chkDesc: chkDesc };
         }
@@ -618,13 +694,40 @@ Depends: core
             }
         }
 
+        function writeFilteringRow(tbl, caption) {
+            //COMBO (field name) COMBO (operand), TEXTBOX (value)
+            var row = tbl.writeRow();
+            var cmbFilter = jpvs.DropDownList.create(row.writeCell());
+            var cmbOp = jpvs.DropDownList.create(row.writeCell());
+            var txtValue = jpvs.TextBox.create(row.writeCell());
+
+            //Fill the combo with the header names
+            cmbFilter.addItem("");
+            cmbFilter.addItems(grid.sortAndFilterExpressions());
+
+            //Fill the combo with the operands
+            cmbOp.addItem("");
+            cmbOp.addItems(jpvs.DataGrid.getFilteringOperands());
+
+            return { cmbFilter: cmbFilter, cmbOp: cmbOp, txtValue: txtValue };
+        }
+
+        function setFilteringRowValue(filterControl, filterPred) {
+            if (filterPred) {
+                filterControl.cmbFilter.selectedValue(filterPred.name);
+                filterControl.cmbOp.selectedValue(filterPred.operand);
+                filterControl.txtValue.text(filterPred.value);
+            }
+        }
+
     }
 
 
     function getDataSourceOptions(W) {
         //Returns sorting/filtering options, as needed by the call to jpvs.readDataSource
         return {
-            sortExpression: W.currentSortExpression()
+            sort: W.currentSort(),
+            filter: W.currentFilter()
         };
     }
 
@@ -774,6 +877,11 @@ Depends: core
         var forcedWidth = (params && params.width);
         var forcedHeight = (params && params.height);
 
+        //Keep a request queue to minimize calls to the datasource
+        var requestQueue = [];
+        var requestInProgress = false;
+
+        //Here's the binder
         function binder(section, data) {
             var W = this;
             var sectionElement = getSection(W, section);
@@ -805,15 +913,12 @@ Depends: core
                 cachedData = [];
                 totalRecords = null;
 
-                jpvs.readDataSource(data, 0, pageSize, getDataSourceOptions(W), onDataLoaded(function () {
-                    updateGrid(0);
-
-                    //After loading and displaying the first page, load some more records in background
-                    jpvs.readDataSource(data, pageSize, chunkSize, getDataSourceOptions(W), onDataLoaded(updateRows));
+                jpvs.readDataSource(data, curScrollPos, pageSize, getDataSourceOptions(W), onDataLoaded(function () {
+                    refreshPage(curScrollPos);
                 }));
             });
 
-            function ensurePageOfDataLoaded(newScrollPos, next) {
+            function ensurePageOfDataLoaded(newScrollPos) {
                 //Let's make sure we have all the records in memory (at least for the page we have to display)
                 var start = newScrollPos;
                 var end = start + pageSize;
@@ -830,18 +935,53 @@ Depends: core
 
                 //If we don't have all records in memory, let's call the datasource
                 if (allPresent)
-                    next();
+                    updateRows();
                 else {
-                    //Read from firstMissingIndex up to firstMissingIndex + chunkSize
+                    //Read from firstMissingIndex - chunkSize up to firstMissingIndex + chunkSize
+                    var start = Math.max(0, firstMissingIndex - chunkSize);
                     var end = Math.min(firstMissingIndex + chunkSize, totalRecords);
-                    var numOfRecsToRead = end - firstMissingIndex;
-                    jpvs.readDataSource(data, firstMissingIndex, numOfRecsToRead, getDataSourceOptions(W), onDataLoaded(next));
+                    enqueueLoad(start, end);
                 }
             }
+
+            function enqueueLoad(start, end) {
+                requestQueue.push({ start: start, end: end });
+                ensureRequestInProgress();
+            }
+
+            function ensureRequestInProgress() {
+                if (requestInProgress)
+                    return;
+
+                //If no request is in progress, let's start a request
+                //Let's consolidate multiple requests into a single one
+                if (requestQueue.length != 0) {
+                    var minStart = requestQueue[0].start;
+                    var maxEnd = requestQueue[0].end;
+                    var lastStart, lastEnd;
+                    for (var i = 0; i < requestQueue.length; i++) {
+                        var req = requestQueue[i];
+                        lastStart = req.start;
+                        lastEnd = req.end;
+
+                        minStart = Math.min(minStart, lastStart);
+                        maxEnd = Math.max(maxEnd, lastEnd);
+                    }
+
+                    //Empty the queue and call the datasource
+                    requestQueue = [];
+                    requestInProgress = true;
+                    jpvs.readDataSource(data, minStart, maxEnd - minStart, getDataSourceOptions(W), onDataLoaded(updateRows));
+                }
+            }
+
 
             function onDataLoaded(next) {
                 //This function gets called whenever new records are returned from the data source
                 return function (ret) {
+                    //Keep track that no request is in progress
+                    requestInProgress = false;
+
                     //Write to cache
                     if (totalRecords === null)
                         totalRecords = ret.total;
@@ -962,6 +1102,9 @@ Depends: core
                 //Refresh the scroller
                 if (updatedSomething)
                     refreshScroller();
+
+                //Ensure the request queue is processed, if necessary
+                ensureRequestInProgress();
             }
 
             function getScroller() {
@@ -1030,7 +1173,7 @@ Depends: core
 
                 //Then, call the datasource and update the rows as soon as they arrive from the datasource, without scrolling
                 //(because we already did the scrolling in "updateGrid")
-                ensurePageOfDataLoaded(newScrollPos, updateRows);
+                ensurePageOfDataLoaded(newScrollPos);
             }
 
             function measureMaxGridSize() {

@@ -167,11 +167,12 @@ jpvs.applyTemplate = function (container, template, dataItem) {
     /// <param name="dataItem" type="String">Optional: the data item that will be consumed by the template.</param>
 };
 
-jpvs.readDataSource = function (data, start, count, callback) {
+jpvs.readDataSource = function (data, start, count, options, callback) {
     /// <summary>This function handles extraction of data from various types of data sources and returns data asynchronously to a callback.</summary>
-    /// <param name="data" type="Array">Array of records or function(start, count) that returns the data or function(start, count, callback) that asynchronously fetches the data and passes it to the callback.</param>
+    /// <param name="data" type="Array">Array of records or function(start, count, options) that returns the data or function(start, count, options, callback) that asynchronously fetches the data and passes it to the callback.</param>
     /// <param name="start" type="Number">Index of the first element desired. If null or undefined, 0 is implied.</param>
     /// <param name="count" type="Number">Number of elements desired. If null or undefined, the entire data set is fetched.</param>
+    /// <param name="options" type="Object">Sorting/filtering options. It is an object in the form: { sortExpression: [ { name: ..., descending: true/false }, ...] }. It may be null. This parameter is passed to the datasource when the datasource is a function. If the datasource is an array, this parameter is not taken into account. Therefore, in order to support sorting/filtering, the datasource must be a function. This parameter is passed to the datasource function directly.</param>
     /// <param name="callback" type="Function">Function(obj) that gets the data. The object passed to the callback is as follows: { total: total number of records in the full data set, start: offset in the data set of the first record returned in the "data" field, count: number of records returned in the "data" field; this is &lt;= total, data: array with the returned records }</param>
 };
 

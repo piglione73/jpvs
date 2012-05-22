@@ -57,6 +57,7 @@
             cursor: pointer;
         }
     </style>
+    <script type="text/javascript" src="../libs/linq.min.js"></script>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
@@ -76,14 +77,12 @@
     <script type="text/javascript" src="../src/widgets/DataGrid.js"></script>
     <script type="text/javascript">
         jpvs(function ($W) {
-            jpvs.currentLocale("it");
-
             var tbl1 = $W.tbl1;
             var tbl2 = jpvs.DataGrid.create("#pnl");
 
             $W.btnRebind.click(bind);
 
-            function data_sync(start, count) {
+            function data_sync(start, count, options) {
                 var TOTRECS = 200;
                 start = start || 0;
                 if (!count)
@@ -93,17 +92,36 @@
                 for (var i = start; i < Math.min(TOTRECS, start + count); i++)
                     ret.push({ A: "A" + i, B: "B" + i, C: "C" + i, D: jpvs.randomString(20) });
 
+                ret = Enumerable.From(ret);
+
+                //Sort
+                var sortExpr = (options && options.sortExpression) || [];
+                for (var i = 0; i < sortExpr.length; i++) {
+                    var x = sortExpr[i];
+                    if (x) {
+                        var funcName;
+                        if (i == 0)
+                            funcName = x.descending ? "OrderByDescending" : "OrderBy";
+                        else
+                            funcName = x.descending ? "ThenByDescending" : "ThenBy";
+
+                        //Apply the funcName: ret["OrderBy"]("$.FieldName"), that is: ret.OrderBy("$.FieldName")
+                        ret = ret[funcName]("$." + x.name);
+                    }
+                }
+
+                //Return to caller
                 return ({
                     total: TOTRECS,
                     start: start,
-                    data: ret
+                    data: ret.ToArray()
                 });
             }
 
-            function data_async(start, count, callback) {
+            function data_async(start, count, options, callback) {
                 setTimeout(function () {
-                    var recs = data_sync(start, count);
-                    callback(data_sync(start, count));
+                    var recs = data_sync(start, count, options);
+                    callback(recs);
                 }, 500);
             }
 
@@ -119,8 +137,19 @@
                 { body: { fieldName: "C"} }
             ];
 
-            $W.tbl1.enableSorting(true).enableFiltering(false).template(tmpl);
-            $W.tbl2.enableSorting(false).enableFiltering(true).template(tmpl);
+            var sortExprs = [
+                { value: "A", text: "Column 1" },
+                { value: "B", text: "Column 2" },
+                { value: "C", text: "Col 3" },
+                { value: "D", text: "Random text" }
+            ];
+
+            $W.tbl1.sortExpressions(sortExprs);
+            $W.tbl2.sortExpressions(sortExprs);
+            $W.tbl3.sortExpressions(sortExprs);
+
+            $W.tbl1.enableSorting(true).enableFiltering(true).template(tmpl);
+            $W.tbl2.enableSorting(true).enableFiltering(true).template(tmpl);
             $W.tbl3.enableSorting(true).enableFiltering(true).template(tmpl);
 
             $W.tbl1.binder(jpvs.DataGrid.defaultBinder);

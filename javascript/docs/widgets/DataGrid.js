@@ -6,6 +6,7 @@ jpvs.DataGrid = function (selector) {
     /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
 
     this.dataItemClick = jpvs.event(this);
+    this.changedSortFilter = jpvs.event(this);
 };
 
 jpvs.makeWidget({
@@ -48,8 +49,13 @@ jpvs.makeWidget({
             return this;
         },
 
-        sortingExpressions: function (value) {
-            /// <summary>Property: list of combobox items used to prompt the user with a list of sorting expressions. It must be an array of items in the form: { value: sorting expression, text: textual representation of the sorting expression }. Example: { value: "FirstName", text: "First name" }.</summary>
+        sortExpressions: function (value) {
+            /// <summary>Property: list of combobox items used to prompt the user with a list of sort expressions. It must be an array of items in the form: { value: sort expression name, text: textual representation of the sorting expression }. Example: grid.sortExpressions([{ value: "FirstName", text: "First name" }]).</summary>
+            return this;
+        },
+
+        currentSortExpression: function (value) {
+            /// <summary>Property: list of items that specify how the records of the datasource must be sorted. Array items must be in the form: { name: sort expression name, descending: true/false }. Example: grid.currentSortExpression([{ name: "FirstName", descending: false }, { name: "LastName", descending: true }]).</summary>
             return this;
         },
 

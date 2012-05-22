@@ -421,8 +421,9 @@ Depends: bootstrap
 
     Parameter "start" is optional. When not specified (null or undefined), 0 is implied.
     Parameter "count" is optional. When not specified (null or undefined), the entire data set is returned.
+    Parameter "options" is optional and may contain sorting/filtering options. When not specified, the default sort/filter is intended.
     */
-    jpvs.readDataSource = function (data, start, count, callback) {
+    jpvs.readDataSource = function (data, start, count, options, callback) {
         if (!data) {
             //No data source provided. Return no data.
             returnNoData();
@@ -430,7 +431,7 @@ Depends: bootstrap
         else if (typeof (data) == "function") {
             //The data source is a function. It might be either synchronous or asynchronous.
             //Let's try to call it and see what comes back. Pass whatever comes back to our internalCallback function.
-            var ret = data(start, count, internalCallback);
+            var ret = data(start, count, options, internalCallback);
 
             if (ret === undefined) {
                 //No return value. The function is probably asynchronous. The internalCallback will receive the data.

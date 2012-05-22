@@ -1,7 +1,7 @@
 ﻿/* JPVS
 Module: widgets
 Classes: DataGrid
-Depends: core, Pager
+Depends: core
 */
 
 (function () {
@@ -10,6 +10,7 @@ Depends: core, Pager
         this.attach(selector);
 
         this.dataItemClick = jpvs.event(this);
+        this.changedSortFilter = jpvs.event(this);
     };
 
     jpvs.DataGrid.allStrings = {
@@ -148,9 +149,10 @@ Depends: core, Pager
                 set: function (value) { this.element.data("enableFiltering", value); }
             }),
 
-            sortingExpressions: jpvs.property({
+            //This is used for filling the "order by" combos in the "Sorting options" popup
+            sortExpressions: jpvs.property({
                 get: function () {
-                    var val = this.element.data("sortingExpressions");
+                    var val = this.element.data("sortExpressions");
                     if (!val) {
                         //If not initialized, attempt to determine a list of expressions (the header texts)
                         val = [];
@@ -163,7 +165,16 @@ Depends: core, Pager
                     return val;
                 },
                 set: function (value) {
-                    this.element.data("sortingExpressions", value);
+                    this.element.data("sortExpressions", value);
+                }
+            }),
+
+            currentSortExpression: jpvs.property({
+                get: function () {
+                    return this.element.data("currentSortExpression");
+                },
+                set: function (value) {
+                    this.element.data("currentSortExpression", value);
                 }
             }),
 
@@ -524,6 +535,22 @@ Depends: core, Pager
             sortControls.push(writeSortingRow(tblSort, jpvs.DataGrid.strings.thenBy));
             sortControls.push(writeSortingRow(tblSort, jpvs.DataGrid.strings.thenBy));
             sortControls.push(writeSortingRow(tblSort, jpvs.DataGrid.strings.thenBy));
+
+            //Set the combos to the current sort expression, if any, otherwise set only the first combo to the "colIndex" (the
+            //clicked column)
+            var sortExpr = grid.currentSortExpression();
+            if (!sortExpr) {
+                var allExprs = grid.sortExpressions();
+                var colIndexName = allExprs && allExprs[colIndex] && allExprs[colIndex].value;
+                if (colIndexName)
+                    sortExpr = [{ name: colIndexName}];
+                else
+                    sortExpr = [];
+            }
+
+            //Set the combos to "sortExpr"
+            for (var i = 0; i < sortControls.length; i++)
+                setSortingRowValue(sortControls[i], sortExpr[i]);
         }
 
         //Filtering panel
@@ -544,7 +571,27 @@ Depends: core, Pager
         }
 
         function onOK() {
-            jpvs.alert("Test", "OK!!!");
+            //Save settings
+            if (enableSorting) {
+                //Save the sorting settings
+                var sortExpr = [];
+                for (var i = 0; i < sortControls.length; i++) {
+                    var cmb = sortControls[i].cmbSort;
+                    var chk = sortControls[i].chkDesc;
+
+                    var name = cmb.selectedValue();
+                    var desc = chk.checked();
+                    if (name && name != "") {
+                        sortExpr.push({ name: name, descending: desc });
+                    }
+                }
+
+                grid.currentSortExpression(sortExpr);
+            }
+
+            //Finally, close the popup and fire event that sort/filter has just changed, so that binders
+            //can take appropriate action (refresh grid/page)
+            grid.changedSortFilter.fire(grid);
             pop.destroy();
         }
 
@@ -559,11 +606,26 @@ Depends: core, Pager
 
             //Fill the combo with the header names
             cmbSort.addItem("");
-            cmbSort.addItems(grid.sortingExpressions());
+            cmbSort.addItems(grid.sortExpressions());
 
             return { cmbSort: cmbSort, chkDesc: chkDesc };
         }
 
+        function setSortingRowValue(sortControl, sortPred) {
+            if (sortPred) {
+                sortControl.cmbSort.selectedValue(sortPred.name);
+                sortControl.chkDesc.checked(sortPred.descending);
+            }
+        }
+
+    }
+
+
+    function getDataSourceOptions(W) {
+        //Returns sorting/filtering options, as needed by the call to jpvs.readDataSource
+        return {
+            sortExpression: W.currentSortExpression()
+        };
     }
 
     /*
@@ -574,19 +636,28 @@ Depends: core, Pager
     jpvs.DataGrid.defaultBinder = function (section, data) {
         var W = this;
 
-        //Remove all rows
-        var sectionElement = getSection(W, section);
-        var sectionName = decodeSectionName(section);
+        //Refresh the grid now...
+        refresh();
 
-        //Read the entire data set...
-        jpvs.readDataSource(data, null, null, next);
+        //...and whenever sorting/filtering options are changed by the user
+        W.changedSortFilter.unbind("binder");
+        W.changedSortFilter.bind("binder", refresh);
 
-        //...and bind all the rows
-        function next(ret) {
-            sectionElement.empty();
-            $.each(ret.data, function (i, item) {
-                addRow(W, sectionName, sectionElement, item);
-            });
+        function refresh() {
+            //Remove all rows
+            var sectionElement = getSection(W, section);
+            var sectionName = decodeSectionName(section);
+
+            //Read the entire data set...
+            jpvs.readDataSource(data, null, null, getDataSourceOptions(W), next);
+
+            //...and bind all the rows
+            function next(ret) {
+                sectionElement.empty();
+                $.each(ret.data, function (i, item) {
+                    addRow(W, sectionName, sectionElement, item);
+                });
+            }
         }
     };
 
@@ -617,6 +688,10 @@ Depends: core, Pager
 
             //Refresh the current page
             refreshPage();
+
+            //Whenever the user changes sorting/filtering, refresh the current page
+            W.changedSortFilter.unbind("binder");
+            W.changedSortFilter.bind("binder", refreshPage);
 
             function getPager() {
                 //Let's see if a pager has already been created for this datagrid
@@ -654,7 +729,7 @@ Depends: core, Pager
             function refreshPage() {
                 //Read the current page...
                 var start = curPage * pageSize;
-                jpvs.readDataSource(data, start, pageSize, next);
+                jpvs.readDataSource(data, start, pageSize, getDataSourceOptions(W), next);
 
                 //...and bind all the rows
                 function next(ret) {
@@ -717,12 +792,26 @@ Depends: core, Pager
             var scroller = getScroller();
 
             //Load the first chunk of data (only the visible page for faster turnaround times)
-            jpvs.readDataSource(data, 0, pageSize, onDataLoaded(function () {
+            jpvs.readDataSource(data, 0, pageSize, getDataSourceOptions(W), onDataLoaded(function () {
                 updateGrid(0);
 
                 //After loading and displaying the first page, load some more records in background
-                jpvs.readDataSource(data, pageSize, chunkSize, onDataLoaded(updateRows));
+                jpvs.readDataSource(data, pageSize, chunkSize, getDataSourceOptions(W), onDataLoaded(updateRows));
             }));
+
+            //When sort/filter is changed, reload and empty the cache
+            W.changedSortFilter.unbind("binder");
+            W.changedSortFilter.bind("binder", function () {
+                cachedData = [];
+                totalRecords = null;
+
+                jpvs.readDataSource(data, 0, pageSize, getDataSourceOptions(W), onDataLoaded(function () {
+                    updateGrid(0);
+
+                    //After loading and displaying the first page, load some more records in background
+                    jpvs.readDataSource(data, pageSize, chunkSize, getDataSourceOptions(W), onDataLoaded(updateRows));
+                }));
+            });
 
             function ensurePageOfDataLoaded(newScrollPos, next) {
                 //Let's make sure we have all the records in memory (at least for the page we have to display)
@@ -746,7 +835,7 @@ Depends: core, Pager
                     //Read from firstMissingIndex up to firstMissingIndex + chunkSize
                     var end = Math.min(firstMissingIndex + chunkSize, totalRecords);
                     var numOfRecsToRead = end - firstMissingIndex;
-                    jpvs.readDataSource(data, firstMissingIndex, numOfRecsToRead, onDataLoaded(next));
+                    jpvs.readDataSource(data, firstMissingIndex, numOfRecsToRead, getDataSourceOptions(W), onDataLoaded(next));
                 }
             }
 

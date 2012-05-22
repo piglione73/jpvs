@@ -39,7 +39,7 @@ jpvs.makeWidget({
     prototype: {
         checked: jpvs.property({
             get: function () { return this.element.prop("checked"); },
-            set: function (value) { this.element.prop("checked", value); }
+            set: function (value) { this.element.prop("checked", value ? true : false); }
         }),
 
         text: jpvs.property({

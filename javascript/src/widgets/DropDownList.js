@@ -41,18 +41,23 @@ jpvs.makeWidget({
             var V = value;
             var T = text != null ? text : value;
 
-            var opt = document.createElement("option");
-            $(opt).attr("value", V).text(T).appendTo(this.element);
+            if (V != null & T != null) {
+                var opt = document.createElement("option");
+                $(opt).attr("value", V).text(T).appendTo(this.element);
+            }
+
             return this;
         },
 
         addItems: function (items) {
             var W = this;
             $.each(items, function (i, item) {
-                if (item.value != null)
-                    W.addItem(item.value, item.text);
-                else
-                    W.addItem(item);
+                if (item != null) {
+                    if (item.value != null)
+                        W.addItem(item.value, item.text);
+                    else
+                        W.addItem(item);
+                }
             });
 
             return this;

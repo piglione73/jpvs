@@ -2810,7 +2810,8 @@ Depends: core
 
             currentSort: jpvs.property({
                 get: function () {
-                    return this.element.data("currentSort");
+                    //We want to return null (not undefined) if the value has not been set
+                    return this.element.data("currentSort") || null;
                 },
                 set: function (value) {
                     this.element.data("currentSort", value);
@@ -2819,7 +2820,8 @@ Depends: core
 
             currentFilter: jpvs.property({
                 get: function () {
-                    return this.element.data("currentFilter");
+                    //We want to return null (not undefined) if the value has not been set
+                    return this.element.data("currentFilter") || null;
                 },
                 set: function (value) {
                     this.element.data("currentFilter", value);
@@ -3088,9 +3090,15 @@ Depends: core
 
         //Otherwise, let's give visual cues so the user can sort/filter
         //Let's add an unobtrusive button to each cell, unless the buttons are already displayed
+        //Only add buttons on columns where sorting/filtering is required
+        var exprs = grid.sortAndFilterExpressions();
         var buttons = $(tr).data("jpvsColButtons") || [];
         if (buttons.length == 0) {
             $(tr).find("td,th").each(function (index) {
+                //Skip this column if this column is not listed as a sort/filter expression
+                if (!exprs[index])
+                    return;
+
                 //Measure the cell
                 var cell = $(this);
                 var pos = cell.position();
@@ -3854,18 +3862,23 @@ jpvs.makeWidget({
             var V = value;
             var T = text != null ? text : value;
 
-            var opt = document.createElement("option");
-            $(opt).attr("value", V).text(T).appendTo(this.element);
+            if (V != null & T != null) {
+                var opt = document.createElement("option");
+                $(opt).attr("value", V).text(T).appendTo(this.element);
+            }
+
             return this;
         },
 
         addItems: function (items) {
             var W = this;
             $.each(items, function (i, item) {
-                if (item.value != null)
-                    W.addItem(item.value, item.text);
-                else
-                    W.addItem(item);
+                if (item != null) {
+                    if (item.value != null)
+                        W.addItem(item.value, item.text);
+                    else
+                        W.addItem(item);
+                }
             });
 
             return this;

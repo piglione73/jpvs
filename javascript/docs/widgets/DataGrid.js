@@ -57,7 +57,7 @@ jpvs.makeWidget({
         },
 
         sortAndFilterExpressions: function (value) {
-            /// <summary>Property: list of combobox items used to prompt the user with a list of sort/filter expressions. Typically, a sort/filter expression is a column name on which the user may perform sorting/filtering. The value of this property is an array of items in the form: { value: sort/filter expression name, text: textual representation of the sort/filter expression }. Example: grid.sortAndFilterExpressions([{ value: "FirstName", text: "First name" }]).</summary>
+            /// <summary>Property: list of combobox items and/or null items used to prompt the user with a list of sort/filter expressions. Only non-null items are used for the combobox that is propmted to the user. The null items are meant to provide the user with visual cues as to which columns are sortable/filterable. More specifically, if the item at index K is null, then the column with index K will not have the sorting/filtering button. For example, if the first two columns should not be sortable while the others should, you can provide a list of items where the first two items are null and the others are not null. Typically, a sort/filter expression is a column name on which the user may perform sorting/filtering. The value of this property is an array of items in the form: { value: sort/filter expression name, text: textual representation of the sort/filter expression }. Example: grid.sortAndFilterExpressions([{ value: "FirstName", text: "First name" }]).</summary>
             return this;
         },
 

@@ -33,10 +33,15 @@
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript">
-        jpvs(function () {
+        jpvs(function (w) {
             var x = jpvs.TextBox.attach("#txtTest");
             var b = new jpvs.Button("#btnTest");
 
@@ -46,11 +51,13 @@
 
             var t1 = jpvs.TextBox.create("#pnl");
             var t2 = jpvs.TextBox.create(".P");
-
+            var t3 = jpvs.MultiLineTextBox.create("#pnl").text("Hello\nmultiline\ntext\nbox!").change(function () { jpvs.alert("Multiline changed: " + this.text()); });
             var b2 = jpvs.Button.create("#pnl").text("Cliccami").click.bind("H1", function () { alert("Grazie."); }).click.bind("H2", function () { alert("Grazie ancora"); });
             var b3 = jpvs.Button.create("#pnl").text("Cliccami 2").click("H1", function () { alert("Grazie."); }).click("H2", function () { alert("Grazie ancora"); });
 
             jpvs.find("#txtAuto").text("Found by jpvs.find");
+
+            w.txtAuto2.text("Hello\nMultiline!");
         });
     </script>
 </head>
@@ -65,5 +72,6 @@
     <br />
     Auto attach:
     <input type="text" id="txtAuto" />
+    <textarea id="txtAuto2" />
 </body>
 </html>

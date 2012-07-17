@@ -5077,6 +5077,32 @@ Depends: core, ImageButton
                 var wndW = wnd.width();
                 var wndH = wnd.height();
 
+                //If bigger than screen, adjust to fit and put scrollbars on popup body
+                var deltaH = H - wndH;
+                var deltaW = W - wndW;
+
+                var bodyW = this.bodyElement.width();
+                var bodyH = this.bodyElement.height();
+
+                if (deltaW > 0 || deltaH > 0) {
+                    this.bodyElement.css("overflow", "auto");
+
+                    if (deltaW > 0) {
+                        bodyW -= deltaW;
+                        this.bodyElement.css("width", bodyW + "px");
+                    }
+
+                    if (deltaH > 0) {
+                        bodyH -= deltaH;
+                        this.bodyElement.css("height", bodyH + "px");
+                    }
+
+                    //Here's the new size
+                    H = this.contentsElement.outerHeight();
+                    W = this.contentsElement.outerWidth();
+                }
+
+                //Now center
                 var x = (wndW - W) / 2;
                 var y = (wndH - H) / 2;
 

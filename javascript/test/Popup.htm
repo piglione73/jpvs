@@ -74,6 +74,31 @@
                 $W.pop1.modal(false).show();
                 $W.pop2.modal(false).show();
             });
+
+            $W.btnAutoScroll.click(function () {
+                var bigPop = jpvs.Popup.create().title("Bigger than screen");
+
+                for (var i = 0; i < 500; i++)
+                    jpvs.writeln(bigPop, "This is higher than screen, should adjust to fit...");
+
+                bigPop.show();
+
+                bigPop = jpvs.Popup.create().title("Bigger than screen 2");
+                bigPop.bodyElement.css("white-space", "nowrap");
+
+                for (var i = 0; i < 10; i++)
+                    jpvs.writeln(bigPop, "This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit...");
+
+                bigPop.show();
+
+                bigPop = jpvs.Popup.create().title("Bigger than screen 3");
+                bigPop.bodyElement.css("white-space", "nowrap");
+
+                for (var i = 0; i < 500; i++)
+                    jpvs.writeln(bigPop, "This is wider and higher than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit... This is wider than screen, should adjust to fit...");
+
+                bigPop.show();
+            });
         });
     </script>
 </head>
@@ -97,5 +122,6 @@
     <button id="btnConfirm2">Conferma 2</button>
     <button id="btnConfirm">Conferma</button>
     <button id="btnzindex">zIndex</button>
+    <button id="btnAutoScroll">Auto-scroll if bigger than screen</button>
 </body>
 </html>

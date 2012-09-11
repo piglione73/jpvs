@@ -61,9 +61,14 @@
 
             w.txtAuto2.text("Hello\nMultiline!");
 
-            jpvs.DateBox.create("#pnlDate").date(new Date());
+            var dtx = jpvs.DateBox.create("#pnlDate").date(new Date());
             jpvs.DateBox.create("#pnlDate2").date(new Date());
             w.dt1.date(new Date());
+
+            dtx.change(function () {
+                jpvs.alert("Copying value to Date 1");
+                w.dt1.date(this.date());
+            });
         });
     </script>
 </head>

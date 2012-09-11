@@ -3907,15 +3907,17 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
-        this.element.datepicker();
-
-        this.element.datepicker("option", $.datepicker.regional[jpvs.currentLocale()]);
-
         this.element.datepicker({
             onSelect: function (dateText, inst) {
                 return W.change.fire(W);
             }
         });
+
+        this.element.change(function () {
+            return W.change.fire(W);
+        });
+
+        this.element.datepicker("option", $.datepicker.regional[jpvs.currentLocale()]);
 
         this.element.datepicker("hide");
     },

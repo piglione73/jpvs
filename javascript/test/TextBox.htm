@@ -30,6 +30,7 @@
         }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
@@ -37,6 +38,7 @@
     <script type="text/javascript" src="../src/Resources.js"></script>
     <script type="text/javascript" src="../src/widgets/Popup.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
     <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
     <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
@@ -58,6 +60,10 @@
             jpvs.find("#txtAuto").text("Found by jpvs.find");
 
             w.txtAuto2.text("Hello\nMultiline!");
+
+            jpvs.DateBox.create("#pnlDate").date(new Date());
+            jpvs.DateBox.create("#pnlDate2").date(new Date());
+            w.dt1.date(new Date());
         });
     </script>
 </head>
@@ -72,6 +78,11 @@
     <br />
     Auto attach:
     <input type="text" id="txtAuto" />
-    <textarea id="txtAuto2" />
+    <textarea id="txtAuto2"></textarea>
+    <br />
+    Date 1: <input type="text" id="dt1" data-jpvs-type="DateBox" />
+    <br />
+    Date 2: <div id="pnlDate"></div>
+    Date 3: <div id="pnlDate2"></div>
 </body>
 </html>

@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>DocumentEditor</title>
+    <style type="text/css">
+		.DocumentEditor { background-color: #ccc; }
+		.Section { margin: 6pt; border: 2px solid black; background-color: #fff;}
+		.Header-Hover, .Footer-Hover, .Body-Hover { background-color:#ffa; }
+		
+        .Popup .DimScreen
+        {
+            background-color: rgba(255,0,0,0.2);
+        }
+        .Popup .Contents
+        {
+            background-color: #fff;
+            border: 1px solid black;
+            border-top-left-radius: 6pt;
+            border-top-right-radius: 6pt;
+        }
+        .Popup .Title
+        {
+            border-top-left-radius: 5pt;
+            border-top-right-radius: 5pt;
+            background-color: #77F;
+            padding: 3pt;
+        }
+        .Popup .Title H1
+        {
+            cursor: move;
+            margin: 0px;
+            padding: 0px;
+            font-size: 14pt;
+            color: #FFF;
+        }
+        .Popup .Body
+        {
+            padding: 3pt;
+        }
+        .Popup .Title .ImageButton
+        {
+            float: right;
+        }
+    </style>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript" src="../src/widgets/DocumentEditor.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+            w.cntEdit.document({
+                sections: [
+                    {
+                        margins: { all: "3cm", left: "2cm", right: "2cm" },
+                        header: {
+                            margins: { all: "2cm", top: "1cm" },
+                            height: "1cm",
+                            content: "Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b>"
+                        },
+                        footer: {
+                            margins: { all: "2cm", bottom: "1cm" },
+                            height: "1cm",
+                            content: "Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor"
+                        },
+                        body: {
+                            content: "Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u>"
+                        }
+                    },
+                    {
+                        margins: { all: "3cm", left: "2cm", right: "2cm" },
+                        header: {
+                            margins: { all: "2cm", top: "1cm" },
+                            height: "1cm",
+                            content: "Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b>"
+                        },
+                        footer: {
+                            margins: { all: "2cm", bottom: "1cm" },
+                            height: "1cm",
+                            content: "Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor"
+                        },
+                        body: {
+                            content: "Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u>"
+                        }
+                    },
+                    {
+                        margins: { all: "3cm", left: "2cm", right: "2cm" },
+                        header: {
+                            margins: { all: "2cm", top: "1cm" },
+                            height: "1cm",
+                            content: "Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b> Lorem ipsum dolor sit <b>amet</b>"
+                        },
+                        footer: {
+                            margins: { all: "2cm", bottom: "1cm" },
+                            height: "1cm",
+                            content: "Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor Ultra sine die <i>est</i> labor"
+                        },
+                        body: {
+                            content: "Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u> Fac lares lupus ipso <u>facto</u>"
+                        }
+                    }
+                ],
+                fields: {
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div data-jpvs-type="DocumentEditor" id="cntEdit" style="position:fixed;top:0px;left:0px;width:100%;height:100%;overflow:auto">
+    </div>
+</body>
+</html>

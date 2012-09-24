@@ -13,6 +13,16 @@ jpvs.animate = function (params, animationFunction) {
 jpvs.animate.harmonicEasing = function () { };
 jpvs.animate.linearEasing = function () { };
 
+
+jpvs.flashClass = function (element, cssClass, duration, count, leaveOnTime) {
+    /// <summary>Flashes a CSS class on a DOM element. It can be used for attracting the user's attention after changing some content.</summary>
+    /// <param name="element" type="Object">The DOM element or jQuery object to which the CSS class must be applied.</param>
+    /// <param name="cssClass" type="String">CSS class name to apply/remove in a flashing manner (on and off several times).</param>
+    /// <param name="duration" type="Number">Optional: duration of the flashing animation in milliseconds.</param>
+    /// <param name="count" type="Number">Optional: number of flashes desired.</param>
+    /// <param name="leaveOnTime" type="Number">Optional: Time (in ms). After the end of the animation, after this time, the CSS class is removed.</param>
+};
+
 window.jpvs = window.jpvs || {};
 
 jpvs.encodeUtf8Base64 = function (str) {
@@ -287,8 +297,8 @@ window.jpvs = window.jpvs || {};
 jpvs.cleanHtml = function (html, options) {
     /// <summary>Cleans an html string using the jquery-clean plugin. This function is merely a wrapper to that plugin.</summary>
     /// <param name="html" type="String">The html string to clean.</param>
-    /// <param name="options" type="Object">Optional object with cleaning options. If not specified, the html is cleaned with default options (common tags and attributes found in javascript HTML editor as preserved (using a white-list approach)). If specified, it must be in the format specified by the jquery-clean plugin documentation. Please see it for detailed information.</param>
-    /// <returns type="String">The cleaned html string.</returns>
+    /// <param name="options" type="Object">Optional object with cleaning options. If not specified, the html is cleaned with default options (common tags and attributes found in javascript HTML editors are preserved (using a white-list approach)). If specified, it must be in the format specified by the jquery-clean plugin documentation. Please see it for detailed information.</param>
+    /// <returns type="String">The cleaned html string. It is in xhtml format.</returns>
 };
 
 
@@ -631,6 +641,39 @@ jpvs.makeWidget({
 
 window.jpvs = window.jpvs || {};
 
+
+
+jpvs.DocumentEditor = function (selector) {
+    /// <summary>Attaches the widget to an existing element.</summary>
+    /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+};
+
+
+jpvs.makeWidget({
+    widget: jpvs.DocumentEditor,
+    type: "DocumentEditor",
+
+    prototype: {
+        document: function (value) {
+            /// <summary>Property: document content to display in the editor. It is in the form: { sections: [ { margins: { all: "2cm", top: "...", left: "...", right: "...", bottom: "..." }, header: { margins: { all: "2cm", top: "...", left: "...", right: "...", height: "..." }, content: "(x)html content", highlight: true/false }, footer: { margins: { all: "2cm", bottom: "...", left: "...", right: "...", height: "..." }, content: "(x)html content", highlight: true/false }, body: { content: "(x)html content", highlight: true/false } }, ... ], fields: { fieldName1: { value: "...", highlight: true/false }, fieldName2: { ... } } }.</summary>
+            return this;
+        },
+
+        richTextEditor: function (value) {
+            /// <summary>Property: rich text editor. This property allows any rich text editor to be used. Just pass an object like this: { editText: function(content, onDone) {} }. The function is responsible for displaying the rich text editor and allows the user to change the content. The function takes two parameters: (1) "content" is the (X)HTML content to show; (2) onDone is a callback function like this: function onDone(newContent) {}. The editText function must call the onDone callback when the user is done editing the content.</summary>
+            return this;
+        },
+
+        fieldEditor: function (value) {
+            /// <summary>Property: field editor. This property allows any field editor to be used. Just pass an object like this: { editField: function(fields, fieldName, onDone) {} }. The function is responsible for displaying the field editor and allows the user to change the content. The function takes three parameters: (1) "fields" is the fields collection as passed to the "document" property; (2) "fieldName" is the field name that must be edited; (3) onDone is a callback function like this: function onDone(newValue) {}. The editField function must call the onDone callback when the user is done editing the field.</summary>
+            return this;
+        }
+    }
+});
+
+
+window.jpvs = window.jpvs || {};
+
 jpvs.DropDownList = function (selector) {
     /// <summary>Attaches the widget to an existing element.</summary>
     /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
@@ -833,8 +876,9 @@ jpvs.makeWidget({
             return this;
         },
 
-        show: function () {
+        show: function (callback) {
             /// <summary>Shows the popup.</summary>
+            /// <param name="callback" type="Function">Optional: Function that will be called at the end of the showing animation.</param>
             return this;
         },
 

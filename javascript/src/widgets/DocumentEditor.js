@@ -292,8 +292,11 @@ Depends: core, parsers
         var fieldValue = field && field.value;
         var fieldHighlighted = field && field.highlight;
 
+        if ($.trim(fieldValue) == "")
+            fieldValue = jpvs.DocumentEditor.strings.clickToEditField;
+
         //Render the clickable thing
-        var span = jpvs.writeTag(curElem, "span", fieldValue || jpvs.DocumentEditor.strings.clickToEditField);
+        var span = jpvs.writeTag(curElem, "span", fieldValue);
         span.addClass("Field").attr("title", jpvs.DocumentEditor.strings.clickToEditField).click(function () {
             onEditField(W, fields, fieldName);
             return false;

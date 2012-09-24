@@ -160,19 +160,35 @@ Depends: core
     /*
     Simple function for flashing a CSS class on a DOM element
     */
-    jpvs.flashClass = function (element, cssClass, duration, count) {
-        var N = count || 10;
+    jpvs.flashClass = function (element, cssClass, duration, count, leaveOnTime) {
+        var $elem = $(element);
+        var N = count || 15;
+        var T1 = 2 * N;
+
+        //Flash and leave the CSS class on
         jpvs.animate({
             t0: 0,
-            t1: 2 * N - 1,
+            t1: T1,
             step: 1,
-            duration: duration || 1500
+            duration: duration || 2000
         }, function (t) {
             if (t % 2 == 0)
-                element.addClass(cssClass);
+                $elem.addClass(cssClass);
             else
-                element.removeClass(cssClass);
+                $elem.removeClass(cssClass);
         });
+
+        //Then, at the end, wait for "leaveOnTime" and switch the CSS class off
+        jpvs.animate({
+            t0: 0,
+            t1: 1,
+            step: 1,
+            duration: leaveOnTime || 4000
+        }, function (t) {
+            if (t == 1)
+                $elem.removeClass(cssClass);
+        });
+
     };
 
 })();

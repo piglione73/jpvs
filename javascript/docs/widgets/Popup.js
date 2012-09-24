@@ -23,8 +23,9 @@ jpvs.makeWidget({
             return this;
         },
 
-        show: function () {
+        show: function (callback) {
             /// <summary>Shows the popup.</summary>
+            /// <param name="callback" type="Function">Optional: Function that will be called at the end of the showing animation.</param>
             return this;
         },
 

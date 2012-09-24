@@ -154,7 +154,7 @@ Depends: core, ImageButton
                 }
             }),
 
-            show: function () {
+            show: function (callback) {
                 var pop = this;
 
                 //Show popup
@@ -171,6 +171,10 @@ Depends: core, ImageButton
                     //Third attempt to center (at the END of the animation), in case the first and second attempts failed because the layout was not
                     //available yet
                     pop.center();
+
+                    //Callback after the animation
+                    if (callback)
+                        callback();
                 });
 
                 //Dim screen if modal

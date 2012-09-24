@@ -156,4 +156,23 @@ Depends: core
     jpvs.animate.harmonicEasing = harmonicEasing;
     jpvs.animate.linearEasing = linearEasing;
 
+
+    /*
+    Simple function for flashing a CSS class on a DOM element
+    */
+    jpvs.flashClass = function (element, cssClass, duration, count) {
+        var N = count || 10;
+        jpvs.animate({
+            t0: 0,
+            t1: 2 * N - 1,
+            step: 1,
+            duration: duration || 1500
+        }, function (t) {
+            if (t % 2 == 0)
+                element.addClass(cssClass);
+            else
+                element.removeClass(cssClass);
+        });
+    };
+
 })();

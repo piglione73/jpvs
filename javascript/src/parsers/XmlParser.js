@@ -91,7 +91,7 @@ var XmlParser = (function () {
         };
     }
 
-    function parseString(s, nodeTransform) {
+    function parseString(s, nodeTransform, preserveWhiteSpace) {
         //No string --> return null
         if (!s || s == "")
             return null;
@@ -111,7 +111,9 @@ var XmlParser = (function () {
                     state = TagName;
 
                     //If we have text accumulated, then emit a text node and append it to the current node
-                    curText = trim(curText);
+                    if (!preserveWhiteSpace)
+                        curText = trim(curText);
+
                     if (curText.length > 0) {
                         var textNode = createTextNode(curText);
                         curNode.children.push(textNode);

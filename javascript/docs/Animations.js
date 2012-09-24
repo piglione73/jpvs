@@ -12,3 +12,12 @@ jpvs.animate = function (params, animationFunction) {
 
 jpvs.animate.harmonicEasing = function () { };
 jpvs.animate.linearEasing = function () { };
+
+
+jpvs.flashClass = function (element, cssClass, duration, count) {
+    /// <summary>Flashes a CSS class on a DOM element. It can be used for attracting the user's attention after changing some content.</summary>
+    /// <param name="element" type="Object">The DOM element or jQuery object to which the CSS class must be applied.</param>
+    /// <param name="cssClass" type="String">CSS class name to apply/remove in a flashing manner (on and off several times).</param>
+    /// <param name="duration" type="Number">Optional: duration of the flashing animation in milliseconds.</param>
+    /// <param name="count" type="Number">Optional: number of flashes desired.</param>
+};

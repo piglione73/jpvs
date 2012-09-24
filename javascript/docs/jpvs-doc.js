@@ -284,6 +284,16 @@ jpvs.toJSON = function (obj) {
 
 window.jpvs = window.jpvs || {};
 
+jpvs.cleanHtml = function (html, options) {
+    /// <summary>Cleans an html string using the jquery-clean plugin. This function is merely a wrapper to that plugin.</summary>
+    /// <param name="html" type="String">The html string to clean.</param>
+    /// <param name="options" type="Object">Optional object with cleaning options. If not specified, the html is cleaned with default options (common tags and attributes found in javascript HTML editor as preserved (using a white-list approach)). If specified, it must be in the format specified by the jquery-clean plugin documentation. Please see it for detailed information.</param>
+    /// <returns type="String">The cleaned html string.</returns>
+};
+
+
+window.jpvs = window.jpvs || {};
+
 jpvs.randomString = function (len) {
     /// <summary>Creates a random string of a given length and containing uppercase letters and digits only.</summary>
     /// <param name="len" type="Number">The length of the string to be generated.</param>

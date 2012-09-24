@@ -1,7 +1,7 @@
 ﻿/* JPVS
 Module: widgets
 Classes: DocumentEditor
-Depends: core
+Depends: core, parsers
 */
 
 (function () {
@@ -12,11 +12,21 @@ Depends: core
 
     jpvs.DocumentEditor.allStrings = {
         en: {
-            clickToEdit: "Click here to edit"
+            clickToEdit: "Click here to edit",
+            clickToEditField: "Click here to edit this field",
+            textEditor: "Text editor",
+
+            ok: "OK",
+            cancel: "Cancel"
         },
 
         it: {
-            clickToEdit: "Clicca qui per modificare"
+            clickToEdit: "Clicca qui per modificare",
+            clickToEditField: "Clicca qui per modificare il campo",
+            textEditor: "Modifica testo",
+
+            ok: "OK",
+            cancel: "Annulla"
         }
     };
 
@@ -54,12 +64,25 @@ Depends: core
                     */
                     refreshPreview(this);
                 }
+            }),
+
+            richTextEditor: jpvs.property({
+                get: function () {
+                    return this.element.data("richTextEditor");
+                },
+                set: function (value) {
+                    this.element.data("richTextEditor", value);
+                }
             })
         }
     });
 
 
     function refreshPreview(W) {
+        setTimeout(function () { refreshPreviewDelayed(W); }, 50);
+    }
+
+    function refreshPreviewDelayed(W) {
         var elem = W.element;
 
         //Delete all...
@@ -124,9 +147,14 @@ Depends: core
             bodyElement.addClass("Body");
 
             //Write content, if any
-            writeContent(W, headerElement, section && section.header && section.header.content, fields, "Header-Hover");
-            writeContent(W, bodyElement, section && section.body && section.body.content, fields, "Body-Hover");
-            writeContent(W, footerElement, section && section.footer && section.footer.content, fields, "Footer-Hover");
+            writeContent(W, headerElement, section && section.header && section.header.content, fields, "Header-Hover", section.header.highlight ? "Header-Highlight" : "", function (x) { section.header.content = x; section.header.highlight = true; });
+            writeContent(W, bodyElement, section && section.body && section.body.content, fields, "Body-Hover", section.body.highlight ? "Body-Highlight" : "", function (x) { section.body.content = x; section.body.highlight = true; });
+            writeContent(W, footerElement, section && section.footer && section.footer.content, fields, "Footer-Hover", section.footer.highlight ? "Footer-Highlight" : "", function (x) { section.footer.content = x; section.footer.highlight = true; });
+
+            //Switch off the highlight flags after rendering
+            section.header.highlight = false;
+            section.body.highlight = false;
+            section.footer.highlight = false;
         });
     }
 
@@ -142,13 +170,17 @@ Depends: core
         return defaultValue;
     }
 
-    function writeContent(W, element, content, fields, hoverCssClass) {
+    function writeContent(W, element, content, fields, hoverCssClass, highlightCssClass, newContentSetterFunc) {
         if (!content)
             return;
 
-        //Make the element clickable (click-to-edit)
+        //Clean HTML "content" (becomes xhtml)...
+        content = jpvs.cleanHtml(content);
+
+        //...make the element clickable (click-to-edit)...
         element.css("cursor", "pointer").attr("title", jpvs.DocumentEditor.strings.clickToEdit).click(function () {
-            onEditFormattedText(W, content);
+            onEditFormattedText(W, content, newContentSetterFunc);
+            return false;
         }).hover(function () {
             element.parent().addClass("Section-Hover");
             element.addClass(hoverCssClass);
@@ -157,14 +189,152 @@ Depends: core
             element.removeClass(hoverCssClass);
         });
 
-        //TODO: Clean "content" using http://code.google.com/p/jquery-clean/
-        //TODO: then write the HTML, considering only valid tags and attributes
-        //TODO: crea metodo jpvs.sanitizeHtml che usa jquery-clean
-        element.html(content);
+        //...and render the sanitized XHTML result, making sure fields are clickable too
+        var contentAsXml = XmlParser.parseString("<root>" + content + "</root>", null, true);
+        renderXHtmlWithFields(W, element, contentAsXml, fields);
+
+        //At the end, do a flashing animation if required to do so
+        if (highlightCssClass != "")
+            jpvs.flashClass(element, highlightCssClass);
     }
 
-    function onEditFormattedText(W, content) {
-        jpvs.alert("TODO: Edit rich text", content);
+    function renderXHtmlWithFields(W, curElem, xmlNode, fields) {
+        //Write the xmlNode into curElem. If the xmlNode is TEXT, then make sure ${FIELD} patterns are made clickable
+        if (xmlNode.name == "#TEXT") {
+            //This is plain text and it can contain ${FIELD} patterns that must be made clickable
+            renderTextWithFields(W, curElem, xmlNode.value, fields);
+        }
+        else if (xmlNode.name == "root") {
+            //This is the dummy root node. Let's just write the content, recursively
+            if (xmlNode.children) {
+                $.each(xmlNode.children, function (i, childNode) {
+                    renderXHtmlWithFields(W, curElem, childNode, fields);
+                });
+            }
+        }
+        else {
+            //This is a normal element. Let's write it, along with attributes and content
+            var tagName = xmlNode.name;
+            var newElem = jpvs.writeTag(curElem, tagName);
+
+            //Apply attributes
+            if (xmlNode.attributes) {
+                $.each(xmlNode.attributes, function (attrName, attrValue) {
+                    newElem.attr(attrName, attrValue);
+                });
+            }
+
+            //Apply content recursively
+            if (xmlNode.children) {
+                $.each(xmlNode.children, function (i, childNode) {
+                    renderXHtmlWithFields(W, newElem, childNode, fields);
+                });
+            }
+        }
     }
 
+    function renderTextWithFields(W, curElem, text, fields) {
+        //Look for ${FIELD} patterns and replace them with a clickable object
+        var pattern = /\$\{(.*?)\}/g;
+        var lastWrittenIndex = 0;
+        for (var match = pattern.exec(text); match != null; match = pattern.exec(text)) {
+            //Match found: analyze it
+            var matchedString = match[0];
+            var fieldName = match[1];
+            var endIndex = pattern.lastIndex;
+            var startIndex = endIndex - matchedString.length;
+
+            //Now write the plain text between lastWrittenIndex and startIndex...
+            var textBefore = text.substring(lastWrittenIndex, startIndex)
+            jpvs.write(curElem, textBefore);
+
+            //Then render the clickable field...
+            renderField(W, curElem, fields, fieldName);
+
+            //Then update the lastWrittenIndex
+            lastWrittenIndex = endIndex;
+        }
+
+        //At the end, there is still the ending text missing
+        var endingText = text.substring(lastWrittenIndex);
+        jpvs.write(curElem, endingText);
+    }
+
+    function renderField(W, curElem, fields, fieldName) {
+        //Get info about the field
+        var fieldValue = fields && fields[fieldName];
+
+        //Render the clickable thing
+        var span = jpvs.writeTag(curElem, "span", fieldValue || jpvs.DocumentEditor.strings.clickToEditField);
+        span.addClass("Field").attr("title", jpvs.DocumentEditor.strings.clickToEditField).click(function () {
+            onEditField(W, fields, fieldName);
+            return false;
+        }).hover(function () {
+            span.addClass("Field-Hover");
+        },
+        function () {
+            span.removeClass("Field-Hover");
+        });
+
+    }
+
+    function onEditFormattedText(W, content, newContentSetterFunc) {
+        //Let's use the formatted text editor supplied by the user in the richTextEditor property
+        //Use a default one if none is set
+        var rte = W.richTextEditor() || getDefaultEditor();
+
+        //The richTextEditor gives us an object that defines how to edit rich text
+        rte.editText(content, onDone);
+
+        function onDone(newContent) {
+            //We have the new content. All we need to do is update the W.document property and refresh
+            //We use the new content setter provided
+            if (newContent != null) {
+                newContentSetterFunc(newContent);
+                refreshPreview(W);
+            }
+        }
+    }
+
+    function onEditField(W, fields, fieldName) {
+        jpvs.alert("TODO: Edit field", "Field: " + fieldName);
+    }
+
+    /*
+    Here's a trivial default editor, merely intended for testing purposes or for very simple scenarios
+    */
+    function getDefaultEditor() {
+
+        function editText(content, onDone) {
+            //Create a popup with a simple textarea
+            var pop = jpvs.Popup.create().title(jpvs.DocumentEditor.strings.textEditor).close(function () { this.destroy(); });
+            var tb = jpvs.MultiLineTextBox.create(pop).text(content);
+            tb.element.attr({ rows: 10, cols: 50 });
+
+            jpvs.writeButtonBar(pop, [
+                { text: jpvs.DocumentEditor.strings.ok, click: onOK },
+                { text: jpvs.DocumentEditor.strings.cancel, click: onCancel }
+            ]);
+
+            pop.show();
+
+            function onOK() {
+                pop.hide(function () {
+                    //At the end of the hiding animations, call the onDone function and destroy the popup
+                    onDone(tb.text());
+                    pop.destroy();
+                });
+            }
+
+            function onCancel() {
+                pop.destroy();
+                onDone();
+            }
+        }
+
+        //Let's return the object interface
+        return {
+            editText: editText
+        };
+    }
 })();

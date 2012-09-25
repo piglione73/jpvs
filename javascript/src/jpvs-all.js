@@ -1906,7 +1906,7 @@ Depends: core
         //Default options are for cleaning HTML code typically written in javascript HTML editor controls
         var defaultOptions = {
             bodyOnly: false,
-            allowedTags: ["h1", "h2", "h3", "h4", "h5", "h6", "div", "span", "img", "p", "font", "ul", "ol", "li", "i", "em", "b", "strong", "u", "sup", "sub", "table", "thead", "tbody", "tfoot", "tr", "td", "th"],
+            allowedTags: ["h1", "h2", "h3", "h4", "h5", "h6", "br", "hr", "div", "span", "img", "p", "font", "ul", "ol", "li", "i", "em", "b", "strong", "u", "sup", "sub", "table", "thead", "tbody", "tfoot", "tr", "td", "th"],
             removeTags: [],
             // array of [attributeName], [optional array of allowed on elements] e.g. [["id"], ["style", ["p", "dl"]]] // allow all elements to have id and allow style on 'p' and 'dl'
             allowedAttributes: [["style"], ["align"], ["src", ["img"]]],
@@ -4815,7 +4815,7 @@ Depends: core, parsers
 
             //Every section as a small, unobtrusive menu
             var menuContainer = jpvs.writeTag(sectionElement, "div");
-            menuContainer.addClass("MenuContainer").css({ position: "absolute", top: "0px", right: "0px" });
+            menuContainer.addClass("MenuContainer").css({ position: "absolute", top: "0px", right: "0px", zIndex: (10000 - sectionNum).toString() });
             writeSectionMenu(W, menuContainer, sections, sectionNum, section);
 
             //Write content, if any
@@ -5188,8 +5188,10 @@ Depends: core, parsers
                 margins: {
                 },
                 header: {
+                    margins: {}
                 },
                 footer: {
+                    margins: {}
                 },
                 body: {
                     highlight: true

@@ -15,6 +15,11 @@
 		.Body-Highlight { background-color: #afa; }  
 		.Field-Highlight { background-color: #afa; }  
 		
+		.MenuContainer { border-bottom:2px solid black; border-left:2px solid black; cursor: pointer; background-color: #ccc; }
+		.Item-Hover { background-color:#ffa; }
+		
+		.TextBox-Error { background-color: #faa; }
+		
         .Popup .DimScreen
         {
             background-color: rgba(255,0,0,0.2);
@@ -61,6 +66,8 @@
     <script type="text/javascript" src="../src/Random.js"></script>
     <script type="text/javascript" src="../src/Resources.js"></script>
     <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/Table.js"></script>
+    <script type="text/javascript" src="../src/widgets/Menu.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
     <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
     <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
@@ -88,7 +95,7 @@
                         }
                     },
                     {
-                        margins: { all: "3cm", left: "2cm", right: "2cm" },
+                        margins: { all: "3cm", left: "2cm", right: "2cm", top: "2.5cm", bottom: "2.6cm" },
                         header: {
                             margins: { all: "2cm", top: "1cm" },
                             height: "1cm",

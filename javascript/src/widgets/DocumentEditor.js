@@ -14,21 +14,85 @@ Depends: core, parsers
         en: {
             clickToEdit: "Click here to edit",
             clickToEditField: "Click here to edit this field",
+            clickToEditHeader: "Click here to edit the header",
+            clickToEditFooter: "Click here to edit the footer",
             textEditor: "Text editor",
             fieldEditor: "Field editor",
 
+            sectionOptions: "Options",
+            sectionMargins: "Set margins",
+            removeSection: "Remove section",
+            removeSection_Warning: "The section will be removed. Do you wish to continue?",
+            removeSection_Forbidden: "The section may not be removed. There must be at least one section in the document.",
+
+            addSectionBefore: "Insert new section before",
+            addSectionAfter: "Insert new section after",
+
+            invalidValuesFound: "Invalid values found. Please correct and try again.",
+
+            bodyMargins: "Page margins",
+            defaultMargin: "Default margin",
+            defaultMargin_Notes: "Example: 2.5cm. Used only when any of left/right/bottom/top is missing.",
+            topMargin: "Top margin",
+            topMargin_Notes: "Example: 2cm. If missing, the default margin is used.",
+            bottomMargin: "Bottom margin",
+            bottomMargin_Notes: "Example: 2cm. If missing, the default margin is used.",
+            leftMargin: "Left margin",
+            leftMargin_Notes: "Example: 2cm. If missing, the default margin is used.",
+            rightMargin: "Right margin",
+            rightMargin_Notes: "Example: 2cm. If missing, the default margin is used.",
+
+            headerMargins: "Header margins and height",
+            footerMargins: "Footer margins and height",
+
+            height: "Height",
+
+            error: "Error",
             ok: "OK",
-            cancel: "Cancel"
+            cancel: "Cancel",
+            apply: "Apply"
         },
 
         it: {
             clickToEdit: "Clicca qui per modificare",
             clickToEditField: "Clicca qui per modificare il campo",
+            clickToEditHeader: "Clicca qui per modificare l'intestazione",
+            clickToEditFooter: "Clicca qui per modificare il piè di pagina",
             textEditor: "Modifica testo",
             fieldEditor: "Modifica campo",
 
+            sectionOptions: "Opzioni",
+            sectionMargins: "Imposta margini",
+            removeSection: "Elimina sezione",
+            removeSection_Warning: "Confermi l'eliminazione della sezione?",
+            removeSection_Forbidden: "La sezione non può essere rimossa. Il documento deve contenere almeno una sezione.",
+
+            addSectionBefore: "Inserisci sezione prima",
+            addSectionAfter: "Inserisci sezione dopo",
+
+            invalidValuesFound: "Trovati valori non validi. Correggere e riprovare.",
+
+            bodyMargins: "Margini pagina",
+            defaultMargin: "Margine predefinito",
+            defaultMargin_Notes: "Esempio: 2.5cm. Usato solo quando manca almeno uno dei margini sinistro/destro/inferiore/superiore.",
+            topMargin: "Margine superiore",
+            topMargin_Notes: "Esempio: 2cm. Se non specificato, viene usato il margine predefinito.",
+            bottomMargin: "Margine inferiore",
+            bottomMargin_Notes: "Esempio: 2cm. Se non specificato, viene usato il margine predefinito.",
+            leftMargin: "Margine sinistro",
+            leftMargin_Notes: "Esempio: 2cm. Se non specificato, viene usato il margine predefinito.",
+            rightMargin: "Margine destro",
+            rightMargin_Notes: "Esempio: 2cm. Se non specificato, viene usato il margine predefinito.",
+
+            headerMargins: "Margini ed altezza dell'intestazione",
+            footerMargins: "Margini ed altezza del piè di pagina",
+
+            height: "Altezza",
+
+            error: "Errore",
             ok: "OK",
-            cancel: "Annulla"
+            cancel: "Annulla",
+            apply: "Applica"
         }
     };
 
@@ -126,7 +190,7 @@ Depends: core, parsers
 
             //Header (absolutely positioned inside the section with margins/height)
             var headerMargins = section && section.header && section.header.margins;
-            var headerTopMargin = getMarginProp(headerMargins, "top", "1cm");
+            var headerTopMargin = getMarginProp(headerMargins, "top", "0.5cm");
             var headerLeftMargin = getMarginProp(headerMargins, "left", leftMargin);
             var headerRightMargin = getMarginProp(headerMargins, "right", rightMargin);
             var headerHeight = (section && section.header && section.header.height) || "1cm";
@@ -142,7 +206,7 @@ Depends: core, parsers
 
             //Footer (absolutely positioned inside the section with margins/height)
             var footerMargins = section && section.footer && section.footer.margins;
-            var footerBottomMargin = getMarginProp(footerMargins, "bottom", "1cm");
+            var footerBottomMargin = getMarginProp(footerMargins, "bottom", "0.5cm");
             var footerLeftMargin = getMarginProp(footerMargins, "left", leftMargin);
             var footerRightMargin = getMarginProp(footerMargins, "right", rightMargin);
             var footerHeight = (section && section.footer && section.footer.height) || "1cm";
@@ -156,14 +220,24 @@ Depends: core, parsers
             footerElement.css("right", footerRightMargin);
             footerElement.css("height", footerHeight);
 
+            var footerElementInside = jpvs.writeTag(footerElement, "div");
+            footerElementInside.css("position", "absolute");
+            footerElementInside.css("bottom", "0px");
+            footerElementInside.css("left", "0px");
+
             //Body
             var bodyElement = jpvs.writeTag(sectionElement, "div");
             bodyElement.addClass("Body");
 
+            //Every section as a small, unobtrusive menu
+            var menuContainer = jpvs.writeTag(sectionElement, "div");
+            menuContainer.addClass("MenuContainer").css({ position: "absolute", top: "0px", right: "0px" });
+            writeSectionMenu(W, menuContainer, sections, sectionNum, section);
+
             //Write content, if any
-            writeContent(W, headerElement, section && section.header && section.header.content, fields, "Header-Hover", section.header.highlight ? "Header-Highlight" : "", function (x) { section.header.content = x; section.header.highlight = true; }, fieldHighlightList);
-            writeContent(W, bodyElement, section && section.body && section.body.content, fields, "Body-Hover", section.body.highlight ? "Body-Highlight" : "", function (x) { section.body.content = x; section.body.highlight = true; }, fieldHighlightList);
-            writeContent(W, footerElement, section && section.footer && section.footer.content, fields, "Footer-Hover", section.footer.highlight ? "Footer-Highlight" : "", function (x) { section.footer.content = x; section.footer.highlight = true; }, fieldHighlightList);
+            writeContent(W, headerElement, headerElement, section && section.header && section.header.content, fields, "Header-Hover", section.header.highlight ? "Header-Highlight" : "", function (x) { section.header.content = x; section.header.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditHeader);
+            writeContent(W, bodyElement, bodyElement, section && section.body && section.body.content, fields, "Body-Hover", section.body.highlight ? "Body-Highlight" : "", function (x) { section.body.content = x; section.body.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEdit);
+            writeContent(W, footerElementInside, footerElement, section && section.footer && section.footer.content, fields, "Footer-Hover", section.footer.highlight ? "Footer-Highlight" : "", function (x) { section.footer.content = x; section.footer.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditFooter);
 
             //Switch off the highlight flags after rendering
             section.header.highlight = false;
@@ -184,6 +258,24 @@ Depends: core, parsers
         }
     }
 
+    function writeSectionMenu(W, container, sections, sectionNum, section) {
+        var menu = jpvs.Menu.create(container);
+        menu.template(["HorizontalMenuBar", "VerticalMenuBar"]);
+        menu.itemTemplate(["HorizontalMenuBarItem", "VerticalMenuBarItem"]);
+        menu.menuItems([
+            {
+                text: "...",
+                tooltip: jpvs.DocumentEditor.strings.sectionOptions,
+                items: [
+                    { text: jpvs.DocumentEditor.strings.sectionMargins, click: onSectionMargins(W, section) },
+                    { text: jpvs.DocumentEditor.strings.addSectionBefore, click: onAddSection(W, sections, sectionNum) },
+                    { text: jpvs.DocumentEditor.strings.addSectionAfter, click: onAddSection(W, sections, sectionNum + 1) },
+                    { text: jpvs.DocumentEditor.strings.removeSection, click: onRemoveSection(W, sections, sectionNum) }
+                ]
+            }
+        ]);
+    }
+
     function getMarginProp(margins, which, defaultValue) {
         if (margins) {
             //Let's try the "which" margin or, if missing, the "all" margin
@@ -196,27 +288,32 @@ Depends: core, parsers
         return defaultValue;
     }
 
-    function writeContent(W, element, content, fields, hoverCssClass, highlightCssClass, newContentSetterFunc, fieldHighlightList) {
+    function writeContent(W, element, clickableElement, content, fields, hoverCssClass, highlightCssClass, newContentSetterFunc, fieldHighlightList, placeHolderText) {
+        var contentToWrite = content;
         if (!content)
-            return;
+            contentToWrite = "";
 
         //Clean HTML "content" (becomes xhtml)...
-        content = jpvs.cleanHtml(content);
+        contentToWrite = jpvs.cleanHtml(contentToWrite);
+
+        //Put a placeholder if missing content
+        if ($.trim(contentToWrite) == "")
+            contentToWrite = placeHolderText;
 
         //...make the element clickable (click-to-edit)...
-        element.css("cursor", "pointer").attr("title", jpvs.DocumentEditor.strings.clickToEdit).click(function () {
+        clickableElement.css("cursor", "pointer").attr("title", jpvs.DocumentEditor.strings.clickToEdit).click(function () {
             onEditFormattedText(W, content, newContentSetterFunc);
             return false;
         }).hover(function () {
-            element.parent().addClass("Section-Hover");
-            element.addClass(hoverCssClass);
+            clickableElement.parent().addClass("Section-Hover");
+            clickableElement.addClass(hoverCssClass);
         }, function () {
-            element.parent().removeClass("Section-Hover");
-            element.removeClass(hoverCssClass);
+            clickableElement.parent().removeClass("Section-Hover");
+            clickableElement.removeClass(hoverCssClass);
         });
 
         //...and render the sanitized XHTML result, making sure fields are clickable too
-        var contentAsXml = XmlParser.parseString("<root>" + content + "</root>", null, true);
+        var contentAsXml = XmlParser.parseString("<root>" + contentToWrite + "</root>", null, true);
         renderXHtmlWithFields(W, element, contentAsXml, fields, fieldHighlightList);
 
         //At the end, do a flashing animation if required to do so
@@ -348,6 +445,194 @@ Depends: core, parsers
                 fields[fieldName] = { value: newFieldValue, highlight: true };
                 refreshPreview(W);
             }
+        }
+    }
+
+    function onSectionMargins(W, section) {
+        return function () {
+            //Open popup for editing margins
+            var pop = jpvs.Popup.create().title(jpvs.DocumentEditor.strings.sectionMargins).close(function () { this.destroy(); });
+
+            //Create fields
+            var tbl = jpvs.Table.create(pop).caption(jpvs.DocumentEditor.strings.bodyMargins);
+            var txtAll = writeTextBox(tbl, "defaultMargin", section.margins.all);
+            var txtTop = writeTextBox(tbl, "topMargin", section.margins.top);
+            var txtBot = writeTextBox(tbl, "bottomMargin", section.margins.bottom);
+            var txtLft = writeTextBox(tbl, "leftMargin", section.margins.left);
+            var txtRgt = writeTextBox(tbl, "rightMargin", section.margins.right);
+
+            tbl = jpvs.Table.create(pop).caption(jpvs.DocumentEditor.strings.headerMargins);
+            var txtHdrAll = writeTextBox(tbl, "defaultMargin", section.header.margins.all);
+            var txtHdrTop = writeTextBox(tbl, "topMargin", section.header.margins.top);
+            var txtHdrLft = writeTextBox(tbl, "leftMargin", section.header.margins.left);
+            var txtHdrRgt = writeTextBox(tbl, "rightMargin", section.header.margins.right);
+            var txtHdrHgt = writeTextBox(tbl, "height", section.header.height);
+
+            tbl = jpvs.Table.create(pop).caption(jpvs.DocumentEditor.strings.footerMargins);
+            var txtFtrAll = writeTextBox(tbl, "defaultMargin", section.footer.margins.all);
+            var txtFtrBot = writeTextBox(tbl, "bottomMargin", section.footer.margins.bottom);
+            var txtFtrLft = writeTextBox(tbl, "leftMargin", section.footer.margins.left);
+            var txtFtrRgt = writeTextBox(tbl, "rightMargin", section.footer.margins.right);
+            var txtFtrHgt = writeTextBox(tbl, "height", section.footer.height);
+
+            //Button bar
+            jpvs.writeButtonBar(pop, [
+                { text: jpvs.DocumentEditor.strings.ok, click: onOK },
+                { text: jpvs.DocumentEditor.strings.apply, click: onApply },
+                { text: jpvs.DocumentEditor.strings.cancel, click: onCancel }
+            ]);
+
+            pop.show();
+
+            function checkValues(list) {
+                if (!list)
+                    return checkValues([
+                        txtAll, txtTop, txtBot, txtLft, txtRgt,
+                        txtHdrAll, txtHdrTop, txtHdrLft, txtHdrRgt, txtHdrHgt,
+                        txtFtrAll, txtFtrBot, txtFtrLft, txtFtrRgt, txtFtrHgt
+                    ]);
+
+                var error = false;
+                var invalids = [];
+
+                for (var i = 0; i < list.length; i++) {
+                    var txt = list[i];
+                    txt.removeState(jpvs.states.ERROR);
+                    var val = readMarginTextBox(list[i]);
+                    if (val === undefined) {
+                        //Invalid value
+                        txt.addState(jpvs.states.ERROR);
+                        invalids.push(txt);
+                        error = true;
+                    }
+                }
+                if (error) {
+                    //Notify the user and set focus on first invalid value
+                    jpvs.alert(jpvs.DocumentEditor.strings.error, jpvs.DocumentEditor.strings.invalidValuesFound, invalids[0]);
+                }
+
+                return !error;
+            }
+
+            function onOK() {
+                if (!checkValues())
+                    return;
+
+                pop.hide(function () {
+                    //At the end of the animation, apply and destroy
+                    onApply();
+                    pop.destroy();
+                });
+            }
+
+            function onApply() {
+                if (!checkValues())
+                    return;
+
+                //Read all
+                section.margins.all = readMarginTextBox(txtAll);
+                section.margins.top = readMarginTextBox(txtTop);
+                section.margins.bottom = readMarginTextBox(txtBot);
+                section.margins.left = readMarginTextBox(txtLft);
+                section.margins.right = readMarginTextBox(txtRgt);
+
+                section.header.margins.all = readMarginTextBox(txtHdrAll);
+                section.header.margins.top = readMarginTextBox(txtHdrTop);
+                section.header.margins.left = readMarginTextBox(txtHdrLft);
+                section.header.margins.right = readMarginTextBox(txtHdrRgt);
+                section.header.height = readMarginTextBox(txtHdrHgt);
+
+                section.footer.margins.all = readMarginTextBox(txtFtrAll);
+                section.footer.margins.bottom = readMarginTextBox(txtFtrBot);
+                section.footer.margins.left = readMarginTextBox(txtFtrLft);
+                section.footer.margins.right = readMarginTextBox(txtFtrRgt);
+                section.footer.height = readMarginTextBox(txtFtrHgt);
+
+                //Update the preview
+                refreshPreview(W);
+            }
+
+            function onCancel() {
+                pop.destroy();
+            }
+
+        };
+
+        function readMarginTextBox(txt) {
+            //Strip all spaces
+            var val = $.trim(txt.text().replace(" ", ""));
+
+            //If missing, return null
+            if (val == "")
+                return null;
+
+            //If invalid, return undefined
+            var pattern = /^\+?[0-9]{1,2}(\.[0-9]{1,3})?(cm)?$/gi;
+            if (!pattern.test(val))
+                return undefined;
+
+            //Append "cm" if missing unit
+            if (val.indexOf("cm") < 0)
+                val = val + "cm";
+
+            txt.text(val);
+
+            return val;
+        }
+
+        function writeTextBox(tbl, label, value) {
+            var row = tbl.writeRow();
+            row.writeCell(jpvs.DocumentEditor.strings[label]);
+            var txt = jpvs.TextBox.create(row.writeCell());
+            txt.text(value);
+
+            var notes = jpvs.DocumentEditor.strings[label + "_Notes"];
+            if (notes)
+                row.writeCell(notes);
+
+            return txt;
+        }
+    }
+
+    function onAddSection(W, sections, newSectionNum) {
+        return function () {
+            //New empty section
+            var newSection = {
+                margins: {
+                },
+                header: {
+                },
+                footer: {
+                },
+                body: {
+                    highlight: true
+                }
+            };
+
+            //Add at specified index and refresh
+            if (newSectionNum >= sections.length)
+                sections.push(newSection);
+            else
+                sections.splice(newSectionNum, 0, newSection);
+
+            refreshPreview(W);
+        };
+    }
+
+    function onRemoveSection(W, sections, sectionNum) {
+        return function () {
+            if (sections.length < 2) {
+                jpvs.alert(jpvs.DocumentEditor.strings.error, jpvs.DocumentEditor.strings.removeSection_Forbidden);
+                return;
+            }
+
+            jpvs.confirm(jpvs.DocumentEditor.strings.removeSection, jpvs.DocumentEditor.strings.removeSection_Warning, onYes);
+        };
+
+        function onYes() {
+            //Remove the section and refresh
+            sections.splice(sectionNum, 1);
+            refreshPreview(W);
         }
     }
 

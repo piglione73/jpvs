@@ -571,4 +571,30 @@ Depends: core
         return jQuery.htmlClean(html, options || defaultOptions);
     };
 
+    jpvs.stripHtml = function (html) {
+        //Options that allow no tags
+        var options = {
+            bodyOnly: false,
+            allowedTags: ["xyz-dummy-xyz"], //hack: if we left this empty, it'd mean all tags are allowed; we want to allow none; by allowing only one absurd tagname we're done
+            removeTags: [],
+            // array of [attributeName], [optional array of allowed on elements] e.g. [["id"], ["style", ["p", "dl"]]] // allow all elements to have id and allow style on 'p' and 'dl'
+            allowedAttributes: [],
+            // array of attribute names to remove on all elements in addition to those not in tagAttributes e.g ["width", "height"]
+            removeAttrs: [],
+            // array of [className], [optional array of allowed on elements] e.g. [["aClass"], ["anotherClass", ["p", "dl"]]]
+            allowedClasses: [],
+            // format the result
+            format: false,
+            // format indent to start on
+            formatIndent: 0,
+            // tags to replace, and what to replace with, tag name or regex to match the tag and attributes 
+            replace: [],
+            // styles to replace with tags, multiple style matches supported, inline tags are replaced by the first match blocks are retained
+            replaceStyles: []
+        };
+
+        //Now clean
+        return jQuery.htmlClean(html, options);
+    };
+
 })();

@@ -28,6 +28,8 @@ Depends: core, parsers
             addSectionBefore: "Insert new section before",
             addSectionAfter: "Insert new section after",
 
+            sortSections: "Reorder sections",
+
             invalidValuesFound: "Invalid values found. Please correct and try again.",
 
             bodyMargins: "Page margins",
@@ -69,6 +71,8 @@ Depends: core, parsers
 
             addSectionBefore: "Inserisci sezione prima",
             addSectionAfter: "Inserisci sezione dopo",
+
+            sortSections: "Cambia ordine sezioni",
 
             invalidValuesFound: "Trovati valori non validi. Correggere e riprovare.",
 
@@ -268,9 +272,12 @@ Depends: core, parsers
                 tooltip: jpvs.DocumentEditor.strings.sectionOptions,
                 items: [
                     { text: jpvs.DocumentEditor.strings.sectionMargins, click: onSectionMargins(W, section) },
+                    jpvs.Menu.Separator,
                     { text: jpvs.DocumentEditor.strings.addSectionBefore, click: onAddSection(W, sections, sectionNum) },
                     { text: jpvs.DocumentEditor.strings.addSectionAfter, click: onAddSection(W, sections, sectionNum + 1) },
-                    { text: jpvs.DocumentEditor.strings.removeSection, click: onRemoveSection(W, sections, sectionNum) }
+                    { text: jpvs.DocumentEditor.strings.removeSection, click: onRemoveSection(W, sections, sectionNum) },
+                    jpvs.Menu.Separator,
+                    { text: jpvs.DocumentEditor.strings.sortSections, click: onSortSections(W, sections) }
                 ]
             }
         ]);
@@ -634,6 +641,69 @@ Depends: core, parsers
             sections.splice(sectionNum, 1);
             refreshPreview(W);
         }
+    }
+
+    function onSortSections(W, sections) {
+        return function () {
+            //Open popup for sorting sections
+            var pop = jpvs.Popup.create().title(jpvs.DocumentEditor.strings.sortSections).close(function () { this.destroy(); });
+
+            //Grid with list of sections
+            var grid = jpvs.DataGrid.create(pop);
+            grid.template([
+                { header: "", body: colSectionSorter },
+                { header: "XXX", body: colSectionText }
+            ]);
+
+            grid.addHeaderRow({}).dataBind(sections);
+
+            //Make it sortable
+            grid.element.sortable({ items: "tr", handle: "img" });
+
+            //Button bar
+            jpvs.writeButtonBar(pop, [
+                { text: jpvs.DocumentEditor.strings.ok, click: onOK },
+                { text: jpvs.DocumentEditor.strings.apply, click: onApply },
+                { text: jpvs.DocumentEditor.strings.cancel, click: onCancel }
+            ]);
+
+            pop.show();
+
+            function colSectionSorter(section) {
+                jpvs.writeTag(this, "img").attr("src", "pippo.gif");
+            }
+
+            function colSectionText(section) {
+                jpvs.write(this, trunc(jpvs.stripHtml(section && section.body && section.body.content)));
+
+                function trunc(x) {
+                    if (x.length > 150)
+                        return x.substring(0, 147) + "...";
+                    else
+                        return x;
+                }
+            }
+
+            function onOK() {
+                pop.hide(function () {
+                    //At the end of the animation, apply and destroy
+                    onApply();
+                    pop.destroy();
+                });
+            }
+
+            function onApply() {
+                //Apply the new order
+
+                //Update the preview
+                refreshPreview(W);
+            }
+
+            function onCancel() {
+                pop.destroy();
+            }
+
+        };
     }
 
     /*

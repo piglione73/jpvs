@@ -7,3 +7,9 @@ jpvs.cleanHtml = function (html, options) {
     /// <returns type="String">The cleaned html string. It is in xhtml format.</returns>
 };
 
+jpvs.stripHtml = function (html) {
+    /// <summary>Strips all html tags from an html string using the jquery-clean plugin. This function is merely a wrapper to that plugin.</summary>
+    /// <param name="html" type="String">The html string to clean.</param>
+    /// <returns type="String">The text extracted from the html string.</returns>
+};
+

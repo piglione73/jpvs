@@ -1,0 +1,193 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>jpvs-net</name>
+    </assembly>
+    <members>
+        <member name="T:jpvs.DocumentEditor.Document">
+            <summary>
+            This class represents a Document, which is the object that can be edited in a jpvs.DocumentEditor javascript object.
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.sections">
+            <summary>
+            Document sections
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.fields">
+            <summary>
+            Document fields, shared among all sections
+            </summary>
+        </member>
+        <member name="T:jpvs.DocumentEditor.Document.BaseMargins">
+            <summary>
+            Margins
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.BaseMargins.all">
+            <summary>
+            Default margin in cm (CSS-style: 2.5cm). Used when left/right/top/bottom are missing.
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.BaseMargins.left">
+            <summary>
+            Left margin in cm (CSS-style: 2.5cm)
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.BaseMargins.right">
+            <summary>
+            Right margin in cm (CSS-style: 2.5cm)
+            </summary>
+        </member>
+        <member name="T:jpvs.DocumentEditor.Document.SectionMargins">
+            <summary>
+            Section margins
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.SectionMargins.top">
+            <summary>
+            Top margin in cm (CSS-style: 2.5cm)
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.SectionMargins.bottom">
+            <summary>
+            Bottom margin in cm (CSS-style: 2.5cm)
+            </summary>
+        </member>
+        <member name="T:jpvs.DocumentEditor.Document.HeaderMargins">
+            <summary>
+            Header margins
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.HeaderMargins.top">
+            <summary>
+            Top margin in cm (CSS-style: 2.5cm)
+            </summary>
+        </member>
+        <member name="T:jpvs.DocumentEditor.Document.FooterMargins">
+            <summary>
+            Footer margins
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.FooterMargins.bottom">
+            <summary>
+            Bottom margin in cm (CSS-style: 2.5cm)
+            </summary>
+        </member>
+        <member name="T:jpvs.DocumentEditor.Document.Section">
+            <summary>
+            Section of a document
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Section.margins">
+            <summary>
+            Margins of the current section
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Section.header">
+            <summary>
+            Section header
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Section.footer">
+            <summary>
+            Section footer
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Section.body">
+            <summary>
+            Section body
+            </summary>
+        </member>
+        <member name="T:jpvs.DocumentEditor.Document.Header">
+            <summary>
+            Header of a document
+            </summary>
+        </member>
+        <member name="T:jpvs.DocumentEditor.Document.Body">
+            <summary>
+            Document body
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Body.content">
+            <summary>
+            Content in (X)HTML format
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Body.highlight">
+            <summary>
+            If true, the content will be briefly highlighted when rendered into the browser
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Header.margins">
+            <summary>
+            Header margins
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Header.height">
+            <summary>
+            Header height in cm (CSS-style: 1cm)
+            </summary>
+        </member>
+        <member name="T:jpvs.DocumentEditor.Document.Footer">
+            <summary>
+            Footer of a document
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Footer.margins">
+            <summary>
+            Footer margins
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Footer.height">
+            <summary>
+            Footer height in cm (CSS-style: 1cm)
+            </summary>
+        </member>
+        <member name="T:jpvs.DocumentEditor.Document.Field">
+            <summary>
+            Document field
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Field.value">
+            <summary>
+            Field value
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.Document.Field.highlight">
+            <summary>
+            If true, the field will be briefly highlighted when rendered into the browser
+            </summary>
+        </member>
+        <member name="T:jpvs.DocumentEditor.MultiPartDocument">
+            <summary>
+            This class represents a list of Document's, grouped in a single object. It is possible to use the GetPart or the GetAllParts 
+            method to get a Document object, which is editable in a jpvs.DocumentEditor.
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.MultiPartDocument.parts">
+            <summary>
+            List of document parts. Each part is a Document.
+            </summary>
+        </member>
+        <member name="F:jpvs.DocumentEditor.MultiPartDocument.fields">
+            <summary>
+            MultiPartDocument fields, shared among all parts
+            </summary>
+        </member>
+        <member name="M:jpvs.DocumentEditor.MultiPartDocument.GetPart(System.Int32)">
+            <summary>
+            Returns a Document that represents a single part of this MultiPartDocument, given the part index.
+            </summary>
+            <param name="index">The index of the part that is to be converted to a plain Document.</param>
+            <returns></returns>
+        </member>
+        <member name="M:jpvs.DocumentEditor.MultiPartDocument.GetAllParts">
+            <summary>
+            Returns a Document that represents the entire MultiPartDocument, flattened.
+            An attempt is made to extract all field values from the MultiPartDocument and from all the parts.
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

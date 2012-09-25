@@ -301,6 +301,12 @@ jpvs.cleanHtml = function (html, options) {
     /// <returns type="String">The cleaned html string. It is in xhtml format.</returns>
 };
 
+jpvs.stripHtml = function (html) {
+    /// <summary>Strips all html tags from an html string using the jquery-clean plugin. This function is merely a wrapper to that plugin.</summary>
+    /// <param name="html" type="String">The html string to clean.</param>
+    /// <returns type="String">The text extracted from the html string.</returns>
+};
+
 
 window.jpvs = window.jpvs || {};
 
@@ -655,7 +661,7 @@ jpvs.makeWidget({
 
     prototype: {
         document: function (value) {
-            /// <summary>Property: document content to display in the editor. It is in the form: { sections: [ { margins: { all: "2cm", top: "...", left: "...", right: "...", bottom: "..." }, header: { margins: { all: "2cm", top: "...", left: "...", right: "...", height: "..." }, content: "(x)html content", highlight: true/false }, footer: { margins: { all: "2cm", bottom: "...", left: "...", right: "...", height: "..." }, content: "(x)html content", highlight: true/false }, body: { content: "(x)html content", highlight: true/false } }, ... ], fields: { fieldName1: { value: "...", highlight: true/false }, fieldName2: { ... } } }.</summary>
+            /// <summary>Property: document content to display in the editor. It is in the form: { sections: [ { margins: { all: "2cm", top: "...", left: "...", right: "...", bottom: "..." }, header: { margins: { all: "2cm", top: "...", left: "...", right: "..." }, height: "...", content: "(x)html content", highlight: true/false }, footer: { margins: { all: "2cm", bottom: "...", left: "...", right: "..." }, height: "...", content: "(x)html content", highlight: true/false }, body: { content: "(x)html content", highlight: true/false } }, ... ], fields: { fieldName1: { value: "...", highlight: true/false }, fieldName2: { ... } } }.</summary>
             return this;
         },
 

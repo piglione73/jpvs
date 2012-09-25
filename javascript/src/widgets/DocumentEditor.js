@@ -29,6 +29,7 @@ Depends: core, parsers
             addSectionAfter: "Insert new section after",
 
             sortSections: "Reorder sections",
+            sortSections_Prompt: "Please reorder the sections of the document by dragging them up and down.",
 
             invalidValuesFound: "Invalid values found. Please correct and try again.",
 
@@ -73,6 +74,7 @@ Depends: core, parsers
             addSectionAfter: "Inserisci sezione dopo",
 
             sortSections: "Cambia ordine sezioni",
+            sortSections_Prompt: "Riordinare le sezioni trascinandole su e giù.",
 
             invalidValuesFound: "Trovati valori non validi. Correggere e riprovare.",
 
@@ -648,17 +650,22 @@ Depends: core, parsers
             //Open popup for sorting sections
             var pop = jpvs.Popup.create().title(jpvs.DocumentEditor.strings.sortSections).close(function () { this.destroy(); });
 
+            jpvs.writeln(pop, jpvs.DocumentEditor.strings.sortSections_Prompt);
+            jpvs.writeTag(pop, "hr");
+
             //Grid with list of sections
             var grid = jpvs.DataGrid.create(pop);
             grid.template([
-                { header: "", body: colSectionSorter },
-                { header: "XXX", body: colSectionText }
+                colSectionSorter,
+                colSectionText
             ]);
 
-            grid.addHeaderRow({}).dataBind(sections);
+            grid.dataBind(sections);
 
             //Make it sortable
-            grid.element.sortable({ items: "tr", handle: "img" });
+            grid.element.sortable({ items: "tbody > tr" });
+
+            jpvs.writeTag(pop, "hr");
 
             //Button bar
             jpvs.writeButtonBar(pop, [
@@ -670,7 +677,8 @@ Depends: core, parsers
             pop.show();
 
             function colSectionSorter(section) {
-                jpvs.writeTag(this, "img").attr("src", "pippo.gif");
+                jpvs.writeTag(this, "img").attr("src", jpvs.Resources.images.moveButton);
+                this.parent().css("cursor", "move").data("section", section);
             }
 
             function colSectionText(section) {
@@ -694,6 +702,16 @@ Depends: core, parsers
 
             function onApply() {
                 //Apply the new order
+                var trs = grid.element.find("tbody > tr");
+
+                //Empty the array...
+                sections.splice(0, sections.length);
+
+                //...and put the items back (in the correct order (they are saved in the TR's data)
+                trs.each(function () {
+                    var section = $(this).data("section");
+                    sections.push(section);
+                });
 
                 //Update the preview
                 refreshPreview(W);

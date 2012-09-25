@@ -237,7 +237,7 @@ Depends: core, parsers
 
             //Every section as a small, unobtrusive menu
             var menuContainer = jpvs.writeTag(sectionElement, "div");
-            menuContainer.addClass("MenuContainer").css({ position: "absolute", top: "0px", right: "0px" });
+            menuContainer.addClass("MenuContainer").css({ position: "absolute", top: "0px", right: "0px", zIndex: (10000 - sectionNum).toString() });
             writeSectionMenu(W, menuContainer, sections, sectionNum, section);
 
             //Write content, if any
@@ -610,8 +610,10 @@ Depends: core, parsers
                 margins: {
                 },
                 header: {
+                    margins: {}
                 },
                 footer: {
+                    margins: {}
                 },
                 body: {
                     highlight: true

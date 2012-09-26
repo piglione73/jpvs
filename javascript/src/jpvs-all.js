@@ -1933,7 +1933,7 @@ Depends: core
         };
 
         //Now clean
-        return jQuery.htmlClean(html, options || defaultOptions);
+        return jQuery.htmlClean(html || "", options || defaultOptions);
     };
 
     jpvs.stripHtml = function (html) {
@@ -1959,7 +1959,7 @@ Depends: core
         };
 
         //Now clean
-        return jQuery.htmlClean(html, options);
+        return jQuery.htmlClean(html || "", options);
     };
 
 })();

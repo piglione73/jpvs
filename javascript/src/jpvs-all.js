@@ -1612,7 +1612,7 @@ Depends: core
                     if ($.inArray(this.name, options.removeAttrs) == -1) {
                         var m = RegExp(/^(['"]?)(.*?)['"]?$/).exec(this.value);
                         var value = m[2];
-                        var valueQuote = m[1] || "'";
+                        var valueQuote = m[1] || "\"";
 
                         // check for classes allowed
                         if (this.name == "class") {
@@ -1623,7 +1623,7 @@ Depends: core
                                 }).length > 0;
                             })
                             .join(" ");
-                            valueQuote = "'";
+                            valueQuote = "\"";
                         }
 
                         if (value != null && (value.length > 0 || $.inArray(this.name, element.tag.requiredAttributes) > -1)) {

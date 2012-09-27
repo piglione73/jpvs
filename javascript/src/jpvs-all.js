@@ -1872,6 +1872,7 @@ Depends: core
             "blockquote", ["cite", "class"],
             "button", ["class", "disabled", "name", "type", "value"],
             "del", ["cite", "class", "datetime"],
+            "font", ["face", "size", "color"],
             "form", ["accept", "action", "class", "enctype", "method", "name"],
             "input", ["accept", "accesskey", "alt", "checked", "class", "disabled", "ismap", "maxlength", "name", "size", "readonly", "src", "tabindex", "type", "usemap", "value"],
             "img", ["alt", "class", "height", "src", "width"],
@@ -1907,7 +1908,7 @@ Depends: core
         var defaultOptions = {
             bodyOnly: false,
             allowedTags: ["h1", "h2", "h3", "h4", "h5", "h6", "br", "hr", "div", "span", "img", "p", "font", "ul", "ol", "li", "i", "em", "b", "strong", "u", "sup", "sub", "table", "thead", "tbody", "tfoot", "tr", "td", "th"],
-            removeTags: [],
+            removeTags: [null],
             // array of [attributeName], [optional array of allowed on elements] e.g. [["id"], ["style", ["p", "dl"]]] // allow all elements to have id and allow style on 'p' and 'dl'
             allowedAttributes: [["style"], ["align"], ["src", ["img"]]],
             // array of attribute names to remove on all elements in addition to those not in tagAttributes e.g ["width", "height"]
@@ -1940,7 +1941,7 @@ Depends: core
         //Options that allow no tags
         var options = {
             bodyOnly: false,
-            allowedTags: ["xyz-dummy-xyz"], //hack: if we left this empty, it'd mean all tags are allowed; we want to allow none; by allowing only one absurd tagname we're done
+            allowedTags: [null],
             removeTags: [],
             // array of [attributeName], [optional array of allowed on elements] e.g. [["id"], ["style", ["p", "dl"]]] // allow all elements to have id and allow style on 'p' and 'dl'
             allowedAttributes: [],
@@ -4586,6 +4587,8 @@ Depends: core, parsers
 
     jpvs.DocumentEditor = function (selector) {
         this.attach(selector);
+
+        this.change = jpvs.event(this);
     };
 
     jpvs.DocumentEditor.allStrings = {
@@ -4738,10 +4741,6 @@ Depends: core, parsers
 
 
     function refreshPreview(W) {
-        setTimeout(function () { refreshPreviewDelayed(W); }, 50);
-    }
-
-    function refreshPreviewDelayed(W) {
         var elem = W.element;
 
         //Delete all...
@@ -5010,6 +5009,9 @@ Depends: core, parsers
             if (newContent !== undefined && newContent != content) {
                 newContentSetterFunc(newContent);
                 refreshPreview(W);
+
+                //Fire the change event
+                W.change.fire(W);
             }
         }
     }
@@ -5031,6 +5033,9 @@ Depends: core, parsers
             if (newFieldValue !== undefined && newFieldValue != oldFieldValue) {
                 fields[fieldName] = { value: newFieldValue, highlight: true };
                 refreshPreview(W);
+
+                //Fire the change event
+                W.change.fire(W);
             }
         }
     }
@@ -5137,6 +5142,9 @@ Depends: core, parsers
 
                 //Update the preview
                 refreshPreview(W);
+
+                //Fire the change event
+                W.change.fire(W);
             }
 
             function onCancel() {
@@ -5205,6 +5213,9 @@ Depends: core, parsers
                 sections.splice(newSectionNum, 0, newSection);
 
             refreshPreview(W);
+
+            //Fire the change event
+            W.change.fire(W);
         };
     }
 
@@ -5222,6 +5233,9 @@ Depends: core, parsers
             //Remove the section and refresh
             sections.splice(sectionNum, 1);
             refreshPreview(W);
+
+            //Fire the change event
+            W.change.fire(W);
         }
     }
 
@@ -5295,6 +5309,9 @@ Depends: core, parsers
 
                 //Update the preview
                 refreshPreview(W);
+
+                //Fire the change event
+                W.change.fire(W);
             }
 
             function onCancel() {
@@ -5342,6 +5359,7 @@ Depends: core, parsers
             editText: editText
         };
     }
+
     /*
     Here's a trivial default field editor, merely intended for testing purposes or for very simple scenarios
     */

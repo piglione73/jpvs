@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace jpvs.DocumentEditor {
+namespace JpvsNet.DocumentEditor {
 
     /// <summary>
     /// This class represents a Document, which is the object that can be edited in a jpvs.DocumentEditor javascript object.

@@ -8,6 +8,8 @@ Depends: core, parsers
 
     jpvs.DocumentEditor = function (selector) {
         this.attach(selector);
+
+        this.change = jpvs.event(this);
     };
 
     jpvs.DocumentEditor.allStrings = {
@@ -160,10 +162,6 @@ Depends: core, parsers
 
 
     function refreshPreview(W) {
-        setTimeout(function () { refreshPreviewDelayed(W); }, 50);
-    }
-
-    function refreshPreviewDelayed(W) {
         var elem = W.element;
 
         //Delete all...
@@ -432,6 +430,9 @@ Depends: core, parsers
             if (newContent !== undefined && newContent != content) {
                 newContentSetterFunc(newContent);
                 refreshPreview(W);
+
+                //Fire the change event
+                W.change.fire(W);
             }
         }
     }
@@ -453,6 +454,9 @@ Depends: core, parsers
             if (newFieldValue !== undefined && newFieldValue != oldFieldValue) {
                 fields[fieldName] = { value: newFieldValue, highlight: true };
                 refreshPreview(W);
+
+                //Fire the change event
+                W.change.fire(W);
             }
         }
     }
@@ -559,6 +563,9 @@ Depends: core, parsers
 
                 //Update the preview
                 refreshPreview(W);
+
+                //Fire the change event
+                W.change.fire(W);
             }
 
             function onCancel() {
@@ -627,6 +634,9 @@ Depends: core, parsers
                 sections.splice(newSectionNum, 0, newSection);
 
             refreshPreview(W);
+
+            //Fire the change event
+            W.change.fire(W);
         };
     }
 
@@ -644,6 +654,9 @@ Depends: core, parsers
             //Remove the section and refresh
             sections.splice(sectionNum, 1);
             refreshPreview(W);
+
+            //Fire the change event
+            W.change.fire(W);
         }
     }
 
@@ -717,6 +730,9 @@ Depends: core, parsers
 
                 //Update the preview
                 refreshPreview(W);
+
+                //Fire the change event
+                W.change.fire(W);
             }
 
             function onCancel() {
@@ -764,6 +780,7 @@ Depends: core, parsers
             editText: editText
         };
     }
+
     /*
     Here's a trivial default field editor, merely intended for testing purposes or for very simple scenarios
     */

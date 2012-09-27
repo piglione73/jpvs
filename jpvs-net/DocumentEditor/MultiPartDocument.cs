@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace jpvs.DocumentEditor {
+namespace JpvsNet.DocumentEditor {
 
     /// <summary>
     /// This class represents a list of Document's, grouped in a single object. It is possible to use the GetPart or the GetAllParts 

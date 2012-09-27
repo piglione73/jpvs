@@ -4,185 +4,185 @@
         <name>jpvs-net</name>
     </assembly>
     <members>
-        <member name="T:jpvs.DocumentEditor.Document">
+        <member name="T:JpvsNet.DocumentEditor.Document">
             <summary>
             This class represents a Document, which is the object that can be edited in a jpvs.DocumentEditor javascript object.
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.sections">
+        <member name="F:JpvsNet.DocumentEditor.Document.sections">
             <summary>
             Document sections
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.fields">
+        <member name="F:JpvsNet.DocumentEditor.Document.fields">
             <summary>
             Document fields, shared among all sections
             </summary>
         </member>
-        <member name="T:jpvs.DocumentEditor.Document.BaseMargins">
+        <member name="T:JpvsNet.DocumentEditor.Document.BaseMargins">
             <summary>
             Margins
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.BaseMargins.all">
+        <member name="F:JpvsNet.DocumentEditor.Document.BaseMargins.all">
             <summary>
             Default margin in cm (CSS-style: 2.5cm). Used when left/right/top/bottom are missing.
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.BaseMargins.left">
+        <member name="F:JpvsNet.DocumentEditor.Document.BaseMargins.left">
             <summary>
             Left margin in cm (CSS-style: 2.5cm)
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.BaseMargins.right">
+        <member name="F:JpvsNet.DocumentEditor.Document.BaseMargins.right">
             <summary>
             Right margin in cm (CSS-style: 2.5cm)
             </summary>
         </member>
-        <member name="T:jpvs.DocumentEditor.Document.SectionMargins">
+        <member name="T:JpvsNet.DocumentEditor.Document.SectionMargins">
             <summary>
             Section margins
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.SectionMargins.top">
+        <member name="F:JpvsNet.DocumentEditor.Document.SectionMargins.top">
             <summary>
             Top margin in cm (CSS-style: 2.5cm)
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.SectionMargins.bottom">
+        <member name="F:JpvsNet.DocumentEditor.Document.SectionMargins.bottom">
             <summary>
             Bottom margin in cm (CSS-style: 2.5cm)
             </summary>
         </member>
-        <member name="T:jpvs.DocumentEditor.Document.HeaderMargins">
+        <member name="T:JpvsNet.DocumentEditor.Document.HeaderMargins">
             <summary>
             Header margins
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.HeaderMargins.top">
+        <member name="F:JpvsNet.DocumentEditor.Document.HeaderMargins.top">
             <summary>
             Top margin in cm (CSS-style: 2.5cm)
             </summary>
         </member>
-        <member name="T:jpvs.DocumentEditor.Document.FooterMargins">
+        <member name="T:JpvsNet.DocumentEditor.Document.FooterMargins">
             <summary>
             Footer margins
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.FooterMargins.bottom">
+        <member name="F:JpvsNet.DocumentEditor.Document.FooterMargins.bottom">
             <summary>
             Bottom margin in cm (CSS-style: 2.5cm)
             </summary>
         </member>
-        <member name="T:jpvs.DocumentEditor.Document.Section">
+        <member name="T:JpvsNet.DocumentEditor.Document.Section">
             <summary>
             Section of a document
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Section.margins">
+        <member name="F:JpvsNet.DocumentEditor.Document.Section.margins">
             <summary>
             Margins of the current section
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Section.header">
+        <member name="F:JpvsNet.DocumentEditor.Document.Section.header">
             <summary>
             Section header
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Section.footer">
+        <member name="F:JpvsNet.DocumentEditor.Document.Section.footer">
             <summary>
             Section footer
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Section.body">
+        <member name="F:JpvsNet.DocumentEditor.Document.Section.body">
             <summary>
             Section body
             </summary>
         </member>
-        <member name="T:jpvs.DocumentEditor.Document.Header">
+        <member name="T:JpvsNet.DocumentEditor.Document.Header">
             <summary>
             Header of a document
             </summary>
         </member>
-        <member name="T:jpvs.DocumentEditor.Document.Body">
+        <member name="T:JpvsNet.DocumentEditor.Document.Body">
             <summary>
             Document body
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Body.content">
+        <member name="F:JpvsNet.DocumentEditor.Document.Body.content">
             <summary>
             Content in (X)HTML format
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Body.highlight">
+        <member name="F:JpvsNet.DocumentEditor.Document.Body.highlight">
             <summary>
             If true, the content will be briefly highlighted when rendered into the browser
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Header.margins">
+        <member name="F:JpvsNet.DocumentEditor.Document.Header.margins">
             <summary>
             Header margins
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Header.height">
+        <member name="F:JpvsNet.DocumentEditor.Document.Header.height">
             <summary>
             Header height in cm (CSS-style: 1cm)
             </summary>
         </member>
-        <member name="T:jpvs.DocumentEditor.Document.Footer">
+        <member name="T:JpvsNet.DocumentEditor.Document.Footer">
             <summary>
             Footer of a document
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Footer.margins">
+        <member name="F:JpvsNet.DocumentEditor.Document.Footer.margins">
             <summary>
             Footer margins
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Footer.height">
+        <member name="F:JpvsNet.DocumentEditor.Document.Footer.height">
             <summary>
             Footer height in cm (CSS-style: 1cm)
             </summary>
         </member>
-        <member name="T:jpvs.DocumentEditor.Document.Field">
+        <member name="T:JpvsNet.DocumentEditor.Document.Field">
             <summary>
             Document field
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Field.value">
+        <member name="F:JpvsNet.DocumentEditor.Document.Field.value">
             <summary>
             Field value
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.Document.Field.highlight">
+        <member name="F:JpvsNet.DocumentEditor.Document.Field.highlight">
             <summary>
             If true, the field will be briefly highlighted when rendered into the browser
             </summary>
         </member>
-        <member name="T:jpvs.DocumentEditor.MultiPartDocument">
+        <member name="T:JpvsNet.DocumentEditor.MultiPartDocument">
             <summary>
             This class represents a list of Document's, grouped in a single object. It is possible to use the GetPart or the GetAllParts 
             method to get a Document object, which is editable in a jpvs.DocumentEditor.
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.MultiPartDocument.parts">
+        <member name="F:JpvsNet.DocumentEditor.MultiPartDocument.parts">
             <summary>
             List of document parts. Each part is a Document.
             </summary>
         </member>
-        <member name="F:jpvs.DocumentEditor.MultiPartDocument.fields">
+        <member name="F:JpvsNet.DocumentEditor.MultiPartDocument.fields">
             <summary>
             MultiPartDocument fields, shared among all parts
             </summary>
         </member>
-        <member name="M:jpvs.DocumentEditor.MultiPartDocument.GetPart(System.Int32)">
+        <member name="M:JpvsNet.DocumentEditor.MultiPartDocument.GetPart(System.Int32)">
             <summary>
             Returns a Document that represents a single part of this MultiPartDocument, given the part index.
             </summary>
             <param name="index">The index of the part that is to be converted to a plain Document.</param>
             <returns></returns>
         </member>
-        <member name="M:jpvs.DocumentEditor.MultiPartDocument.GetAllParts">
+        <member name="M:JpvsNet.DocumentEditor.MultiPartDocument.GetAllParts">
             <summary>
             Returns a Document that represents the entire MultiPartDocument, flattened.
             An attempt is made to extract all field values from the MultiPartDocument and from all the parts.

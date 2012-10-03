@@ -4911,7 +4911,7 @@ Depends: core, parsers
         //Write the xmlNode into curElem. If the xmlNode is TEXT, then make sure ${FIELD} patterns are made clickable
         if (xmlNode.name == "#TEXT") {
             //This is plain text and it can contain ${FIELD} patterns that must be made clickable
-            renderTextWithFields(W, curElem, xmlNode.value, fields, fieldHighlightList);
+            renderTextWithFields(W, curElem, xmlNode.value || "", fields, fieldHighlightList);
         }
         else if (xmlNode.name == "root") {
             //This is the dummy root node. Let's just write the content, recursively
@@ -4938,6 +4938,19 @@ Depends: core, parsers
                 $.each(xmlNode.children, function (i, childNode) {
                     renderXHtmlWithFields(W, newElem, childNode, fields, fieldHighlightList);
                 });
+
+                /*
+                Exception: if "newElem" is an empty "p", we want to emit "<p>&nbsp;</p>" so we render as an empty paragraph.
+                Rationale: HTML editor emit "<p>&nbsp;</p>" when an empty line is desired.
+                The htmlClean function above strips it as "<p/>". We want "<p>&nbsp;</p>" instead.
+
+                Sometimes, the user may enter a blank paragraph with spaces. We may end up with "<p><span>    </span></p>".
+                The cleaner transforms it into "<p><span/></p>", which the browser renders as nothing. We want "<p><span>&nbsp;</span></p>".
+
+                The basic idea is to filling empty tags like p and span with a non breaking space
+                */
+                if ((tagName == "p" || tagName == "span") && xmlNode.children.length == 0)
+                    jpvs.write(newElem, "\u00a0");
             }
         }
     }
@@ -4955,7 +4968,7 @@ Depends: core, parsers
 
             //Now write the plain text between lastWrittenIndex and startIndex...
             var textBefore = text.substring(lastWrittenIndex, startIndex)
-            jpvs.write(curElem, textBefore);
+            renderText(curElem, textBefore);
 
             //Then render the clickable field...
             renderField(W, curElem, fields, fieldName, fieldHighlightList);
@@ -4966,7 +4979,25 @@ Depends: core, parsers
 
         //At the end, there is still the ending text missing
         var endingText = text.substring(lastWrittenIndex);
-        jpvs.write(curElem, endingText);
+        renderText(curElem, endingText);
+    }
+
+    var entitiesToReplace = {
+        "&amp;": "&",
+        "&lt;": "<",
+        "&gt;": ">",
+        "&quot;": "\"",
+        "&apos;": "'"
+    };
+
+    function renderText(curElem, text) {
+        //Renders the text and replaces a few entities
+        var text2 = text;
+        $.each(entitiesToReplace, function (entity, replacedText) {
+            text2 = text2.replace(entity, replacedText);
+        });
+
+        jpvs.write(curElem, text2);
     }
 
     function renderField(W, curElem, fields, fieldName, fieldHighlightList) {

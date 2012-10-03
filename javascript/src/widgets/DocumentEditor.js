@@ -359,6 +359,19 @@ Depends: core, parsers
                 $.each(xmlNode.children, function (i, childNode) {
                     renderXHtmlWithFields(W, newElem, childNode, fields, fieldHighlightList);
                 });
+
+                /*
+                Exception: if "newElem" is an empty "p", we want to emit "<p>&nbsp;</p>" so we render as an empty paragraph.
+                Rationale: HTML editor emit "<p>&nbsp;</p>" when an empty line is desired.
+                The htmlClean function above strips it as "<p/>". We want "<p>&nbsp;</p>" instead.
+
+                Sometimes, the user may enter a blank paragraph with spaces. We may end up with "<p><span>    </span></p>".
+                The cleaner transforms it into "<p><span/></p>", which the browser renders as nothing. We want "<p><span>&nbsp;</span></p>".
+
+                The basic idea is to filling empty tags like p and span with a non breaking space
+                */
+                if ((tagName == "p" || tagName == "span") && xmlNode.children.length == 0)
+                    jpvs.write(newElem, "\u00a0");
             }
         }
     }

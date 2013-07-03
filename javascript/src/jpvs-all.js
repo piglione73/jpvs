@@ -6947,15 +6947,9 @@ Depends: core
             W.scrollbarW = scrollbarWidth();
             W.scrollbarH = W.scrollbarW;
 
-            //Then reduce the content size, so the scrollbars are not covered by the content
-            var width = W.element.innerWidth() - W.scrollbarW;
-            var height = W.element.innerHeight() - W.scrollbarH;
-            W.contentBox.css({
-                width: width + "px", height: height + "px"
-            });
-
             //Events
             W.scrollerBox.scroll(onScroll(W));
+            $(window).resize(onResize(W));
 
             //Finally, copy the content into the "content" DIV and set sizes
             if (parkedContent.length) {
@@ -6964,6 +6958,9 @@ Depends: core
                 parkedSize.width += W.scrollbarW;
                 W.scrollableSize(parkedSize).contentSize(parkedSize);
             }
+
+            //Adjust the content box size
+            onResize(W)();
         },
 
         canAttachTo: function (obj) {
@@ -6984,6 +6981,7 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.width(value.width).height(value.height);
+                    onResize(this)();
                 }
             }),
 
@@ -6996,6 +6994,7 @@ Depends: core
                 },
                 set: function (value) {
                     this.scrollerSizer.width(value.width).height(value.height);
+                    onResize(this)();
                 }
             }),
 
@@ -7008,6 +7007,7 @@ Depends: core
                 },
                 set: function (value) {
                     this.content.width(value.width).height(value.height);
+                    onResize(this)();
                 }
             }),
 
@@ -7041,6 +7041,17 @@ Depends: core
     function onScroll(W) {
         return function () {
             W.change.fire(W);
+        };
+    }
+
+    function onResize(W) {
+        return function () {
+            //Adjust the content box size, so the scrollbars are not covered by the content
+            var width = W.element.innerWidth() - W.scrollbarW;
+            var height = W.element.innerHeight() - W.scrollbarH;
+            W.contentBox.css({
+                width: width + "px", height: height + "px"
+            });
         };
     }
 

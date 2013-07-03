@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Scroller</title>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Scroller.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+            w.scrl.scrollableSize({ width: "600px", height: "600px" });
+            w.scrl.change(function () { w.scrl.contentPosition(w.scrl.scrollPosition()); });
+            w.lnkTest.click(function () { alert("Test"); });
+        });
+    </script>
+</head>
+<body>
+    <div>
+        <div id="scrl" data-jpvs-type="Scroller">
+            Hello<br />
+            <a id="lnkTest" data-jpvs-type="LinkButton">Test</a>
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+            Hello<br />
+        </div>
+    </div>
+</body>
+</html>

@@ -36,7 +36,24 @@ Depends: core
             //Park the content for later inclusion in the appropriate DIV
             var parkedContent = W.element.contents();
 
-            //Create a content box DIV with overflow hidden, same size as the widget
+            //Create a scroller box DIV with overflow auto, same size as the widget
+            W.scrollerBox = jpvs.writeTag(W.element, "div").css({
+                position: "absolute",
+                left: "0px", top: "0px",
+                width: "100%", height: "100%",
+                overflow: "scroll"
+            });
+
+            //Inside the scroller box, create a DIV that is used as a sizer for the scrollbars of the scroller box
+            W.scrollerSizer = jpvs.writeTag(W.scrollerBox, "div").css({
+                position: "absolute",
+                left: "0px", top: "0px",
+                width: "100%", height: "100%",
+                overflow: "hidden"
+            });
+
+            //Create a content box DIV with overflow hidden, same size as the widget, overlapping the scroller box
+            //Later, we reduce width and height so as to leave the scrollerBox's scrollbars uncovered
             W.contentBox = jpvs.writeTag(W.element, "div").css({
                 position: "absolute",
                 left: "0px", top: "0px",
@@ -52,35 +69,15 @@ Depends: core
                 overflow: "hidden"
             });
 
-            //Create a scroller box DIV, that completely overlaps the content box, with overflow auto
-            W.scrollerBox = jpvs.writeTag(W.element, "div").css({
-                position: "absolute",
-                left: "0px", top: "0px",
-                width: "100%", height: "100%",
-                overflow: "auto"
-            });
-
-            //Inside the scroller box, create a DIV that is used as a sizer for the scrollbars of the scroller box
-            W.scrollerSizer = jpvs.writeTag(W.scrollerBox, "div").css({
-                position: "absolute",
-                left: "0px", top: "0px",
-                width: "100%", height: "100%",
-                overflow: "hidden"
-            });
-
             //Measure scrollbars
-            var parkOverflow = W.scrollerBox.css("overflow");
-            W.scrollerBox.css("overflow", "scroll");
-            var width1 = W.scrollerSizer.innerWidth();
-            var width2 = W.scrollerBox.innerWidth();
-            W.scrollerBox.css("overflow", parkOverflow);
-
-            W.scrollbarW = Math.abs(width1 - width2);
+            W.scrollbarW = scrollbarWidth();
             W.scrollbarH = W.scrollbarW;
 
-            //After measuring scrollbars, set the CSS width to 100%
-            W.scrollerSizer.css({
-                width: "100%", height: "100%"
+            //Then reduce the content size, so the scrollbars are not covered by the content
+            var width = W.element.innerWidth() - W.scrollbarW;
+            var height = W.element.innerHeight() - W.scrollbarH;
+            W.contentBox.css({
+                width: width + "px", height: height + "px"
             });
 
             //Events
@@ -171,6 +168,21 @@ Depends: core
         return function () {
             W.change.fire(W);
         };
+    }
+
+    function scrollbarWidth() {
+        var $inner = $('<div style="width: 100%; height:200px;">test</div>');
+        var $outer = $('<div style="width:200px;height:150px; position: absolute; top: 0px; left: 0px; visibility: hidden; overflow:hidden;"></div>').append($inner);
+        var inner = $inner[0];
+        var outer = $outer[0];
+
+        $('body').append(outer);
+        var width1 = inner.offsetWidth;
+        $outer.css('overflow', 'scroll');
+        var width2 = outer.clientWidth;
+        $outer.remove();
+
+        return (width1 - width2);
     }
 
 })();

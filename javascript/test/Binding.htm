@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Binding</title>
+    <style type="text/css">
+        .Widget-Hover
+        {
+            background-color: Aqua !important;
+        }
+        
+        .Widget-Focus
+        {
+            background-color: Yellow;
+        }
+        
+        .TextBox
+        {
+            border: 1px solid red;
+        }
+        
+        .TextBox-Focus
+        {
+            outline: green solid 2px;
+        }
+        
+        .Button
+        {
+            background-color: pink;
+            border: 1px solid red;
+        }
+    </style>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Binding.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+            var obj = {
+                val1: "VAL1",
+                val2: "VAL2"
+            };
+
+            jpvs.bindContainer("body", obj);
+        });
+    </script>
+</head>
+<body>
+    <input type="text" data-bind="value=val1" /> - <input type="text" data-bind="value=val1" />
+    <br />
+    <input type="text" data-bind="value=val2" /> - <input type="text" data-bind="value=val2" />
+</body>
+</html>

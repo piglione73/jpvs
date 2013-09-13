@@ -1,7 +1,7 @@
 ﻿/* JPVS
-Module: core
-Classes: jpvs
-Depends: bootstrap
+Module: binding
+Classes: 
+Depends: core
 */
 
 (function () {
@@ -55,40 +55,59 @@ Depends: bootstrap
 
         //Let's setup a two-way binding
         //From element to dataObject
-        onElementPropertyChange(element, elementPropertyName, setterDataObjectProperty(dataObject, objectPropertyName));
+        var relation = {
+            idFrom: getElementBindingID(element) + "/" + elementPropertyName,
+            idTo: getDataObjectBindingID(dataObject) + "/" + objectPropertyName
+        };
+        onElementPropertyChange(relation, element, elementPropertyName, setterDataObjectProperty(dataObject, objectPropertyName));
 
         //From dataObject to element
-        onDataObjectPropertyChange(dataObject, objectPropertyName, setterElementProperty(element, elementPropertyName));
+        relation = {
+            idTo: getElementBindingID(element) + "/" + elementPropertyName,
+            idFrom: getDataObjectBindingID(dataObject) + "/" + objectPropertyName
+        };
+        onDataObjectPropertyChange(relation, dataObject, objectPropertyName, setterElementProperty(element, elementPropertyName));
     }
 
-    function onElementPropertyChange(element, elementPropertyName, onChangeAction) {
+    function getElementBindingID(element) {
+        var bid = element.data("jpvs.binding.id");
+        if (!bid) {
+            bid = jpvs.randomString(20);
+            element.data("jpvs.binding.id", bid);
+        }
+
+        return bid;
+    }
+
+    function getDataObjectBindingID(dataObject) {
+        var bid = dataObject["jpvs.binding.id"];
+        if (!bid) {
+            bid = jpvs.randomString(20);
+            dataObject["jpvs.binding.id"] = bid;
+        }
+
+        return bid;
+    }
+
+    function onElementPropertyChange(relation, element, elementPropertyName, onChangeAction) {
         //Monitor for changes. When a change is detected, execute the on-change action
         //Get the function for reading the element property
         var getter = getterElementProperty(element, elementPropertyName);
 
         //Monitor for changes by putting all the necessary info into the changeMonitorQueue
-        var bindingId = element.data("jpvs.binding.id");
-        if (!bindingId) {
-            bindingId = jpvs.randomString(20);
-            element.data("jpvs.binding.id", bindingId);
-        }
-        var bindingId2 = element.data("jpvs.binding.id");
-
-        var key = bindingId + "/" + elementPropertyName;
-        changeMonitorQueue.put(key, getter, function (value) {
+        changeMonitorQueue.put(relation.idFrom, relation.idTo, getter, function (value) {
             //When the change monitor detects a change, we must execute the action
             onChangeAction(value);
         });
     }
 
-    function onDataObjectPropertyChange(dataObject, objectPropertyName, onChangeAction) {
+    function onDataObjectPropertyChange(relation, dataObject, objectPropertyName, onChangeAction) {
         //Monitor for changes. When a change is detected, execute the on-change action
         //Get the function for reading the dataObject property
         var getter = getterDataObjectProperty(dataObject, objectPropertyName);
 
         //Monitor for changes by putting all the necessary info into the changeMonitorQueue
-        var key = "$DATAOBJECT$/" + objectPropertyName;
-        changeMonitorQueue.put(key, getter, function (value) {
+        changeMonitorQueue.put(relation.idFrom, relation.idTo, getter, function (value) {
             //When the change monitor detects a change, we must execute the action
             onChangeAction(value);
         });
@@ -135,7 +154,7 @@ Depends: bootstrap
             if (typeof (prop) == "function") {
                 //It's a jpvs.property; the getter must read the value from the property
                 return function () {
-                    return prop();
+                    return prop.call(widget);
                 };
             }
         }
@@ -155,15 +174,27 @@ Depends: bootstrap
             if (typeof (prop) == "function") {
                 //It's a jpvs.property; the setter must assign the value to the property
                 return function (value) {
-                    prop(value);
+                    //We want to assign it only if it is different, so we don't trigger side effects
+                    if (!valueEquals(value, prop.call(widget)))
+                        prop.call(widget, value);
                 };
             }
         }
 
         //If, by examining the widget, the problem is not solved, then let's try to access element attributes
         return function (value) {
-            element.attr(elementPropertyName, value);
+            //We want to assign it only if it is different, so we don't trigger side effects
+            if (!valueEquals(value, element.attr(elementPropertyName)))
+                element.attr(elementPropertyName, value);
         };
+    }
+
+    //Function used to determine if a value has changed or if it is equal to its old value
+    function valueEquals(a, b) {
+        if (typeof (a) == "number" && isNaN(a) && typeof (b) == "number" && isNaN(b))
+            return true;
+
+        return a == b;
     }
 
     var chgMonitorThread;
@@ -182,12 +213,13 @@ Depends: bootstrap
     }
 
     function ChangeMonitorQueue() {
-        this.queue = {};
+        this.relations = {};
     }
 
-    ChangeMonitorQueue.prototype.put = function (key, getter, onChangeAction) {
-        this.queue[key] = {
-            key: key,
+    ChangeMonitorQueue.prototype.put = function (idFrom, idTo, getter, onChangeAction) {
+        this.relations[idFrom + "§" + idTo] = {
+            idFrom: idFrom,
+            idTo: idTo,
             getter: getter,
             onChangeAction: onChangeAction,
             curValue: getter()
@@ -198,16 +230,36 @@ Depends: bootstrap
 
     function changeMonitor() {
         //Let's process the queue looking for changes
-        $.each(changeMonitorQueue.queue, function (key, item) {
-            var newValue = item.getter();
-            if (newValue != item.curValue) {
-                //Change detected: let's inform the listener function
-                item.onChangeAction(newValue);
+        var changes;
+        var changedSomething = true;
+        while (changedSomething) {
+            changes = {};
+            changedSomething = false;
+            $.each(changeMonitorQueue.relations, function (key, item) {
+                var newValue = item.getter();
+                if (!valueEquals(newValue, item.curValue)) {
+                    //Change detected: let's set the changed flag
+                    changes[item.idFrom] = item.getter;
+                    changedSomething = true;
+                }
+            });
 
-                //Then let's update the current value after returning from onChangeAction (in case something changed further)
-                item.curValue = item.getter();
-            }
-        });
+            //Now, we know what changed. Let's propagate the new values one at a time
+            $.each(changes, function (idFrom, getter) {
+                var newValue = getter();
+
+                //Let's apply the newValue to all the relations starting from idFrom
+                $.each(changeMonitorQueue.relations, function (key, item) {
+                    if (item.idFrom == idFrom) {
+                        //Let's apply the value to this relation's destination
+                        item.onChangeAction(newValue);
+
+                        //And set the curValue of the source
+                        item.curValue = newValue;
+                    }
+                });
+            });
+        }
     }
 
 })();

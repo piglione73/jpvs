@@ -1,34 +1,11 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
     <title>Binding</title>
-    <style type="text/css">
-        .Widget-Hover
-        {
-            background-color: Aqua !important;
-        }
-        
-        .Widget-Focus
-        {
-            background-color: Yellow;
-        }
-        
-        .TextBox
-        {
-            border: 1px solid red;
-        }
-        
-        .TextBox-Focus
-        {
-            outline: green solid 2px;
-        }
-        
-        .Button
-        {
-            background-color: pink;
-            border: 1px solid red;
-        }
-    </style>
+    
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
@@ -39,24 +16,49 @@
     <script type="text/javascript" src="../src/Resources.js"></script>
     <script type="text/javascript" src="../src/widgets/Popup.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DropDownList.js"></script>
+    <script type="text/javascript" src="../src/widgets/CheckBox.js"></script>
     <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
     <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
     <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    
     <script type="text/javascript">
         jpvs(function (w) {
             var obj = {
                 val1: "VAL1",
-                val2: "VAL2"
+                val2: "VAL2",
+                flag: true,
+                val3: "V2",
+                val4: 0
             };
 
             jpvs.bindContainer("body", obj);
+
+            setInterval(function () { obj.val4++; }, 1000);
         });
     </script>
 </head>
 <body>
-    <input type="text" data-bind="value=val1" /> - <input type="text" data-bind="value=val1" />
+<div>
+    <input type="text" data-bind="value=val1" /> <---> <input type="text" data-bind="value=val1" />
     <br />
-    <input type="text" data-bind="value=val2" /> - <input type="text" data-bind="value=val2" />
+    <input type="text" data-bind="value=val2" /> <---> <input type="text" data-bind="value=val2" /> <---> <input type="text" data-bind="value=val2" />
+    <br />
+    <input type="checkbox" data-bind="checked=flag" /> <---> <input type="text" data-bind="value=flag" />
+    <br />
+    <select data-bind="selectedValue=val3" id="cmbProva">
+        <option value="">Empty</option>
+        <option value="V1">Value 1</option>
+        <option value="V2">Value 2</option>
+        <option value="V3">Value 3</option>
+    </select>
+    <--->
+    <input type="text" data-bind="value=val3" /> <---> <input type="text" data-bind="value=val3" />
+    <br />
+
+    <input type="text" data-bind="value=val4" /> <---> <input type="text" data-bind="value=val4" />
+
+</div>
 </body>
 </html>

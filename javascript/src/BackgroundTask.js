@@ -11,13 +11,71 @@ Depends: core
     var defaultMinRunTimeMs = 50;
 
 
+    jpvs.runTask = function (flagAsync, task, onSuccess, onProgress, onError) {
+        if (flagAsync)
+            jpvs.runBackgroundTask(task, onSuccess, onProgress, onError);
+        else
+            jpvs.runForegroundTask(task, onSuccess, onProgress, onError);
+    };
+
     jpvs.runBackgroundTask = function (task, onSuccess, onProgress, onError) {
-        //Start the task runner, that runs until task termination
-        setTimeout(taskRunner(task, onSuccess, onProgress, onError), 0);
+        //Start the task runner, that runs asynchronously until task termination
+        setTimeout(taskRunnerAsync(task, onSuccess, onProgress, onError), 0);
+    };
+
+    jpvs.runForegroundTask = function (task, onSuccess, onProgress, onError) {
+        //Run the task synchronously from start to end
+        //As a convenience, pass the return value as a real return value
+        return taskRunner(task, onSuccess, onProgress, onError);
     };
 
 
     function taskRunner(task, onSuccess, onProgress, onError) {
+        //Run from start to end, never yielding control back to the caller
+        //Useful for running a task much like an ordinary function call
+        //Let's make a data context available to the task
+        //The task can do whatever it wants with this object. Useful for storing execution state.
+        var ctx = {};
+
+        try {
+            //Run the task
+            while (true) {
+                //Run once and analyze the return code
+                var info = task(ctx);
+                var infoDecoded = analyzeTaskRetCode(info);
+
+                //Let's see what to do
+                if (infoDecoded.keepRunning) {
+                    //Task wants to keep running
+                    //Let's signal progress, if available, whatever "progress" means
+                    if (onProgress && infoDecoded.progress)
+                        onProgress(infoDecoded.progress);
+                }
+                else {
+                    //Task doesn't need to run again
+                    //Let's signal success and exit
+                    if (onSuccess)
+                        onSuccess(ctx.returnValue);
+
+                    //As a convenience, pass the return value as a real return value
+                    return ctx.returnValue;
+                }
+            }
+
+        }
+        catch (e) {
+            //In case of errors, the task ends and the onError callback, if any, is called
+            if (onError)
+                onError(e);
+        }
+    }
+
+    function taskRunnerAsync(task, onSuccess, onProgress, onError) {
+        //Let's make a data context available to the task
+        //The task can do whatever it wants with this object. Useful for storing execution state.
+        var ctx = {};
+
+        //Let's start with default settings, which will be soon overwritten by what the task itself returns
         var minRunTimeMs = defaultMinRunTimeMs;
 
         //Return a reference to the "run" function
@@ -32,7 +90,7 @@ Depends: core
                 var end = new Date().getTime() + minRunTimeMs;
                 while (true) {
                     //Run once and analyze the return code
-                    var info = task();
+                    var info = task(ctx);
                     var infoDecoded = analyzeTaskRetCode(info);
 
                     //Let's see what to do
@@ -41,13 +99,13 @@ Depends: core
                         //If we are within the minRunTimeMs, then we may repeat the loop
                         //Otherwise we schedule the task for later
                         var now = new Date().getTime();
-                        if (new Date().getTime() < end) {
+                        if (now < end) {
                             //We may run again without yielding control
                             //NOP
                         }
                         else {
                             //The minRunTimeMs has elapsed
-                            //Let's schedule the task using the provided task settings
+                            //Let's reschedule the task using the provided task settings
                             minRunTimeMs = infoDecoded.minRunTimeMs;
                             var lastDuration = now - start;
                             var delay = lastDuration * (1 - infoDecoded.cpu) / infoDecoded.cpu;
@@ -64,7 +122,7 @@ Depends: core
                         //Task doesn't need to run again
                         //Let's signal success and exit
                         if (onSuccess)
-                            onSuccess();
+                            onSuccess(ctx.returnValue);
 
                         return;
                     }
@@ -81,15 +139,15 @@ Depends: core
 
     /*
     The task function can return:
-        - null, undefined, false: means "task completed"
-        - true: means "please run me again"
-        - object with info about progress and task settings
+    - null, undefined, false: means "task completed"
+    - true: means "please run me again"
+    - object with info about progress and task settings
 
     The object can be like this (all is optional):
     {
-        cpu: value between 0 and 1,
-        minRunTimeMs: how long to run before yielding control for a while,
-        progress: string or object or number (anything is passed on to onProgress)
+    cpu: value between 0 and 1,
+    minRunTimeMs: how long to run before yielding control for a while,
+    progress: string or object or number (anything is passed on to onProgress)
     }
     */
     function analyzeTaskRetCode(info) {
@@ -108,7 +166,8 @@ Depends: core
             return {
                 keepRunning: true,
                 cpu: defaultCpu,
-                minRunTimeMs: defaultMinRunTimeMs
+                minRunTimeMs: defaultMinRunTimeMs,
+                progress: null
             };
         }
         else {

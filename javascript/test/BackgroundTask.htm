@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>BackgroundTask</title>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/BackgroundTask.js"></script>
+    <script type="text/javascript">
+        function fibonacciTask(cpu) {
+            return function (ctx) {
+                if (!ctx.a) {
+                    ctx.a = 1;
+                    ctx.b = 1;
+                    ctx.overflows = 0;
+
+                    //The task must run for 10 seconds
+                    ctx.endTime = new Date().getTime() + 10000;
+                    return {
+                        cpu: cpu,
+                        progress: c
+                    };
+                }
+
+                var flagProgress = false;
+                var c = (ctx.a + ctx.b) % 1000000000;
+                if (c < ctx.b) {
+                    ctx.overflows++;
+                    flagProgress = true;
+                }
+
+                ctx.a = ctx.b;
+                ctx.b = c;
+
+                if (new Date().getTime() < ctx.endTime) {
+                    return {
+                        cpu: cpu,
+                        progress: flagProgress? c : null
+                    };
+                }
+                else {
+                    ctx.returnValue = c + " - overflows: " + ctx.overflows;
+                    return false;
+                }
+            };
+        }
+
+        function testFore(btn) {
+            jpvs.runForegroundTask(fibonacciTask(), onSuccess(btn), onProgress(btn), onError(btn));
+        }
+
+        function test1(btn) {
+            jpvs.runBackgroundTask(fibonacciTask(0.01), onSuccess(btn), onProgress(btn), onError(btn));
+        }
+
+        function test10(btn) {
+            jpvs.runBackgroundTask(fibonacciTask(0.1), onSuccess(btn), onProgress(btn), onError(btn));
+        }
+
+        function test90(btn) {
+            jpvs.runBackgroundTask(fibonacciTask(0.9), onSuccess(btn), onProgress(btn), onError(btn));
+        }
+
+        function testDef(btn) {
+            jpvs.runBackgroundTask(fibonacciTask(), onSuccess(btn), onProgress(btn), onError(btn));
+        }
+
+        function onSuccess(btn) {
+            return function (ret) {
+                $(btn).parent().find("span").text("Return value = " + ret);
+            };
+        }
+
+        function onProgress(btn) {
+            return function (progress) {
+                $(btn).parent().find("span").text("Progress = " + progress);
+            };
+        }
+
+        function onError(btn) {
+            return function (e) {
+                $(btn).parent().find("span").text("Error = " + e.message);
+            };
+        }
+
+    </script>
+</head>
+<body>
+    <div><button onclick="test1(this);">Background 1%</button> <span></span></div>
+    <div><button onclick="test10(this);">Background 10%</button> <span></span></div>
+    <div><button onclick="test90(this);">Background 90%</button> <span></span></div>
+    <div><button onclick="testDef(this);">Background Default (50%)</button> <span></span></div>
+    <div><button onclick="testFore(this);">Foreground</button> <span></span></div>
+
+    <textarea rows="20" cols="80">Write here to see if responsive!</textarea>
+</body>
+</html>

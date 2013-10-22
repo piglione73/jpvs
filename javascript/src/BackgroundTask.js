@@ -75,8 +75,8 @@ Depends: core
         //The task can do whatever it wants with this object. Useful for storing execution state.
         var ctx = {};
 
-        //Let's start with default settings, which will be soon overwritten by what the task itself returns
-        var minRunTimeMs = defaultMinRunTimeMs;
+        //We want to exit immediately on the first iteration, so we load the task settings right away
+        var minRunTimeMs = 0;
 
         //Return a reference to the "run" function
         return run;
@@ -87,7 +87,8 @@ Depends: core
         function run() {
             try {
                 //Run the task for at least minRunTime milliseconds
-                var end = new Date().getTime() + minRunTimeMs;
+                var start = new Date().getTime();
+                var end = start + minRunTimeMs;
                 while (true) {
                     //Run once and analyze the return code
                     var info = task(ctx);

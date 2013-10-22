@@ -15,7 +15,7 @@ jpvs.states = {
 
 jpvs.property = function (propdef) {
     /// <summary>Defines a property.</summary>
-    /// <param name="propdef" type="Object">Property definition. It is an object that may contain fields "get" and "set".</param>
+    /// <param name="propdef" type="Object">Property definition. It is an object that may contain fields "get" and "set" and/or "setTask". The "get" field defines the property getter, which is always synchronous. Its signature is: function get() { read and return the current property value; }. The setter may be specified as a synchronous function or as an asynchronous function (background task). The synchronous version is given by the "set" field, which has the following signature: function set(newValue) { set the property value to newValue; }. The asynchronous version is given by the "setTask" field, which has the following signature: function setTask(newValue) { return a task function that sets the property value to newValue; }. See jpvs.runTask for additional information about task functions. Example of a setTask function: function(newValue) { return function(ctx) { task function body that sets the property value to newValue }; }. A property can be called in three different ways. Getter: "var x = w.property();". Synchronous setter: "w.property(newValue);". Asynchronous setter: "w.property(newValue, true, onSuccess, onProgress, onError);". Or simply: "w.property(newValue, true);".</param>
     /// <returns type="Function">Property function</returns>
 };
 

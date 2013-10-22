@@ -65,6 +65,8 @@ Depends: bootstrap
             }
             else {
                 //Set property value (synchronous/asynchronous style)
+                //For synchronous, no callbacks
+                //For asynchronous, use callbacks if specified
                 //We may have set and/or setTask or none and thus we have a few cases
                 if(flagAsync) {
                     //Asynchronous setter --> we prefer setTask
@@ -74,7 +76,7 @@ Depends: bootstrap
                         var task = propdef.setTask.call(this, value);
                         
                         //Now we have a task that knows how to set the property value
-                        jpvs.runTask(flagAsync, task, onSuccess, onProgress, onError);
+                        jpvs.runBackgroundTask(task, onSuccess, onProgress, onError);
                     }
                     else if(propdef.set) {
                         //Dummy asynchronous setter (actually it's just synchronous but with the callback)
@@ -98,31 +100,27 @@ Depends: bootstrap
                 else {
                     //Synchronous setter --> we prefer set
                     if(propdef.set) {
-                        
+                        //Real synchronous setter, no callbacks
+                        propdef.set.call(this, value);
                     }
                     else if(propdef.setTask) {
+                        //Synchronous setter but with a task (we launch it as a foreground task)
+                        //Get setter task function
+                        var task = propdef.setTask.call(this, value);
                         
+                        //Now we have a task that knows how to set the property value
+                        //No callbacks
+                        jpvs.runForegroundTask(task);
                     }
                     else {
-                        
+                        //Neither set nor setTask --> nothing to set                
+                        //No callbacks
+                        //NO OPERATION
                     }
                 }
                 
                 //At the end always return this for chaining
                 return this;
-            }
-            else if(!flagAsync) {
-                //Set property value (synchronous style)
-                propdef.set.call(this, value);
-                return this;
-            }
-            else {
-                //Set property value (asynchronous style)
-                //Get setter task function
-                var task = propdef.setTask.call(this, value);
-                
-                //Now we have a task that knows how to set the property value
-                jpvs.runTask(flagAsync, task, onSuccess, onProgress, onError);
             }
         };
     };

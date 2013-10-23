@@ -232,6 +232,7 @@ Depends: core, parsers
             //Body
             var bodyElement = jpvs.writeTag(sectionElement, "div");
             bodyElement.addClass("Body");
+            jpvs.writeTag(bodyElement, "img").attr("src", jpvs.Resources.images.loading);
 
             //Every section as a small, unobtrusive menu
             var menuContainer = jpvs.writeTag(sectionElement, "div");
@@ -299,6 +300,9 @@ Depends: core, parsers
         var contentToWrite = content;
         if (!content)
             contentToWrite = "";
+
+        //Remove the "loading" image
+        element.empty();
 
         //Clean HTML "content" (becomes xhtml)...
         contentToWrite = jpvs.cleanHtml(contentToWrite);

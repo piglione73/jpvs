@@ -621,6 +621,12 @@ Depends: core, parsers
             span.removeClass("Field-Hover");
         });
 
+        //Mark as field also internally for security purposes
+        //So if some span exists with class="Field" we don't get tricked into thinking it's a field
+        span.data("jpvs.DocumentEditor.fieldInfo", {
+            fieldName: fieldName
+        });
+
         //Update the jQuery object with the list of all fields to be highlighted
         if (fieldHighlighted)
             fieldHighlightList.list = fieldHighlightList.list.add(span);
@@ -660,10 +666,28 @@ Depends: core, parsers
 
         function onDone(newFieldValue) {
             //We have the new field value. All we need to do is update the field and refresh and highlight
-            //We use the new content setter provided
             if (newFieldValue !== undefined && newFieldValue != oldFieldValue) {
-                fields[fieldName] = { value: newFieldValue, highlight: true };
-                refreshPreviewAsync(W);
+                fields[fieldName] = { value: newFieldValue };
+
+                //Refresh all occurrences of the field
+                var flashingQueue = $();
+                W.element.find("span.Field").each(function () {
+                    var fld = $(this);
+
+                    //Check that this is a field and that the name is fieldName
+                    var fieldInfo = fld.data("jpvs.DocumentEditor.fieldInfo");
+                    var thisFieldName = fieldInfo && fieldInfo.fieldName;
+                    if (thisFieldName == fieldName) {
+                        //OK, let's update the value of this field
+                        jpvs.write(fld.empty(), newFieldValue);
+
+                        //Enqueue for flashing
+                        flashingQueue = flashingQueue.add(this);
+                    }
+                });
+
+                //Finally, flash the changed fields
+                jpvs.flashClass(flashingQueue, "Field-Highlight");
 
                 //Fire the change event
                 W.change.fire(W);

@@ -1052,11 +1052,68 @@ Depends: bootstrap
     };
 
     jpvs.property = function (propdef) {
-        return function (value) {
-            if (value === undefined)
+        return function (value, flagAsync, onSuccess, onProgress, onError) {
+            if (value === undefined) {
+                //Get property value (synchronous style)
                 return propdef.get.call(this);
+            }
             else {
-                propdef.set.call(this, value);
+                //Set property value (synchronous/asynchronous style)
+                //For synchronous, no callbacks
+                //For asynchronous, use callbacks if specified
+                //We may have set and/or setTask or none and thus we have a few cases
+                if(flagAsync) {
+                    //Asynchronous setter --> we prefer setTask
+                    if(propdef.setTask) {
+                        //Real asynchronous setter (task version)
+                        //Get setter task function
+                        var task = propdef.setTask.call(this, value);
+                        
+                        //Now we have a task that knows how to set the property value
+                        jpvs.runBackgroundTask(task, onSuccess, onProgress, onError);
+                    }
+                    else if(propdef.set) {
+                        //Dummy asynchronous setter (actually it's just synchronous but with the callback)
+                        try {
+                            propdef.set.call(this, value);
+                            if(onSuccess)
+                                onSuccess();
+                        }
+                        catch(e) {
+                            if(onError)
+                                onError(e);
+                        }
+                    }
+                    else {
+                        //Neither set nor setTask --> nothing to set                
+                        //Just call the onSuccess callback
+                        if(onSuccess)
+                            onSuccess();
+                    }
+                }
+                else {
+                    //Synchronous setter --> we prefer set
+                    if(propdef.set) {
+                        //Real synchronous setter, no callbacks
+                        propdef.set.call(this, value);
+                    }
+                    else if(propdef.setTask) {
+                        //Synchronous setter but with a task (we launch it as a foreground task)
+                        //Get setter task function
+                        var task = propdef.setTask.call(this, value);
+                        
+                        //Now we have a task that knows how to set the property value
+                        //No callbacks
+                        jpvs.runForegroundTask(task);
+                    }
+                    else {
+                        //Neither set nor setTask --> nothing to set                
+                        //No callbacks
+                        //NO OPERATION
+                    }
+                }
+                
+                //At the end always return this for chaining
                 return this;
             }
         };
@@ -5160,14 +5217,18 @@ Depends: core, parsers
                 get: function () {
                     return this.element.data("document");
                 },
-                set: function (value) {
+                setTask: function (value) {
+                    //Async setter.
+                    //The document is saved immediately in zero time
                     this.element.data("document", value);
 
                     /*
                     Refresh the preview.
                     The preview has clickable parts; the user clicks on a part to edit it
                     */
-                    refreshPreview(this);
+                    //Let's return the task for updating the preview, so we work in background in case
+                    //the document is complex and the UI remains responsive during the operation
+                    return refreshPreviewTask(this);
                 }
             }),
 
@@ -5193,98 +5254,266 @@ Depends: core, parsers
 
 
     function refreshPreview(W) {
-        var elem = W.element;
+        //Launch the task synchronously
+        var task = refreshPreviewTask(W);
+        jpvs.runForegroundTask(task);
+    }
 
-        //Delete all...
-        elem.empty()
+    function refreshPreviewSingleSection(W, sectionNum) {
+        var fieldHighlightList = getEmptyFieldHighlightList();
+        refreshSingleSectionContent(W, sectionNum, fieldHighlightList);
+        applyFieldHighlighting(W, fieldHighlightList);
+    }
 
-        //...and recreate the clickable preview
+    function refreshPreviewAsync(W) {
+        //Launch the task asynchronously
+        var task = refreshPreviewTask(W);
+        jpvs.runBackgroundTask(task);
+    }
+
+    function refreshPreviewTask(W) {
+        //Let's return the task function
+        //We use "ctx" for storing the local variables.
+        return function (ctx) {
+            //Init the state machine, starting from 1 (only when null)
+            ctx.executionState = ctx.executionState || 1;
+
+            //First part, init some local variables
+            if (ctx.executionState == 1) {
+                ctx.elem = W.element;
+                ctx.doc = W.document();
+                ctx.sections = ctx.doc && ctx.doc.sections;
+                ctx.fields = ctx.doc && ctx.doc.fields;
+
+                //Delete all contents...
+                ctx.elem.empty()
+
+                //List of fields that require highlighting (we start with an empty jQuery object that is filled during the rendering phase (writeContent))
+                ctx.fieldHighlightList = getEmptyFieldHighlightList();
+
+                //Yield control
+                ctx.executionState = 2;
+                return { progress: "0%" };
+            }
+
+            //Second part, create all blank pages with "loading" animated image
+            if (ctx.executionState == 2) {
+                //We save all elements by section here:
+                ctx.domElems = [];
+
+                //Since it's fast, let's create all the blank pages all at a time and only yield at the end
+                $.each(ctx.sections, function (sectionNum, section) {
+                    //Every section is rendered as a pseudo-page (DIV with class="Section" and position relative (so we can absolutely position header/footer))
+                    var sectionElement = jpvs.writeTag(ctx.elem, "div");
+                    sectionElement.addClass("Section").css("position", "relative");
+
+                    //Store the sectionNum within the custom data
+                    sectionElement.data("jpvs.DocumentEditor.sectionNum", sectionNum);
+
+                    //Apply page margins
+                    applySectionPageMargins(sectionElement, section);
+
+                    //Header (absolutely positioned inside the section with margins/height)
+                    var headerElement = jpvs.writeTag(sectionElement, "div");
+                    headerElement.addClass("Header");
+                    applySectionHeaderMargins(headerElement, section);
+
+                    //Footer (absolutely positioned inside the section with margins/height)
+                    var footerElement = jpvs.writeTag(sectionElement, "div");
+                    footerElement.addClass("Footer");
+                    applySectionFooterMargins(footerElement, section);
+
+                    var footerElementInside = jpvs.writeTag(footerElement, "div");
+                    footerElementInside.css("position", "absolute");
+                    footerElementInside.css("bottom", "0px");
+                    footerElementInside.css("left", "0px");
+
+                    //Body
+                    var bodyElement = jpvs.writeTag(sectionElement, "div");
+                    bodyElement.addClass("Body");
+                    jpvs.writeTag(bodyElement, "img").attr("src", jpvs.Resources.images.loading);
+
+                    //Now let's save all DOM elements for the remaining execution states
+                    ctx.domElems.push({
+                        sectionElement: sectionElement,
+                        headerElement: headerElement,
+                        bodyElement: bodyElement,
+                        footerElementInside: footerElementInside,
+                        footerElement: footerElement
+                    });
+
+                    //Save also something for later (refreshSingleSectionContent)
+                    sectionElement.data("jpvs.DocumentEditor.domElem", {
+                        headerElement: headerElement,
+                        bodyElement: bodyElement,
+                        footerElementInside: footerElementInside,
+                        footerElement: footerElement
+                    });
+                });
+
+                //Yield control
+                ctx.executionState = 3;
+                return { progress: "1%" };
+            }
+
+            //Third part: fill all sections with header/footer/body, one at a time
+            if (ctx.executionState == 3) {
+                //Loop over all sections one at a time
+                if (ctx.sectionNum == null)
+                    ctx.sectionNum = 0;
+                else
+                    ctx.sectionNum++;
+
+                if (ctx.sectionNum >= ctx.sections.length) {
+                    //Reset loop conter
+                    ctx.sectionNum = null;
+
+                    //Yield control and go to next execution state
+                    ctx.executionState = 4;
+                    return { progress: "90%" };
+                }
+
+                var section = ctx.sections[ctx.sectionNum];
+                var domElem = ctx.domElems[ctx.sectionNum];
+
+                //Write content, if any
+                refreshSingleSectionContent(W, ctx.sectionNum, ctx.fieldHighlightList);
+
+                //Switch off the highlight flags after rendering
+                section.header.highlight = false;
+                section.body.highlight = false;
+                section.footer.highlight = false;
+
+                //Yield control without changing execution state
+                //Progress from 1 up to 90%
+                var progr = 1 + Math.floor(ctx.sectionNum / (ctx.sections.length - 1) * 89);
+                return { progress: progr + "%" };
+            }
+
+            //Fourth part: create section menus, one at a time
+            if (ctx.executionState == 4) {
+                //Loop over all sections one at a time
+                if (ctx.sectionNum == null)
+                    ctx.sectionNum = 0;
+                else
+                    ctx.sectionNum++;
+
+                if (ctx.sectionNum >= ctx.sections.length) {
+                    //Reset loop conter
+                    ctx.sectionNum = null;
+
+                    //Yield control and go to next execution state
+                    ctx.executionState = 5;
+                    return { progress: "99%" };
+                }
+
+                var section = ctx.sections[ctx.sectionNum];
+                var domElem = ctx.domElems[ctx.sectionNum];
+
+                //Every section has a small, unobtrusive menu
+                var menuContainer = jpvs.writeTag(domElem.sectionElement, "div");
+                menuContainer.addClass("MenuContainer").css({ position: "absolute", top: "0px", right: "0px", zIndex: (10000 - ctx.sectionNum).toString() });
+                writeSectionMenu(W, menuContainer, ctx.sections, ctx.sectionNum, section);
+
+                //Yield control without changing execution state
+                //Progress from 90% to 99%
+                var progr = 90 + Math.floor(ctx.sectionNum / (ctx.sections.length - 1) * 9);
+                return { progress: progr + "%" };
+            }
+
+            //Fifth part: apply field highlighting and terminate the task
+            if (ctx.executionState == 5) {
+                applyFieldHighlighting(W, ctx.fieldHighlightList);
+
+                //End of task
+                return false;
+            }
+        };
+    }
+
+    function getEmptyFieldHighlightList() {
+        return { list: $() };
+    }
+
+    function applySectionPageMargins(sectionElement, section) {
+        //Apply page margins to the section (as internal padding, of course)
+        var margins = section && section.margins;
+        var leftMargin = getMarginProp(margins, "left", "2cm");
+        var topMargin = getMarginProp(margins, "top", "2cm");
+        var rightMargin = getMarginProp(margins, "right", "2cm");
+        var bottomMargin = getMarginProp(margins, "bottom", "2cm");
+
+        sectionElement.css("padding-left", leftMargin);
+        sectionElement.css("padding-top", topMargin);
+        sectionElement.css("padding-right", rightMargin);
+        sectionElement.css("padding-bottom", bottomMargin);
+    }
+
+    function applySectionHeaderMargins(headerElement, section) {
+        var margins = section && section.margins;
+        var leftMargin = getMarginProp(margins, "left", "2cm");
+        var rightMargin = getMarginProp(margins, "right", "2cm");
+
+        var headerMargins = section && section.header && section.header.margins;
+        var headerTopMargin = getMarginProp(headerMargins, "top", "0.5cm");
+        var headerLeftMargin = getMarginProp(headerMargins, "left", leftMargin);
+        var headerRightMargin = getMarginProp(headerMargins, "right", rightMargin);
+        var headerHeight = (section && section.header && section.header.height) || "1cm";
+
+        headerElement.css("position", "absolute");
+        headerElement.css("overflow", "hidden");
+        headerElement.css("top", headerTopMargin);
+        headerElement.css("left", headerLeftMargin);
+        headerElement.css("right", headerRightMargin);
+        headerElement.css("height", headerHeight);
+    }
+
+    function applySectionFooterMargins(footerElement, section) {
+        var margins = section && section.margins;
+        var leftMargin = getMarginProp(margins, "left", "2cm");
+        var rightMargin = getMarginProp(margins, "right", "2cm");
+
+        var footerMargins = section && section.footer && section.footer.margins;
+        var footerBottomMargin = getMarginProp(footerMargins, "bottom", "0.5cm");
+        var footerLeftMargin = getMarginProp(footerMargins, "left", leftMargin);
+        var footerRightMargin = getMarginProp(footerMargins, "right", rightMargin);
+        var footerHeight = (section && section.footer && section.footer.height) || "1cm";
+
+        footerElement.css("position", "absolute");
+        footerElement.css("overflow", "hidden");
+        footerElement.css("bottom", footerBottomMargin);
+        footerElement.css("left", footerLeftMargin);
+        footerElement.css("right", footerRightMargin);
+        footerElement.css("height", footerHeight);
+    }
+
+    function refreshSingleSectionContent(W, sectionNum, fieldHighlightList) {
+        var sectionElement = W.element.find("div.Section").eq(sectionNum);
+        var domElem = sectionElement.data("jpvs.DocumentEditor.domElem");
+
         var doc = W.document();
         var sections = doc && doc.sections;
         var fields = doc && doc.fields;
+        var section = sections && sections[sectionNum];
 
-        //List of field that require highlighting (we start with an empty jQuery object that is filled during the rendering phase (writeContent))
-        var fieldHighlightList = { list: $() };
+        //Refresh margins
+        applySectionPageMargins(sectionElement, section);
+        applySectionHeaderMargins(domElem.headerElement, section);
+        applySectionFooterMargins(domElem.footerElement, section);
 
-        $.each(sections, function (sectionNum, section) {
-            //Every section is rendered as a pseudo-page (DIV with class="Section" and position relative (so we can absolutely position header/footer))
-            var sectionElement = jpvs.writeTag(elem, "div");
-            sectionElement.addClass("Section").css("position", "relative");
+        //Refresh content
+        writeContent(W, domElem.headerElement, domElem.headerElement, section && section.header && section.header.content, fields, "Header-Hover", section.header.highlight ? "Header-Highlight" : "", function (x) { section.header.content = x; section.header.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditHeader);
+        writeContent(W, domElem.bodyElement, domElem.bodyElement, section && section.body && section.body.content, fields, "Body-Hover", section.body.highlight ? "Body-Highlight" : "", function (x) { section.body.content = x; section.body.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEdit);
+        writeContent(W, domElem.footerElementInside, domElem.footerElement, section && section.footer && section.footer.content, fields, "Footer-Hover", section.footer.highlight ? "Footer-Highlight" : "", function (x) { section.footer.content = x; section.footer.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditFooter);
+    }
 
-            //Apply page margins to the section (as internal padding, of course)
-            var margins = section && section.margins;
-            var leftMargin = getMarginProp(margins, "left", "2cm");
-            var topMargin = getMarginProp(margins, "top", "2cm");
-            var rightMargin = getMarginProp(margins, "right", "2cm");
-            var bottomMargin = getMarginProp(margins, "bottom", "2cm");
-
-            sectionElement.css("padding-left", leftMargin);
-            sectionElement.css("padding-top", topMargin);
-            sectionElement.css("padding-right", rightMargin);
-            sectionElement.css("padding-bottom", bottomMargin);
-
-            //Header (absolutely positioned inside the section with margins/height)
-            var headerMargins = section && section.header && section.header.margins;
-            var headerTopMargin = getMarginProp(headerMargins, "top", "0.5cm");
-            var headerLeftMargin = getMarginProp(headerMargins, "left", leftMargin);
-            var headerRightMargin = getMarginProp(headerMargins, "right", rightMargin);
-            var headerHeight = (section && section.header && section.header.height) || "1cm";
-
-            var headerElement = jpvs.writeTag(sectionElement, "div");
-            headerElement.addClass("Header");
-            headerElement.css("position", "absolute");
-            headerElement.css("overflow", "hidden");
-            headerElement.css("top", headerTopMargin);
-            headerElement.css("left", headerLeftMargin);
-            headerElement.css("right", headerRightMargin);
-            headerElement.css("height", headerHeight);
-
-            //Footer (absolutely positioned inside the section with margins/height)
-            var footerMargins = section && section.footer && section.footer.margins;
-            var footerBottomMargin = getMarginProp(footerMargins, "bottom", "0.5cm");
-            var footerLeftMargin = getMarginProp(footerMargins, "left", leftMargin);
-            var footerRightMargin = getMarginProp(footerMargins, "right", rightMargin);
-            var footerHeight = (section && section.footer && section.footer.height) || "1cm";
-
-            var footerElement = jpvs.writeTag(sectionElement, "div");
-            footerElement.addClass("Footer");
-            footerElement.css("position", "absolute");
-            footerElement.css("overflow", "hidden");
-            footerElement.css("bottom", footerBottomMargin);
-            footerElement.css("left", footerLeftMargin);
-            footerElement.css("right", footerRightMargin);
-            footerElement.css("height", footerHeight);
-
-            var footerElementInside = jpvs.writeTag(footerElement, "div");
-            footerElementInside.css("position", "absolute");
-            footerElementInside.css("bottom", "0px");
-            footerElementInside.css("left", "0px");
-
-            //Body
-            var bodyElement = jpvs.writeTag(sectionElement, "div");
-            bodyElement.addClass("Body");
-
-            //Every section as a small, unobtrusive menu
-            var menuContainer = jpvs.writeTag(sectionElement, "div");
-            menuContainer.addClass("MenuContainer").css({ position: "absolute", top: "0px", right: "0px", zIndex: (10000 - sectionNum).toString() });
-            writeSectionMenu(W, menuContainer, sections, sectionNum, section);
-
-            //Write content, if any
-            writeContent(W, headerElement, headerElement, section && section.header && section.header.content, fields, "Header-Hover", section.header.highlight ? "Header-Highlight" : "", function (x) { section.header.content = x; section.header.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditHeader);
-            writeContent(W, bodyElement, bodyElement, section && section.body && section.body.content, fields, "Body-Hover", section.body.highlight ? "Body-Highlight" : "", function (x) { section.body.content = x; section.body.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEdit);
-            writeContent(W, footerElementInside, footerElement, section && section.footer && section.footer.content, fields, "Footer-Hover", section.footer.highlight ? "Footer-Highlight" : "", function (x) { section.footer.content = x; section.footer.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditFooter);
-
-            //Switch off the highlight flags after rendering
-            section.header.highlight = false;
-            section.body.highlight = false;
-            section.footer.highlight = false;
-        });
-
-        //Apply field highlighting
+    function applyFieldHighlighting(W, fieldHighlightList) {
         if (fieldHighlightList.list.length) {
             jpvs.flashClass(fieldHighlightList.list, "Field-Highlight");
 
             //Switch off the field highlight flags after rendering
+            var doc = W.document();
+            var fields = doc && doc.fields;
             if (fields) {
                 $.each(fields, function (i, field) {
                     field.highlight = false;
@@ -5302,7 +5531,7 @@ Depends: core, parsers
                 text: "...",
                 tooltip: jpvs.DocumentEditor.strings.sectionOptions,
                 items: [
-                    { text: jpvs.DocumentEditor.strings.sectionMargins, click: onSectionMargins(W, section) },
+                    { text: jpvs.DocumentEditor.strings.sectionMargins, click: onSectionMargins(W, section, sectionNum) },
                     jpvs.Menu.Separator,
                     { text: jpvs.DocumentEditor.strings.addSectionBefore, click: onAddSection(W, sections, sectionNum) },
                     { text: jpvs.DocumentEditor.strings.addSectionAfter, click: onAddSection(W, sections, sectionNum + 1) },
@@ -5331,6 +5560,13 @@ Depends: core, parsers
         if (!content)
             contentToWrite = "";
 
+        //Remove the "loading" image
+        element.empty();
+
+        //Get the sectionNum
+        var sectionElement = clickableElement.parent();
+        var sectionNum = sectionElement.data("jpvs.DocumentEditor.sectionNum");
+
         //Clean HTML "content" (becomes xhtml)...
         contentToWrite = jpvs.cleanHtml(contentToWrite);
 
@@ -5339,13 +5575,13 @@ Depends: core, parsers
             contentToWrite = placeHolderText;
 
         //...make the element clickable (click-to-edit)...
-        clickableElement.css("cursor", "pointer").attr("title", jpvs.DocumentEditor.strings.clickToEdit).click(function () {
-            onEditFormattedText(W, content, newContentSetterFunc);
+        clickableElement.css("cursor", "pointer").attr("title", jpvs.DocumentEditor.strings.clickToEdit).unbind(".writeContent").bind("click.writeContent", function () {
+            onEditFormattedText(W, content, newContentSetterFunc, sectionNum);
             return false;
-        }).hover(function () {
+        }).bind("mouseenter.writeContent", function () {
             clickableElement.parent().addClass("Section-Hover");
             clickableElement.addClass(hoverCssClass);
-        }, function () {
+        }).bind("mouseleave.writeContent", function () {
             clickableElement.parent().removeClass("Section-Hover");
             clickableElement.removeClass(hoverCssClass);
         });
@@ -5473,12 +5709,18 @@ Depends: core, parsers
             span.removeClass("Field-Hover");
         });
 
+        //Mark as field also internally for security purposes
+        //So if some span exists with class="Field" we don't get tricked into thinking it's a field
+        span.data("jpvs.DocumentEditor.fieldInfo", {
+            fieldName: fieldName
+        });
+
         //Update the jQuery object with the list of all fields to be highlighted
         if (fieldHighlighted)
             fieldHighlightList.list = fieldHighlightList.list.add(span);
     }
 
-    function onEditFormattedText(W, content, newContentSetterFunc) {
+    function onEditFormattedText(W, content, newContentSetterFunc, sectionNum) {
         //Let's use the formatted text editor supplied by the user in the richTextEditor property
         //Use a default one if none is set
         var rte = W.richTextEditor() || getDefaultEditor();
@@ -5491,7 +5733,7 @@ Depends: core, parsers
             //We use the new content setter provided
             if (newContent !== undefined && newContent != content) {
                 newContentSetterFunc(newContent);
-                refreshPreview(W);
+                refreshPreviewSingleSection(W, sectionNum);
 
                 //Fire the change event
                 W.change.fire(W);
@@ -5512,10 +5754,28 @@ Depends: core, parsers
 
         function onDone(newFieldValue) {
             //We have the new field value. All we need to do is update the field and refresh and highlight
-            //We use the new content setter provided
             if (newFieldValue !== undefined && newFieldValue != oldFieldValue) {
-                fields[fieldName] = { value: newFieldValue, highlight: true };
-                refreshPreview(W);
+                fields[fieldName] = { value: newFieldValue };
+
+                //Refresh all occurrences of the field
+                var flashingQueue = $();
+                W.element.find("span.Field").each(function () {
+                    var fld = $(this);
+
+                    //Check that this is a field and that the name is fieldName
+                    var fieldInfo = fld.data("jpvs.DocumentEditor.fieldInfo");
+                    var thisFieldName = fieldInfo && fieldInfo.fieldName;
+                    if (thisFieldName == fieldName) {
+                        //OK, let's update the value of this field
+                        jpvs.write(fld.empty(), newFieldValue);
+
+                        //Enqueue for flashing
+                        flashingQueue = flashingQueue.add(this);
+                    }
+                });
+
+                //Finally, flash the changed fields
+                jpvs.flashClass(flashingQueue, "Field-Highlight");
 
                 //Fire the change event
                 W.change.fire(W);
@@ -5523,7 +5783,7 @@ Depends: core, parsers
         }
     }
 
-    function onSectionMargins(W, section) {
+    function onSectionMargins(W, section, sectionNum) {
         return function () {
             //Open popup for editing margins
             var pop = jpvs.Popup.create().title(jpvs.DocumentEditor.strings.sectionMargins).close(function () { this.destroy(); });
@@ -5624,7 +5884,7 @@ Depends: core, parsers
                 section.footer.height = readMarginTextBox(txtFtrHgt);
 
                 //Update the preview
-                refreshPreview(W);
+                refreshPreviewSingleSection(W, sectionNum);
 
                 //Fire the change event
                 W.change.fire(W);
@@ -5695,7 +5955,7 @@ Depends: core, parsers
             else
                 sections.splice(newSectionNum, 0, newSection);
 
-            refreshPreview(W);
+            refreshPreviewAsync(W);
 
             //Fire the change event
             W.change.fire(W);
@@ -5715,7 +5975,7 @@ Depends: core, parsers
         function onYes() {
             //Remove the section and refresh
             sections.splice(sectionNum, 1);
-            refreshPreview(W);
+            refreshPreviewAsync(W);
 
             //Fire the change event
             W.change.fire(W);
@@ -5791,7 +6051,7 @@ Depends: core, parsers
                 });
 
                 //Update the preview
-                refreshPreview(W);
+                refreshPreviewAsync(W);
 
                 //Fire the change event
                 W.change.fire(W);

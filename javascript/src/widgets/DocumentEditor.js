@@ -222,49 +222,18 @@ Depends: core, parsers
                     //Store the sectionNum within the custom data
                     sectionElement.data("jpvs.DocumentEditor.sectionNum", sectionNum);
 
-                    //Apply page margins to the section (as internal padding, of course)
-                    var margins = section && section.margins;
-                    var leftMargin = getMarginProp(margins, "left", "2cm");
-                    var topMargin = getMarginProp(margins, "top", "2cm");
-                    var rightMargin = getMarginProp(margins, "right", "2cm");
-                    var bottomMargin = getMarginProp(margins, "bottom", "2cm");
-
-                    sectionElement.css("padding-left", leftMargin);
-                    sectionElement.css("padding-top", topMargin);
-                    sectionElement.css("padding-right", rightMargin);
-                    sectionElement.css("padding-bottom", bottomMargin);
+                    //Apply page margins
+                    applySectionPageMargins(sectionElement, section);
 
                     //Header (absolutely positioned inside the section with margins/height)
-                    var headerMargins = section && section.header && section.header.margins;
-                    var headerTopMargin = getMarginProp(headerMargins, "top", "0.5cm");
-                    var headerLeftMargin = getMarginProp(headerMargins, "left", leftMargin);
-                    var headerRightMargin = getMarginProp(headerMargins, "right", rightMargin);
-                    var headerHeight = (section && section.header && section.header.height) || "1cm";
-
                     var headerElement = jpvs.writeTag(sectionElement, "div");
                     headerElement.addClass("Header");
-                    headerElement.css("position", "absolute");
-                    headerElement.css("overflow", "hidden");
-                    headerElement.css("top", headerTopMargin);
-                    headerElement.css("left", headerLeftMargin);
-                    headerElement.css("right", headerRightMargin);
-                    headerElement.css("height", headerHeight);
+                    applySectionHeaderMargins(headerElement, section);
 
                     //Footer (absolutely positioned inside the section with margins/height)
-                    var footerMargins = section && section.footer && section.footer.margins;
-                    var footerBottomMargin = getMarginProp(footerMargins, "bottom", "0.5cm");
-                    var footerLeftMargin = getMarginProp(footerMargins, "left", leftMargin);
-                    var footerRightMargin = getMarginProp(footerMargins, "right", rightMargin);
-                    var footerHeight = (section && section.footer && section.footer.height) || "1cm";
-
                     var footerElement = jpvs.writeTag(sectionElement, "div");
                     footerElement.addClass("Footer");
-                    footerElement.css("position", "absolute");
-                    footerElement.css("overflow", "hidden");
-                    footerElement.css("bottom", footerBottomMargin);
-                    footerElement.css("left", footerLeftMargin);
-                    footerElement.css("right", footerRightMargin);
-                    footerElement.css("height", footerHeight);
+                    applySectionFooterMargins(footerElement, section);
 
                     var footerElementInside = jpvs.writeTag(footerElement, "div");
                     footerElementInside.css("position", "absolute");
@@ -378,6 +347,58 @@ Depends: core, parsers
         return { list: $() };
     }
 
+    function applySectionPageMargins(sectionElement, section) {
+        //Apply page margins to the section (as internal padding, of course)
+        var margins = section && section.margins;
+        var leftMargin = getMarginProp(margins, "left", "2cm");
+        var topMargin = getMarginProp(margins, "top", "2cm");
+        var rightMargin = getMarginProp(margins, "right", "2cm");
+        var bottomMargin = getMarginProp(margins, "bottom", "2cm");
+
+        sectionElement.css("padding-left", leftMargin);
+        sectionElement.css("padding-top", topMargin);
+        sectionElement.css("padding-right", rightMargin);
+        sectionElement.css("padding-bottom", bottomMargin);
+    }
+
+    function applySectionHeaderMargins(headerElement, section) {
+        var margins = section && section.margins;
+        var leftMargin = getMarginProp(margins, "left", "2cm");
+        var rightMargin = getMarginProp(margins, "right", "2cm");
+
+        var headerMargins = section && section.header && section.header.margins;
+        var headerTopMargin = getMarginProp(headerMargins, "top", "0.5cm");
+        var headerLeftMargin = getMarginProp(headerMargins, "left", leftMargin);
+        var headerRightMargin = getMarginProp(headerMargins, "right", rightMargin);
+        var headerHeight = (section && section.header && section.header.height) || "1cm";
+
+        headerElement.css("position", "absolute");
+        headerElement.css("overflow", "hidden");
+        headerElement.css("top", headerTopMargin);
+        headerElement.css("left", headerLeftMargin);
+        headerElement.css("right", headerRightMargin);
+        headerElement.css("height", headerHeight);
+    }
+
+    function applySectionFooterMargins(footerElement, section) {
+        var margins = section && section.margins;
+        var leftMargin = getMarginProp(margins, "left", "2cm");
+        var rightMargin = getMarginProp(margins, "right", "2cm");
+
+        var footerMargins = section && section.footer && section.footer.margins;
+        var footerBottomMargin = getMarginProp(footerMargins, "bottom", "0.5cm");
+        var footerLeftMargin = getMarginProp(footerMargins, "left", leftMargin);
+        var footerRightMargin = getMarginProp(footerMargins, "right", rightMargin);
+        var footerHeight = (section && section.footer && section.footer.height) || "1cm";
+
+        footerElement.css("position", "absolute");
+        footerElement.css("overflow", "hidden");
+        footerElement.css("bottom", footerBottomMargin);
+        footerElement.css("left", footerLeftMargin);
+        footerElement.css("right", footerRightMargin);
+        footerElement.css("height", footerHeight);
+    }
+
     function refreshSingleSectionContent(W, sectionNum, fieldHighlightList) {
         var sectionElement = W.element.find("div.Section").eq(sectionNum);
         var domElem = sectionElement.data("jpvs.DocumentEditor.domElem");
@@ -387,6 +408,12 @@ Depends: core, parsers
         var fields = doc && doc.fields;
         var section = sections && sections[sectionNum];
 
+        //Refresh margins
+        applySectionPageMargins(sectionElement, section);
+        applySectionHeaderMargins(domElem.headerElement, section);
+        applySectionFooterMargins(domElem.footerElement, section);
+
+        //Refresh content
         writeContent(W, domElem.headerElement, domElem.headerElement, section && section.header && section.header.content, fields, "Header-Hover", section.header.highlight ? "Header-Highlight" : "", function (x) { section.header.content = x; section.header.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditHeader);
         writeContent(W, domElem.bodyElement, domElem.bodyElement, section && section.body && section.body.content, fields, "Body-Hover", section.body.highlight ? "Body-Highlight" : "", function (x) { section.body.content = x; section.body.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEdit);
         writeContent(W, domElem.footerElementInside, domElem.footerElement, section && section.footer && section.footer.content, fields, "Footer-Hover", section.footer.highlight ? "Footer-Highlight" : "", function (x) { section.footer.content = x; section.footer.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditFooter);

@@ -468,10 +468,32 @@
                 function (e) { alert(e); }
             );
         });
+
+        function field1() {
+            jpvs.find("#cntEdit").fields({
+                Field1: { value: "New 1" }
+            });
+        }
+
+        function field2() {
+            jpvs.find("#cntEdit").fields({
+                Field2: { value: "New 2" }
+            });
+        }
+
+        function field12() {
+            jpvs.find("#cntEdit").fields({
+                Field1: { value: "New 1 xxx", highlight: false },
+                Field2: { value: "New 2 xxx", highlight: true }
+            });
+        }
     </script>
 </head>
 <body>
-    <div data-jpvs-type="DocumentEditor" id="cntEdit" style="position:fixed;top:0px;left:0px;width:100%;height:100%;overflow:auto">
+    <button onclick="field1();">Field1</button>
+    <button onclick="field2();">Field2</button>
+    <button onclick="field12();">Field1 & 2</button>
+    <div data-jpvs-type="DocumentEditor" id="cntEdit" style="position:fixed;top:30pt;left:0px;width:100%;height:100%;overflow:auto">
     </div>
 </body>
 </html>

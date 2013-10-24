@@ -5222,6 +5222,14 @@ Depends: core, parsers
                     //The document is saved immediately in zero time
                     this.element.data("document", value);
 
+                    //Let's synchronously/immediately empty the content, so that the user can't interact until the task
+                    //has created some of the content. We don't want the user to update things that might be related to the previous
+                    //version of the displayed document. As soon as this property setter is invoked, the old version of the document
+                    //disappears and can't be interacted with any longer. Then, in background, the new content is displayed and the user
+                    //can start interacting with it even if the task is not finished yet. As soon as the first section is displayed, it
+                    //is live and this does not interfere with the still-running refreshPreviewTask.
+                    this.element.empty()
+
                     /*
                     Refresh the preview.
                     The preview has clickable parts; the user clicks on a part to edit it
@@ -5229,6 +5237,17 @@ Depends: core, parsers
                     //Let's return the task for updating the preview, so we work in background in case
                     //the document is complex and the UI remains responsive during the operation
                     return refreshPreviewTask(this);
+                }
+            }),
+
+            fields: jpvs.property({
+                get: function () {
+                    var doc = this.document();
+                    return doc && doc.fields;
+                },
+                set: function (value) {
+                    //Value contains only the fields that we want to change
+                    refreshFieldSet(this, value);
                 }
             }),
 
@@ -5252,6 +5271,41 @@ Depends: core, parsers
         }
     });
 
+    function refreshFieldSet(W, fieldChangeSet) {
+        var doc = W.document();
+        var fields = doc && doc.fields;
+
+        //Refresh all occurrences of the fields; flash those highlighted
+        var flashingQueue = $();
+        W.element.find("span.Field").each(function () {
+            var fld = $(this);
+
+            //Check that this is a field
+            var fieldInfo = fld.data("jpvs.DocumentEditor.fieldInfo");
+            var thisFieldName = fieldInfo && fieldInfo.fieldName;
+            if (thisFieldName) {
+                //OK, this is a field
+                //Let's see if we have to update it
+                var newField = fieldChangeSet[thisFieldName];
+                if (newField) {
+                    //Yes, we have to update it
+                    //Let's update the doc, without highlight
+                    fields[thisFieldName] = { value: newField.value };
+
+                    //Let's update the DOM element
+                    jpvs.write(fld.empty(), newField.value);
+
+                    //Let's enqueue for flashing, if requested
+                    if (newField.highlight)
+                        flashingQueue = flashingQueue.add(fld);
+                }
+            }
+        });
+
+        //Finally, flash the marked fields
+        if (flashingQueue.length)
+            jpvs.flashClass(flashingQueue, "Field-Highlight");
+    }
 
     function refreshPreview(W) {
         //Launch the task synchronously
@@ -5285,9 +5339,6 @@ Depends: core, parsers
                 ctx.sections = ctx.doc && ctx.doc.sections;
                 ctx.fields = ctx.doc && ctx.doc.fields;
 
-                //Delete all contents...
-                ctx.elem.empty()
-
                 //List of fields that require highlighting (we start with an empty jQuery object that is filled during the rendering phase (writeContent))
                 ctx.fieldHighlightList = getEmptyFieldHighlightList();
 
@@ -5300,6 +5351,11 @@ Depends: core, parsers
             if (ctx.executionState == 2) {
                 //We save all elements by section here:
                 ctx.domElems = [];
+
+                //Delete all contents...
+                //We already deleted it in the "document" property setter. We do this again, just to be sure that we start this
+                //execution state with an empty object
+                ctx.elem.empty()
 
                 //Since it's fast, let's create all the blank pages all at a time and only yield at the end
                 $.each(ctx.sections, function (sectionNum, section) {
@@ -5755,27 +5811,11 @@ Depends: core, parsers
         function onDone(newFieldValue) {
             //We have the new field value. All we need to do is update the field and refresh and highlight
             if (newFieldValue !== undefined && newFieldValue != oldFieldValue) {
-                fields[fieldName] = { value: newFieldValue };
-
-                //Refresh all occurrences of the field
-                var flashingQueue = $();
-                W.element.find("span.Field").each(function () {
-                    var fld = $(this);
-
-                    //Check that this is a field and that the name is fieldName
-                    var fieldInfo = fld.data("jpvs.DocumentEditor.fieldInfo");
-                    var thisFieldName = fieldInfo && fieldInfo.fieldName;
-                    if (thisFieldName == fieldName) {
-                        //OK, let's update the value of this field
-                        jpvs.write(fld.empty(), newFieldValue);
-
-                        //Enqueue for flashing
-                        flashingQueue = flashingQueue.add(this);
-                    }
-                });
-
-                //Finally, flash the changed fields
-                jpvs.flashClass(flashingQueue, "Field-Highlight");
+                //Field changed. Let's update with highlight
+                //We use a change set with a single field
+                var fieldChangeSet = {};
+                fieldChangeSet[fieldName] = { value: newFieldValue, highlight: true };
+                refreshFieldSet(W, fieldChangeSet);
 
                 //Fire the change event
                 W.change.fire(W);

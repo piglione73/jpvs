@@ -84,6 +84,44 @@
             var doc = {
                 sections: [
                     {
+                        body: {
+                            content: "<p>No alignment</p><p style=\"text-align:right\">Alignment by style</p><p align=\"center\">Alignment by attribute</p><p>No alignment</p><p></p><p>Blank line above</p><p> </p><p> </p><p>Double blank line above</p><hr/><p>Horizontal rule above</p>"
+                        }
+                    },
+                    {
+                        header: {
+                            content: "<p style=\"text-align:left\">Left</p>"
+                        },
+                        body: {
+                            content: "<p style=\"text-align:left\">Left</p>"
+                        },
+                        footer: {
+                            content: "<p style=\"text-align:left\">Left</p>"
+                        }
+                    },
+                    {
+                        header: {
+                            content: "<p style=\"text-align:center\">Center</p>"
+                        },
+                        body: {
+                            content: "<p style=\"text-align:center\">Center</p>"
+                        },
+                        footer: {
+                            content: "<p style=\"text-align:center\">Center</p>"
+                        }
+                    },
+                    {
+                        header: {
+                            content: "<p style=\"text-align:right\">Right</p>"
+                        },
+                        body: {
+                            content: "<p style=\"text-align:right\">Right</p>"
+                        },
+                        footer: {
+                            content: "<p style=\"text-align:right\">Right</p>"
+                        }
+                    },
+                    {
                         margins: { all: "3cm", left: "2cm", right: "2cm" },
                         header: {
                             margins: { all: "2cm", top: "1cm" },
@@ -463,7 +501,7 @@
             w.cntEdit.document(
                 doc,
                 true,
-                function () { alert("Document rendering complete."); },
+                function () { $("head title").text("100%"); alert("Document rendering complete."); },
                 function (progress) { $("head title").text(progress); },
                 function (e) { alert(e); }
             );

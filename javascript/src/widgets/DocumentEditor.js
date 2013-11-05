@@ -295,6 +295,7 @@ Depends: core, parsers
                     footerElementInside.css("position", "absolute");
                     footerElementInside.css("bottom", "0px");
                     footerElementInside.css("left", "0px");
+                    footerElementInside.css("right", "0px");
 
                     //Body
                     var bodyElement = jpvs.writeTag(sectionElement, "div");
@@ -348,9 +349,12 @@ Depends: core, parsers
                 refreshSingleSectionContent(W, ctx.sectionNum, ctx.fieldHighlightList);
 
                 //Switch off the highlight flags after rendering
-                section.header.highlight = false;
-                section.body.highlight = false;
-                section.footer.highlight = false;
+                if (section.header)
+                    section.header.highlight = false;
+                if (section.body)
+                    section.body.highlight = false;
+                if (section.footer)
+                    section.footer.highlight = false;
 
                 //Yield control without changing execution state
                 //Progress from 1 up to 90%
@@ -470,9 +474,9 @@ Depends: core, parsers
         applySectionFooterMargins(domElem.footerElement, section);
 
         //Refresh content
-        writeContent(W, domElem.headerElement, domElem.headerElement, section && section.header && section.header.content, fields, "Header-Hover", section.header.highlight ? "Header-Highlight" : "", function (x) { section.header.content = x; section.header.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditHeader);
-        writeContent(W, domElem.bodyElement, domElem.bodyElement, section && section.body && section.body.content, fields, "Body-Hover", section.body.highlight ? "Body-Highlight" : "", function (x) { section.body.content = x; section.body.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEdit);
-        writeContent(W, domElem.footerElementInside, domElem.footerElement, section && section.footer && section.footer.content, fields, "Footer-Hover", section.footer.highlight ? "Footer-Highlight" : "", function (x) { section.footer.content = x; section.footer.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditFooter);
+        writeContent(W, domElem.headerElement, domElem.headerElement, section && section.header && section.header.content, fields, "Header-Hover", section && section.header && section.header.highlight ? "Header-Highlight" : "", function (x) { section.header = section.header || {}; section.header.content = x; section.header.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditHeader);
+        writeContent(W, domElem.bodyElement, domElem.bodyElement, section && section.body && section.body.content, fields, "Body-Hover", section && section.body && section.body.highlight ? "Body-Highlight" : "", function (x) { section.body = section.body || {}; section.body.content = x; section.body.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEdit);
+        writeContent(W, domElem.footerElementInside, domElem.footerElement, section && section.footer && section.footer.content, fields, "Footer-Hover", section && section.footer && section.footer.highlight ? "Footer-Highlight" : "", function (x) { section.footer = section.footer || {}; section.footer.content = x; section.footer.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditFooter);
     }
 
     function applyFieldHighlighting(W, fieldHighlightList) {
@@ -596,17 +600,12 @@ Depends: core, parsers
                 });
 
                 /*
-                Exception: if "newElem" is an empty "p", we want to emit "<p>&nbsp;</p>" so we render as an empty paragraph.
-                Rationale: HTML editor emit "<p>&nbsp;</p>" when an empty line is desired.
-                The htmlClean function above strips it as "<p/>". We want "<p>&nbsp;</p>" instead.
-
-                Sometimes, the user may enter a blank paragraph with spaces. We may end up with "<p><span>    </span></p>".
-                The cleaner transforms it into "<p><span/></p>", which the browser renders as nothing. We want "<p><span>&nbsp;</span></p>".
-
-                The basic idea is to filling empty tags like p and span with a non breaking space
+                At the end of a "p" paragraph, we write a <br/> so we are sure that an empty paragraph is rendered
+                as a blank line, while a non-empty paragraph is rendered as usual (because a <br/> at the end of a paragraph
+                has non effects).
                 */
-                if ((tagName == "p" || tagName == "span") && xmlNode.children.length == 0)
-                    jpvs.write(newElem, "\u00a0");
+                if (tagName == "p")
+                    jpvs.writeTag(newElem, "br");
             }
         }
     }
@@ -739,6 +738,15 @@ Depends: core, parsers
         return function () {
             //Open popup for editing margins
             var pop = jpvs.Popup.create().title(jpvs.DocumentEditor.strings.sectionMargins).close(function () { this.destroy(); });
+
+            //Ensure missing properties are present, so we can read/write margins
+            section.margins = section.margins || {};
+
+            section.header = section.header || {};
+            section.header.margins = section.header.margins || {};
+
+            section.footer = section.footer || {};
+            section.footer.margins = section.footer.margins || {};
 
             //Create fields
             var tbl = jpvs.Table.create(pop).caption(jpvs.DocumentEditor.strings.bodyMargins);

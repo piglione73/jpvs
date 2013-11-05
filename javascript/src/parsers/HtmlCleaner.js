@@ -6,6 +6,9 @@ Depends: core
 
 
 (function () {
+    //We use "HTML Clean for jQuery" plugin but we don't want it to strip empty <p></p> paragraphs, so
+    //we use a different definition of tagAllowEmpty
+    var jpvsTagAllowEmpty = ["p", "th", "td"];
 
     /*
     HTML Clean for jQuery   
@@ -478,7 +481,10 @@ Depends: core
         "s", "samp", "select", "small", "span", "strike", "strong", "sub", "sup",
         "tt", "u", "var"];
         var tagDisallowNest = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "th", "td"];
-        var tagAllowEmpty = ["th", "td"];
+
+        //The tags that are allowed to be empty can be changed by JPVS
+        var tagAllowEmpty = jpvsTagAllowEmpty || ["th", "td"];
+
         var tagRequiredParent = [
         null,
         "li", ["ul", "ol"],

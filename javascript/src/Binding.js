@@ -6,7 +6,12 @@ Depends: core
 
 (function () {
 
-    jpvs.bindContainer = function (container, dataObject, dataBindingAttrName) {
+    jpvs.resetAllBindings = function () {
+        changeMonitorQueue.clearAll();
+        disableChangeMonitor();
+    };
+
+    jpvs.bindContainer = function (container, dataObject, onChangeDetected, dataBindingAttrName) {
         enableChangeMonitor();
 
         if (!container)
@@ -26,12 +31,12 @@ Depends: core
             var dataBind = $this.data(dataBindingAttrName || "bind");
             if (dataBind) {
                 //If "data-bind" is specified, apply it
-                jpvs.bind($this, dataObject, dataBind);
+                jpvs.bind($this, dataObject, dataBind, onChangeDetected);
             }
         });
     };
 
-    jpvs.bind = function (element, dataObject, dataBind) {
+    jpvs.bind = function (element, dataObject, dataBind, onChangeDetected) {
         enableChangeMonitor();
 
         if (!dataObject)
@@ -43,11 +48,11 @@ Depends: core
             var subitems = item.split("=");
             var elementPropertyName = $.trim(subitems[0]);
             var objectPropertyName = $.trim(subitems[1]);
-            bindElementToObject(element, elementPropertyName, dataObject, objectPropertyName);
+            bindElementToObject(element, elementPropertyName, dataObject, objectPropertyName, onChangeDetected);
         });
     };
 
-    function bindElementToObject(element, elementPropertyName, dataObject, objectPropertyName) {
+    function bindElementToObject(element, elementPropertyName, dataObject, objectPropertyName, onChangeDetected) {
         //First copy from dataObject to element
         var getter = getterDataObjectProperty(dataObject, objectPropertyName);
         var setter = setterElementProperty(element, elementPropertyName);
@@ -59,14 +64,14 @@ Depends: core
             idFrom: getElementBindingID(element) + "/" + elementPropertyName,
             idTo: getDataObjectBindingID(dataObject) + "/" + objectPropertyName
         };
-        onElementPropertyChange(relation, element, elementPropertyName, setterDataObjectProperty(dataObject, objectPropertyName));
+        onElementPropertyChange(relation, element, elementPropertyName, setterDataObjectProperty(dataObject, objectPropertyName), onChangeDetected);
 
         //From dataObject to element
         relation = {
             idTo: getElementBindingID(element) + "/" + elementPropertyName,
             idFrom: getDataObjectBindingID(dataObject) + "/" + objectPropertyName
         };
-        onDataObjectPropertyChange(relation, dataObject, objectPropertyName, setterElementProperty(element, elementPropertyName));
+        onDataObjectPropertyChange(relation, dataObject, objectPropertyName, setterElementProperty(element, elementPropertyName), onChangeDetected);
     }
 
     function getElementBindingID(element) {
@@ -89,7 +94,7 @@ Depends: core
         return bid;
     }
 
-    function onElementPropertyChange(relation, element, elementPropertyName, onChangeAction) {
+    function onElementPropertyChange(relation, element, elementPropertyName, onChangeAction, onChangeDetected) {
         //Monitor for changes. When a change is detected, execute the on-change action
         //Get the function for reading the element property
         var getter = getterElementProperty(element, elementPropertyName);
@@ -97,11 +102,16 @@ Depends: core
         //Monitor for changes by putting all the necessary info into the changeMonitorQueue
         changeMonitorQueue.put(relation.idFrom, relation.idTo, getter, function (value) {
             //When the change monitor detects a change, we must execute the action
-            onChangeAction(value);
+            if (onChangeAction(value)) {
+                //And signal the event (towards the data object) only if the value has changed
+                //(the onChangeAction returns true if the value has changed)
+                if (onChangeDetected)
+                    onChangeDetected(false, true);
+            }
         });
     }
 
-    function onDataObjectPropertyChange(relation, dataObject, objectPropertyName, onChangeAction) {
+    function onDataObjectPropertyChange(relation, dataObject, objectPropertyName, onChangeAction, onChangeDetected) {
         //Monitor for changes. When a change is detected, execute the on-change action
         //Get the function for reading the dataObject property
         var getter = getterDataObjectProperty(dataObject, objectPropertyName);
@@ -109,7 +119,12 @@ Depends: core
         //Monitor for changes by putting all the necessary info into the changeMonitorQueue
         changeMonitorQueue.put(relation.idFrom, relation.idTo, getter, function (value) {
             //When the change monitor detects a change, we must execute the action
-            onChangeAction(value);
+            if (onChangeAction(value)) {
+                //And signal the event (towards the element) only if the value has changed
+                //(the onChangeAction returns true if the value has changed)
+                if (onChangeDetected)
+                    onChangeDetected(true, false);
+            }
         });
     }
 
@@ -129,18 +144,23 @@ Depends: core
         }
     }
 
+    //These setters must return true if the new value is different from the old value
     function setterDataObjectProperty(dataObject, objectPropertyName) {
         var prop = dataObject[objectPropertyName];
         if (typeof (prop) == "function") {
             //It's a jpvs.property; the setter must assign the value to the property
             return function (value) {
+                var oldValue = prop();
                 prop(value);
+                return !valueEquals(value, oldValue);
             };
         }
         else {
             //It's a normal value; the setter must overwrite it with the new one
             return function (value) {
+                var oldValue = dataObject[objectPropertyName];
                 dataObject[objectPropertyName] = value;
+                return !valueEquals(value, oldValue);
             };
         }
     }
@@ -165,6 +185,7 @@ Depends: core
         };
     }
 
+    //These setters must return true if the new value is different from the old value
     function setterElementProperty(element, elementPropertyName) {
         //If element is a widget, let's first try to use it as a widget by accessing its properties
         var widget = jpvs.find(element);
@@ -175,8 +196,12 @@ Depends: core
                 //It's a jpvs.property; the setter must assign the value to the property
                 return function (value) {
                     //We want to assign it only if it is different, so we don't trigger side effects
-                    if (!valueEquals(value, prop.call(widget)))
+                    if (!valueEquals(value, prop.call(widget))) {
                         prop.call(widget, value);
+                        return true;
+                    }
+                    else
+                        return false;
                 };
             }
         }
@@ -184,8 +209,12 @@ Depends: core
         //If, by examining the widget, the problem is not solved, then let's try to access element attributes
         return function (value) {
             //We want to assign it only if it is different, so we don't trigger side effects
-            if (!valueEquals(value, element.attr(elementPropertyName)))
+            if (!valueEquals(value, element.attr(elementPropertyName))) {
                 element.attr(elementPropertyName, value);
+                return true;
+            }
+            else
+                return false;
         };
     }
 
@@ -215,6 +244,10 @@ Depends: core
     function ChangeMonitorQueue() {
         this.relations = {};
     }
+
+    ChangeMonitorQueue.prototype.clearAll = function () {
+        this.relations = {};
+    };
 
     ChangeMonitorQueue.prototype.put = function (idFrom, idTo, getter, onChangeAction) {
         this.relations[idFrom + "§" + idTo] = {

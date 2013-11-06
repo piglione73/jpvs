@@ -33,9 +33,15 @@
                 val4: 0
             };
 
-            jpvs.bindContainer("body", obj);
+            jpvs.bindContainer("body", obj, function (toElement, toData) {
+                if (toElement)
+                    jpvs.writeln("body", "Change propagated to element");
 
-            setInterval(function () { obj.val4++; }, 1000);
+                if (toData)
+                    jpvs.writeln("body", "Change propagated to data object");
+            });
+
+            setInterval(function () { obj.val4++; }, 10000);
         });
     </script>
 </head>

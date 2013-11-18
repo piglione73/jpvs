@@ -6470,9 +6470,13 @@ Depends: core, Table
 
     //Attach global events for handling menus
     $(document).ready(function () {
-        $(document).on("mouseover.jpvsMenu", ".Menu .Item", onItemMouseOver);
-        $(document).on("mouseout.jpvsMenu", ".Menu .Item", onItemMouseOut);
-        $(document).on("click.jpvsMenu", onGlobalClick);
+        try {
+            $(document).on("mouseover.jpvsMenu", ".Menu .Item", onItemMouseOver);
+            $(document).on("mouseout.jpvsMenu", ".Menu .Item", onItemMouseOut);
+            $(document).on("click.jpvsMenu", onGlobalClick);
+        }
+        catch (e) {
+        }
     });
 
 

@@ -8,6 +8,9 @@ Depends: core
 
     jpvs.Tree = function (selector) {
         this.attach(selector);
+
+        this.nodeClick = jpvs.event(this);
+        this.nodeRightClick = jpvs.event(this);
     };
 
 
@@ -16,14 +19,78 @@ Depends: core
             var element = jpvs.writeTag(this, "div");
             element.addClass("Node");
 
-            jpvs.Button.create(element).text("X").click(function () {
-                nodeElement.childrenContainerElement.element.toggle(200);
+            var nodeElement = new jpvs.Tree.NodeElement(node, element, refreshNodeState, selectNode);
+
+            jpvs.ImageButton.create(element).click(function () {
+                //Toggle on click
+                nodeElement.toggle();
             });
 
-            jpvs.write(element, node.toString());
+            var txt = jpvs.writeTag(element, "span").addClass("Text");
+            jpvs.write(txt, node.toString());
 
-            var nodeElement = new jpvs.Tree.NodeElement(node, element);
+            var tree = nodeElement.getTree();
+
+            txt.click(function () {
+                //Select and fire event on click
+                nodeElement.select();
+                tree.nodeClick.fire(tree, null, nodeElement);
+            }).dblclick(function () {
+                //Toggle on double click
+                nodeElement.toggle();
+            }).mousedown(function (e) {
+                //Select and fire event on right-click
+                if (e.button == 2) {
+                    nodeElement.select();
+                    tree.nodeRightClick.fire(tree, null, nodeElement);
+
+                    //Prevent standard browser context-menu
+                    return false;
+                }
+            });
+
             return nodeElement;
+
+            //Function for refreshing the node's state (open/close image button)
+            //This function will run with this set to the current NodeElement
+            function refreshNodeState() {
+                var imageButton = jpvs.find(this.element.find(".ImageButton"));
+
+                if (this.childrenNodeElements && this.childrenNodeElements.length != 0) {
+                    //Has children
+                    if (this.isExpanded()) {
+                        imageButton.imageUrls({
+                            normal: jpvs.Resources.images.nodeOpen
+                        });
+                    }
+                    else {
+                        imageButton.imageUrls({
+                            normal: jpvs.Resources.images.nodeClosed
+                        });
+                    }
+                }
+                else {
+                    //Has no children
+                    imageButton.imageUrls({
+                        normal: jpvs.Resources.images.nodeNoChildren
+                    });
+
+                    //Force invisibility anyway
+                    this.childrenContainerElement.element.hide();
+                }
+            }
+
+            //Function for selecting a node
+            //This function will run with this set to the current NodeElement
+            function selectNode() {
+                var tree = this.getTree();
+
+                //Unselect all
+                tree.element.find(".Node > .Text").removeClass("Selected");
+
+                //Select this
+                this.element.find(".Text").addClass("Selected");
+            }
         },
 
         StandardChildrenContainer: function (node) {
@@ -37,21 +104,46 @@ Depends: core
     };
 
 
-    jpvs.Tree.NodeElement = function (node, element) {
+    jpvs.Tree.NodeElement = function (node, element, refreshStateFunc, selectNodeFunc) {
         this.node = node;
         this.element = element;
+        this.refreshState = refreshStateFunc;
+        this.select = selectNodeFunc;
+
         this.parentNodeElement = null;              //Attached during rendering
         this.childrenContainerElement = null;       //Attached during rendering
         this.childrenNodeElements = null;           //Attached during rendering
     };
 
-    jpvs.Tree.NodeElement.collapse = function () {
-        this.childrenContainerElement.hide();
+    jpvs.Tree.NodeElement.prototype.getTree = function () {
+        //Find the tree
+        return jpvs.find(this.element.parents(".Tree").first());
     };
 
-    jpvs.Tree.NodeElement.expand = function () {
-        this.childrenContainerElement.show();
+    jpvs.Tree.NodeElement.prototype.isExpanded = function () {
+        return this.childrenContainerElement.element.is(":visible");
     };
+
+    jpvs.Tree.NodeElement.prototype.toggle = function () {
+        if (this.isExpanded())
+            this.collapse();
+        else
+            this.expand();
+    };
+
+    jpvs.Tree.NodeElement.prototype.collapse = function () {
+        var nodeElem = this;
+        this.childrenContainerElement.element.hide(100, function () { nodeElem.refreshState(); });
+    };
+
+    jpvs.Tree.NodeElement.prototype.expand = function () {
+        var nodeElem = this;
+        if (this.childrenNodeElements && this.childrenNodeElements.length != 0) {
+            //Expand only if we have children
+            this.childrenContainerElement.element.show(100, function () { nodeElem.refreshState(); });
+        }
+    };
+
 
     jpvs.Tree.ChildrenContainerElement = function (node, element) {
         this.node = node;
@@ -163,6 +255,9 @@ Depends: core
         nodeElement.childrenNodeElements = childrenNodeElements;
 
         childrenContainerElement.nodeElement = nodeElement;
+
+        //Refresh the node state so the icons are initially correct based on children/visibility/etc.
+        nodeElement.refreshState();
 
         //Return the nodeElement
         return nodeElement;

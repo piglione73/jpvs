@@ -7,6 +7,22 @@
         .Tree .Node
         {
             border: 1px solid #ddd;
+            cursor: default;
+        }
+        
+        .Tree .Node:hover
+        {
+            background-color: #ffa;
+        }
+        
+        .Tree .Text:hover
+        {
+            background-color: #aff;
+        }
+        
+        .Tree .Node .Selected
+        {
+            background-color: #7dd;
         }
         
         .Tree .ChildrenContainer
@@ -14,6 +30,10 @@
             border: 1px solid #faa;
             margin-left: 10pt;
             padding: 2px;
+        }
+        .ImageButton
+        {
+            cursor: pointer;
         }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>

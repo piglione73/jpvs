@@ -31,21 +31,22 @@ Depends: core
 
             var tree = nodeElement.getTree();
 
-            txt.click(function () {
-                //Select and fire event on click
-                nodeElement.select();
-                tree.nodeClick.fire(tree, null, nodeElement);
-            }).dblclick(function () {
+            txt.dblclick(function () {
                 //Toggle on double click
                 nodeElement.toggle();
             }).mousedown(function (e) {
-                //Select and fire event on right-click
                 if (e.button == 2) {
+                    //Select and fire event on right-click
                     nodeElement.select();
                     tree.nodeRightClick.fire(tree, null, nodeElement);
 
                     //Prevent standard browser context-menu
                     return false;
+                }
+                else {
+                    //Select and fire event on click
+                    nodeElement.select();
+                    tree.nodeClick.fire(tree, null, nodeElement);
                 }
             });
 
@@ -203,14 +204,9 @@ Depends: core
                 return this;
             },
 
-            nodeElements: jpvs.property({
-                get: function () {
-                    return this.element.data("nodeElements");
-                },
-                set: function (value) {
-                    this.element.data("nodeElements", value);
-                }
-            })
+            nodeElements: function () {
+                return this.element.data("nodeElements");
+            }
         }
     });
 
@@ -227,7 +223,7 @@ Depends: core
         });
 
         //Store nodeElements for later
-        W.nodeElements(nodeElements);
+        W.element.data("nodeElements", nodeElements);
     }
 
 

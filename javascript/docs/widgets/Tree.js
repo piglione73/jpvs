@@ -29,8 +29,8 @@ jpvs.Tree.NodeElement = function (node, element, refreshStateFunc, selectNodeFun
     /// <param name="selectNodeFunc" type="Function">Function that selects the current node. The function will receive "this" set to the current node element.</param>
     this.node = {};
     this.element = $();
-    this.refreshState = fucntion() {};
-    this.select = fucntion() {};
+    this.refreshState = function () { };
+    this.select = function () { };
 
     this.parentNodeElement = new jpvs.Tree.NodeElement();
     this.childrenContainerElement = new jpvs.Tree.ChildrenContainerElement();
@@ -75,22 +75,34 @@ jpvs.makeWidget({
     type: "Tree",
 
     prototype: {
-        nodeTemplate: function(value){
-            ///<summary>Property: node template. The node template is...</summary>
+        nodeTemplate: function (value) {
+            ///<summary>Property: node template. The node template is the template used for every tree node. See
+            ///jpvs.applyTemplate for information about templates. The jpvs.Tree.Templates.StandardNode is the default
+            ///template used when a template is not explicitly set. The StandardNode template has an imagebutton for displaying
+            ///the node state (open/closed), an optional icon and a text (extracted by the toString method); nodes are
+            ///clickable and expand/collapse accordingly.</summary>
         },
 
-        childrenContainerTemplate: function(value){
-            ///<summary>Property: children container template. The children container template is...</summary>
+        childrenContainerTemplate: function (value) {
+            ///<summary>Property: children container template. The children container template is used for every children
+            ///container and is written just after the node template. The default children container template is
+            ///jpvs.Tree.Templates.StandardChildrenContainer.</summary>
         },
 
-        childrenSelector: function(value){
-            ///<summary>Property: children selector. The children selector template is...</summary>
+        childrenSelector: function (value) {
+            ///<summary>Property: children selector. The children selector is a function that extracts the children items from
+            ///the node data item. The default behavior is to return the "children" data field.</summary>
         },
 
-        dataBind: function(data){
+        dataBind: function (data) {
+            /// <summary>Fills the tree with nodes taken from a datasource.</summary>
+            /// <param name="data" type="Object">The datasource. It can be an array of nodes or a function. 
+            ///See jpvs.readDataSource for details on how a datasource is expected to work.</param>
         },
 
-        nodeElements: function(value){
+        nodeElements: function () {
+            ///<summary>Returns the root node elements after databinding.</summary>
+            return [];
         }
     }
 });

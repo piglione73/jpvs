@@ -79,7 +79,7 @@ jpvs.makeWidget({
             ///<summary>Property: node template. The node template is the template used for every tree node. See
             ///jpvs.applyTemplate for information about templates. The jpvs.Tree.Templates.StandardNode is the default
             ///template used when a template is not explicitly set. The StandardNode template has an imagebutton for displaying
-            ///the node state (open/closed), an optional icon and a text (extracted by the toString method); nodes are
+            ///the node state (open/closed), an optional icon (field "icon" of the node item) and a text (extracted by the toString method); nodes are
             ///clickable and expand/collapse accordingly.</summary>
         },
 
@@ -91,13 +91,28 @@ jpvs.makeWidget({
 
         childrenSelector: function (value) {
             ///<summary>Property: children selector. The children selector is a function that extracts the children items from
-            ///the node data item. The default behavior is to return the "children" data field.</summary>
+            ///the node data item. The default behavior is to return the "children" data field. The children selector
+            ///may be either synchronous or asynchronous.
+            ///Synchronous version: function selector(node) { return node.xxx; }, where "xxx" is the field that contains
+            ///the list of children. If it return null, it means no data and it is equivalent to "return [];".
+            ///Asynchronous version: function asyncSelector(node, callback) { }; the function must return nothing (undefined).
+            ///When data is ready, it must call the callback with the list of children as the first argument. If no data
+            ///has to be returned, similarly to the synchronous version, "callback(null)" and "callback([])" are equivalent.</summary>
         },
 
         dataBind: function (data) {
-            /// <summary>Fills the tree with nodes taken from a datasource.</summary>
-            /// <param name="data" type="Object">The datasource. It can be an array of nodes or a function. 
+            ///<summary>Fills the tree from an array of nodes. Only the root level is populated immediately.
+            ///Lower levels in the hierarchy are populated on-demand, using the childrenSelector, which may be either
+            ///synchronous or asynchronous.</summary>
+            ///<param name="data" type="Object">The datasource. It can be an array of nodes or a function. 
             ///See jpvs.readDataSource for details on how a datasource is expected to work.</param>
+        },
+
+        refreshChildren: function (nodeElement, callback) {
+            ///<summary>Given a NodeElement, uses the childrenSelector to load/reload the children and then updates 
+            ///the ChildrenContainer with the newly-read nodes.</summary>
+            ///<param name="nodeElement" type="jpvs.Tree.NodeElement">Node element whose children are to be reloaded.</param>
+            ///<param name="callback" type="Function">Function with no arguments that will be called at the end of the operation.</param>
         },
 
         nodeElements: function () {

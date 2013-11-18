@@ -10,7 +10,7 @@
             cursor: default;
         }
         
-        .Tree .ImageButton, .Tree .Node .Text 
+        .Tree .ImageButton, .Tree .Node .Text
         {
             vertical-align: middle;
         }
@@ -94,9 +94,9 @@
                 },
                 {
                     toString: nodeToString,
-                    firstName: "Susie", lastName: "Hayes",
+                    firstName: "Susie", lastName: "Hayes", icon: "dummy-images/close.png",
                     sons: [{ toString: nodeToString,
-                        firstName: "Harry", lastName: "Kelly"
+                        firstName: "Harry", lastName: "Kelly", icon: "dummy-images/close.png"
                     }]
                 }
             ];
@@ -104,7 +104,7 @@
             //Fill the tree
             w.cntTree.nodeTemplate();
 
-            w.cntTree.childrenSelector(function (node) { return node.sons; });
+            w.cntTree.childrenSelector(function (node) { return node.sons || []; });
             w.cntTree.dataBind(data);
 
             //Create a second tree, configured just like the first one

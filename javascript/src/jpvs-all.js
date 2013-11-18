@@ -8077,21 +8077,32 @@ Depends: core
 
     jpvs.Tree.Templates = {
         StandardNode: function (node) {
+            //Main node element
             var element = jpvs.writeTag(this, "div");
             element.addClass("Node");
 
+            //NodeElement object, carrying all the information
             var nodeElement = new jpvs.Tree.NodeElement(node, element, refreshNodeState, selectNode);
 
+            //Image button with the state (open/closed/not-openable)
             jpvs.ImageButton.create(element).click(function () {
                 //Toggle on click
                 nodeElement.toggle();
             });
 
+            //Optional node icon
+            if (node.icon) {
+                var img = jpvs.writeTag(element, "img")
+                img.addClass("Icon");
+                img.attr("src", node.icon);
+            }
+
+            //Node text
             var txt = jpvs.writeTag(element, "span").addClass("Text");
             jpvs.write(txt, node.toString());
 
+            //Events
             var tree = nodeElement.getTree();
-
             txt.dblclick(function () {
                 //Toggle on double click
                 nodeElement.toggle();
@@ -8200,10 +8211,19 @@ Depends: core
 
     jpvs.Tree.NodeElement.prototype.expand = function () {
         var nodeElem = this;
-        if (this.childrenNodeElements && this.childrenNodeElements.length != 0) {
-            //Expand only if we have children
-            this.childrenContainerElement.element.show(100, function () { nodeElem.refreshState(); });
-        }
+        var tree = this.getTree();
+
+        //Let's load/reload/refresh children
+        tree.refreshChildren(nodeElem, function () {
+            if (nodeElem.childrenNodeElements && nodeElem.childrenNodeElements.length != 0) {
+                //Expand only if we have children
+                nodeElem.childrenContainerElement.element.show(100, function () { nodeElem.refreshState(); });
+            }
+            else {
+                //Otherwise let's just refresh the state
+                nodeElem.refreshState();
+            }
+        });
     };
 
 
@@ -8265,6 +8285,11 @@ Depends: core
                 return this;
             },
 
+            refreshChildren: function (nodeElement, callback) {
+                refreshChildren(this, nodeElement, callback);
+                return this;
+            },
+
             nodeElements: function () {
                 return this.element.data("nodeElements");
             }
@@ -8287,6 +8312,31 @@ Depends: core
         W.element.data("nodeElements", nodeElements);
     }
 
+    function readChildren(W, node, callback) {
+        //Let's use the default children selector, if none specified
+        var childrenSelector = W.childrenSelector() || function (node) { return node.children || []; };
+
+        //Let's call the selector, which might be either synchronous or asynchronous
+        var ret = childrenSelector(node, internalCallback);
+
+        //Let's see what happened within the selector
+        if (ret === undefined) {
+            //No return value. The selector is asynchronous and the internalCallback will receive the data
+        }
+        else if (ret === null) {
+            //The selector is synchronous and returned no data
+            callback([]);
+        }
+        else {
+            //The selector is synchronous and returned some data
+            callback(ret);
+        }
+
+        function internalCallback(data) {
+            //null means no data, so let's return an empty array in that case
+            callback(data || []);
+        }
+    }
 
     function renderNode(W, elem, node, parentNodeElement) {
         //Render the node itself
@@ -8294,22 +8344,14 @@ Depends: core
         var nodeElement = jpvs.applyTemplate(elem, nodeTemplate, node);
 
         //Render the children container
+        //And leave it intentionally empty, so we can load it dynamically later
         var childrenContainerTemplate = W.childrenContainerTemplate() || jpvs.Tree.Templates.StandardChildrenContainer;
         var childrenContainerElement = jpvs.applyTemplate(elem, childrenContainerTemplate, node);
-
-        //And fill it recursively with its children
-        var childrenSelector = W.childrenSelector() || function (node) { return node.children; };
-        var children = childrenSelector(node) || [];
-        var childrenNodeElements = [];
-        $.each(children, function (i, childNode) {
-            var childrenNodeElement = renderNode(W, childrenContainerElement.element, childNode, nodeElement);
-            childrenNodeElements.push(childrenNodeElement);
-        });
 
         //Attach elements to each other
         nodeElement.parentNodeElement = parentNodeElement;
         nodeElement.childrenContainerElement = childrenContainerElement;
-        nodeElement.childrenNodeElements = childrenNodeElements;
+        nodeElement.childrenNodeElements = [{}];      //We will load this dynamically later; let's leave a dummy node
 
         childrenContainerElement.nodeElement = nodeElement;
 
@@ -8318,6 +8360,35 @@ Depends: core
 
         //Return the nodeElement
         return nodeElement;
+    }
+
+    function refreshChildren(W, nodeElement, callback) {
+        //Reload children
+        readChildren(W, nodeElement.node, function (children) {
+            //When we have the children, we must re-populate the children container
+            var childrenContainerElement = nodeElement.childrenContainerElement;
+
+            //Let's empty it, without changing its visibility (expanded/collapsed state)
+            childrenContainerElement.element.empty();
+
+            //Then let's fill it again with the new data
+            fillChildrenContainer(W, childrenContainerElement, children, nodeElement);
+
+            //At the end, call the callback
+            if (callback)
+                callback();
+        });
+    }
+
+    function fillChildrenContainer(W, childrenContainerElement, children, parentNodeElement) {
+        var childrenNodeElements = [];
+        $.each(children, function (i, childNode) {
+            var childrenNodeElement = renderNode(W, childrenContainerElement.element, childNode, parentNodeElement);
+            childrenNodeElements.push(childrenNodeElement);
+        });
+
+        //Attach the new list of children node elements
+        parentNodeElement.childrenNodeElements = childrenNodeElements;
     }
 
 })();

@@ -223,6 +223,8 @@ jpvs.makeWidget = function (widgetDef) {
         /// <summary>Ensure the widget has an id. If no id is set, a new random id is automatically created for the widget.</summary>
     };
 
+    fn.prototype.currentBrowserEvent = null;
+
     //Additional prototype methods defined in "widgetDef"
     if (widgetDef.prototype) {
         for (var memberName in widgetDef.prototype) {
@@ -389,11 +391,12 @@ jpvs.Event.prototype.unbind = function (handlerName) {
     /// <returns type="Widget">The widget.</returns>
 };
 
-jpvs.Event.prototype.fire = function (widget, handlerName, params) {
+jpvs.Event.prototype.fire = function (widget, handlerName, params, browserEvent) {
     /// <summary>Fires this event.</summary>
     /// <param name="widget" type="Widget">The widget that is generating the event.</param>
     /// <param name="handlerName" type="String">Optional: name of the handler to trigger, in case only a specific handler must be triggered. This argument may be omitted.</param>
     /// <param name="params" type="Object">Parameters that are passed to the handler. The handler is called as handler(params) and inside the handler "this" refers to the "widget".</param>
+    /// <param name="browserEvent" type="jQuery Event">Event object passed by the browser. If passed, this will be available in the widget as widget.currentBrowserEvent.</param>
 };
 
 window.jpvs = window.jpvs || {};

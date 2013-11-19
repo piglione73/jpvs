@@ -65,6 +65,8 @@ jpvs.makeWidget = function (widgetDef) {
         /// <summary>Ensure the widget has an id. If no id is set, a new random id is automatically created for the widget.</summary>
     };
 
+    fn.prototype.currentBrowserEvent = null;
+
     //Additional prototype methods defined in "widgetDef"
     if (widgetDef.prototype) {
         for (var memberName in widgetDef.prototype) {

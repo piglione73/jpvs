@@ -36,14 +36,14 @@ jpvs.Event.prototype.unbind = function (handlerName) {
     return this.widget;
 };
 
-jpvs.Event.prototype.fire = function (widget, handlerName, params) {
+jpvs.Event.prototype.fire = function (widget, handlerName, params, browserEvent) {
     if (handlerName)
-        return fireHandler(this.handlers[handlerName], params);
+        return fireHandler(this.handlers[handlerName]);
     else {
         var ret = true;
         for (var hn in this.handlers) {
             var h = this.handlers[hn];
-            var ret2 = fireHandler(h, params);
+            var ret2 = fireHandler(h);
 
             //Combine the return values of all handlers. If any returns false, we return false
             ret = ret && ret2;
@@ -53,7 +53,11 @@ jpvs.Event.prototype.fire = function (widget, handlerName, params) {
     }
 
     function fireHandler(handler) {
-        if (handler)
-            return handler.call(widget, params);
+        if (handler) {
+            widget.currentBrowserEvent = browserEvent;
+            var hret = handler.call(widget, params);
+            widget.currentBrowserEvent = null;
+            return hret;
+        }
     }
 };

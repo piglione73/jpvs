@@ -49,7 +49,7 @@ Depends: core
                 if (e.button == 2) {
                     //Select and fire event on right-click
                     nodeElement.select();
-                    tree.nodeRightClick.fire(tree, null, nodeElement);
+                    tree.nodeRightClick.fire(tree, null, nodeElement, e);
 
                     //Prevent standard browser context-menu
                     return false;
@@ -57,7 +57,7 @@ Depends: core
                 else {
                     //Select and fire event on click
                     nodeElement.select();
-                    tree.nodeClick.fire(tree, null, nodeElement);
+                    tree.nodeClick.fire(tree, null, nodeElement, e);
                 }
             });
 

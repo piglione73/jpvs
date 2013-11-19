@@ -54,9 +54,13 @@ jpvs.Event.prototype.fire = function (widget, handlerName, params, browserEvent)
 
     function fireHandler(handler) {
         if (handler) {
-            widget.currentBrowserEvent = browserEvent;
+            if (widget)
+                widget.currentBrowserEvent = browserEvent;
+
             var hret = handler.call(widget, params);
-            widget.currentBrowserEvent = null;
+
+            if (widget)
+                widget.currentBrowserEvent = null;
             return hret;
         }
     }

@@ -181,7 +181,12 @@ Depends: core
 
         //If, by examining the widget, the problem is not solved, then let's try to access element attributes
         return function () {
-            return element.attr(elementPropertyName);
+            //It could be a function (like the jQuery function "text") or an attribute
+            //If it begins with # it is a jQuery function
+            if (elementPropertyName.substring(0, 1) == "#")
+                return element[elementPropertyName.substring(1)]();
+            else
+                return element.attr(elementPropertyName);
         };
     }
 
@@ -208,13 +213,26 @@ Depends: core
 
         //If, by examining the widget, the problem is not solved, then let's try to access element attributes
         return function (value) {
-            //We want to assign it only if it is different, so we don't trigger side effects
-            if (!valueEquals(value, element.attr(elementPropertyName))) {
-                element.attr(elementPropertyName, value);
-                return true;
+            //It could be a function (like the jQuery function "text") or an attribute
+            //If it begins with # it is a jQuery function
+            if (elementPropertyName.substring(0, 1) == "#") {
+                //We want to assign it only if it is different, so we don't trigger side effects
+                if (!valueEquals(value, element[elementPropertyName.substring(1)]())) {
+                    element[elementPropertyName.substring(1)](value);
+                    return true;
+                }
+                else
+                    return false;
             }
-            else
-                return false;
+            else {
+                //We want to assign it only if it is different, so we don't trigger side effects
+                if (!valueEquals(value, element.attr(elementPropertyName))) {
+                    element.attr(elementPropertyName, value);
+                    return true;
+                }
+                else
+                    return false;
+            }
         };
     }
 

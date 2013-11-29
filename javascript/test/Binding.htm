@@ -47,7 +47,7 @@
 </head>
 <body>
 <div>
-    <input type="text" data-bind="value=val1" /> <---> <input type="text" data-bind="value=val1" />
+    <input type="text" data-bind="value=val1" /> <---> <input type="text" data-bind="value=val1" /> <--> span element: <span data-bind="#text=val1"></span>
     <br />
     <input type="text" data-bind="value=val2" /> <---> <input type="text" data-bind="value=val2" /> <---> <input type="text" data-bind="value=val2" />
     <br />
@@ -64,6 +64,23 @@
     <br />
 
     <input type="text" data-bind="value=val4" /> <---> <input type="text" data-bind="value=val4" />
+
+    <br /><br />
+    span element: <span data-bind="#text=val1"></span>
+    <br /><br />
+    table: 
+    <table>
+        <tr>
+            <td data-bind="#text=val1"></td>
+            <td data-bind="#text=val1"></td>
+            <td data-bind="#text=val1"></td>
+        </tr>
+        <tr>
+            <td data-bind="#text=val1"></td>
+            <td data-bind="#text=val1"></td>
+            <td data-bind="#text=val1"></td>
+        </tr>
+    </table>
 
 </div>
 </body>

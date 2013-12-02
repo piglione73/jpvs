@@ -216,15 +216,30 @@ Depends: core
             }
         }
 
-        //If, by examining the widget, the problem is not solved, then let's try to access element attributes
-        return function () {
-            //It could be a function (like the jQuery function "text") or an attribute
-            //If it begins with # it is a jQuery function
-            if (elementPropertyName.substring(0, 1) == "#")
-                return element[elementPropertyName.substring(1)]();
-            else
+        //If, by examining the widget, the problem is not solved, then let's try to access element attributes or jQuery
+        //functions or pseudo-properties
+        if (elementPropertyName.toLowerCase().substring(0, 7) == "jquery.") {
+            //jQuery function
+            return function () {
+                return element[elementPropertyName.substring(7)]();
+            };
+        }
+        else if (elementPropertyName == "#visible") {
+            //"visible" pseudo-property
+            return function () {
+                return element.css("display") != "none" && element.css("visibility") != "hidden";
+            };
+        }
+        else if (elementPropertyName.substring(0, 1) == "#") {
+            //Starts with # but not among the allowed ones
+            alert("Invalid jpvs data-binding directive: " + elementPropertyName);
+        }
+        else {
+            //Generic attribute
+            return function () {
                 return element.attr(elementPropertyName);
-        };
+            };
+        }
     }
 
     //These setters must return true if the new value is different from the old value
@@ -248,20 +263,39 @@ Depends: core
             }
         }
 
-        //If, by examining the widget, the problem is not solved, then let's try to access element attributes
-        return function (value) {
-            //It could be a function (like the jQuery function "text") or an attribute
-            //If it begins with # it is a jQuery function
-            if (elementPropertyName.substring(0, 1) == "#") {
+        //If, by examining the widget, the problem is not solved, then let's try to access element attributes or jQuery
+        //functions or pseudo-properties
+        if (elementPropertyName.toLowerCase().substring(0, 7) == "jquery.") {
+            //jQuery function
+            return function (value) {
                 //We want to assign it only if it is different, so we don't trigger side effects
-                if (!valueEquals(value, element[elementPropertyName.substring(1)]())) {
-                    element[elementPropertyName.substring(1)](value);
+                if (!valueEquals(value, element[elementPropertyName.substring(7)]())) {
+                    element[elementPropertyName.substring(7)](value);
                     return true;
                 }
                 else
                     return false;
-            }
-            else {
+            };
+        }
+        else if (elementPropertyName == "#visible") {
+            //"visible" pseudo-property
+            return function (value) {
+                var oldValue = element.css("display") != "none" && element.css("visibility") != "hidden";
+                if (value)
+                    element.show();
+                else
+                    element.hide();
+
+                return value != oldValue;
+            };
+        }
+        else if (elementPropertyName.substring(0, 1) == "#") {
+            //Starts with # but not among the allowed ones
+            alert("Invalid jpvs data-binding directive: " + elementPropertyName);
+        }
+        else {
+            //Generic attribute
+            return function (value) {
                 //We want to assign it only if it is different, so we don't trigger side effects
                 if (!valueEquals(value, element.attr(elementPropertyName))) {
                     element.attr(elementPropertyName, value);
@@ -269,8 +303,8 @@ Depends: core
                 }
                 else
                     return false;
-            }
-        };
+            };
+        }
     }
 
     //Function used to determine if a value has changed or if it is equal to its old value

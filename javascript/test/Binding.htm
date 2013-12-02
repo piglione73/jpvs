@@ -1,11 +1,9 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Binding</title>
-    
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
@@ -22,7 +20,6 @@
     <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
     <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
-    
     <script type="text/javascript">
         jpvs(function (w) {
             var obj = {
@@ -46,42 +43,65 @@
     </script>
 </head>
 <body>
-<div>
-    <input type="text" data-bind="value=val1" /> <---> <input type="text" data-bind="value=val1" /> <--> span element: <span data-bind="#text=val1"></span>
-    <br />
-    <input type="text" data-bind="value=val2" /> <---> <input type="text" data-bind="value=val2" /> <---> <input type="text" data-bind="value=val2" />
-    <br />
-    <input type="checkbox" data-bind="checked=flag" /> <---> <input type="checkbox" data-bind="checked=flag" /> <---> <input type="checkbox" data-bind="checked=!flag" />
-    <br />
-    <select data-bind="selectedValue=val3" id="cmbProva">
-        <option value="">Empty</option>
-        <option value="V1">Value 1</option>
-        <option value="V2">Value 2</option>
-        <option value="V3">Value 3</option>
-    </select>
-    <--->
-    <input type="text" data-bind="value=val3" /> <---> <input type="text" data-bind="value=val3" />
-    <br />
-
-    <input type="text" data-bind="value=val4" /> <---> <input type="text" data-bind="value=val4" />
-
-    <br /><br />
-    span element: <span data-bind="#text=val1"></span>
-    <br /><br />
-    table: 
-    <table>
-        <tr>
-            <td data-bind="#text=val1"></td>
-            <td data-bind="#text=val1"></td>
-            <td data-bind="#text=val1"></td>
-        </tr>
-        <tr>
-            <td data-bind="#text=val1"></td>
-            <td data-bind="#text=val1"></td>
-            <td data-bind="#text=val1"></td>
-        </tr>
-    </table>
-
-</div>
+    <div>
+        <input type="text" data-bind="value=val1" />
+        <--->
+        <input type="text" data-bind="value=val1" />
+        <--> span element bound to text: <span data-bind="jQuery.text=val1"></span><-->
+        span element bound to html: <span data-bind="jQuery.html=val1"></span>
+        <br />
+        <input type="text" data-bind="value=val2" />
+        <--->
+        <input type="text" data-bind="value=val2" />
+        <--->
+        <input type="text" data-bind="value=val2" />
+        <br />
+        <input type="checkbox" data-bind="checked=flag" />
+        <--->
+        <input type="checkbox" data-bind="checked=flag" />
+        <--->
+        <input type="checkbox" data-bind="checked=!flag" />
+        <---> <span data-bind="#visible=flag">Checked</span> <span data-bind="#visible=!flag">
+            Not checked</span>
+        <br />
+        <select data-bind="selectedValue=val3" id="cmbProva">
+            <option value="">Empty</option>
+            <option value="V1">Value 1</option>
+            <option value="V2">Value 2</option>
+            <option value="V3">Value 3</option>
+        </select>
+        <--->
+        <input type="text" data-bind="value=val3" />
+        <--->
+        <input type="text" data-bind="value=val3" />
+        <br />
+        <input type="text" data-bind="value=val4" />
+        <--->
+        <input type="text" data-bind="value=val4" />
+        <br />
+        <br />
+        span element: <span data-bind="jQuery.text=val1"></span>
+        <br />
+        <br />
+        table:
+        <table>
+            <tr>
+                <td data-bind="jQuery.text=val1">
+                </td>
+                <td data-bind="jQuery.text=val1">
+                </td>
+                <td data-bind="jQuery.text=val1">
+                </td>
+            </tr>
+            <tr>
+                <td data-bind="jQuery.text=val1">
+                </td>
+                <td data-bind="jQuery.text=val1">
+                </td>
+                <td data-bind="jQuery.text=val1">
+                </td>
+            </tr>
+        </table>
+    </div>
 </body>
 </html>

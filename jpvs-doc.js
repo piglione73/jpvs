@@ -142,9 +142,14 @@ jpvs.bindContainer = function (container, dataObject, onChangeDetected, dataBind
     /// Databinding directives are expressed in html "data-bind" attributes and are in the form 
     /// "value=val1,className=val2,#text=val3,checked=!val4, ...". This means that attribute "value" is bound to dataObject.val1, 
     /// attribute "className" is bound to dataObject.val2, jQuery function "text" is bound to dataObject.val3, 
-    /// "checked" is bound to the negated value of val4. You can specify attributes or widget properties or jQuery functions 
-    /// (prefixed by #) on the left-hand side. You can specify data object member names on the right-hand side, with or without
-    /// the exclamation mark (for negation).</summary>
+    /// "checked" is bound to the negated value of val4. 
+    /// More in general, a databinding directive is a comma-separated list of elements in the form: LHS=RHS.
+    /// The left-hand side (LHS) can be: 1) the name of a jpvs widget property (e.g.: selectedValue or text); 
+    /// 2) the name of an HTML attribute (e.g.: value or className);
+    /// 3) a jQuery function expressed as jQuery.xxxx (e.g.: jQuery.text); 
+    /// 4) a pseudo-property expressed as #xxxxx (e.g.: #visible) (currently the only available pseudo-property is "visible").
+    /// The right-hand side (RHS) can be: 1) the name of a data object member; 2) the name of a data object member prefixed by an
+    /// exclamation mark (like !foo): this means the negated value is two-way bound rather than the value itself.</summary>
     /// <param name="container" type="Object">Container whose children have to be two-way bound: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="dataObject" type="Object">Data object whose members/properties have to be two-way bound.</param>
     /// <param name="onChangeDetected" type="Function">Callback that is called whenever one or more values are propagated between the container and the dataObject, in either direction. The signature is: function onChangeDetected(towardsElement, towardsDataObject) {}. The two arguments are boolean flags.</param>

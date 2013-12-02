@@ -128,39 +128,76 @@ Depends: core
         });
     }
 
-    function getterDataObjectProperty(dataObject, objectPropertyName) {
-        var prop = dataObject[objectPropertyName];
+    function decodeObjectPropertySpec(objectPropertySpec) {
+        var objectPropertyName = objectPropertySpec;
+        var mustInvert = false;
+
+        //Special case: if the objectPropertyName starts with ! we have to invert the value
+        if (objectPropertySpec.indexOf("!") == 0) {
+            //Inversion required
+            mustInvert = true;
+            objectPropertyName = objectPropertySpec.substring(1);
+        }
+
+        return {
+            name: objectPropertyName,
+            mustInvert: mustInvert,
+
+            translate: translateFunc
+        };
+
+        function translateFunc(val) {
+            return this.mustInvert ? !val : val;
+        }
+    }
+
+    function getterDataObjectProperty(dataObject, objectPropertySpec) {
+        //Handle special object property syntax
+        var objectPropertyInfo = decodeObjectPropertySpec(objectPropertySpec);
+
+        //Read the data object property
+        var prop = dataObject[objectPropertyInfo.name];
         if (typeof (prop) == "function") {
             //It's a jpvs.property; the getter must read from the property
             return function () {
-                return prop();
+                var val = prop();
+                return objectPropertyInfo.translate(val);
             };
         }
         else {
             //It's a normal value; the getter must simply read the current value
             return function () {
-                return dataObject[objectPropertyName];
+                var val = dataObject[objectPropertyInfo.name];
+                return objectPropertyInfo.translate(val);
             };
         }
     }
 
-    //These setters must return true if the new value is different from the old value
-    function setterDataObjectProperty(dataObject, objectPropertyName) {
-        var prop = dataObject[objectPropertyName];
+    //These setters must return true if they change the value
+    function setterDataObjectProperty(dataObject, objectPropertySpec) {
+        //Handle special object property syntax
+        var objectPropertyInfo = decodeObjectPropertySpec(objectPropertySpec);
+
+        //Set the data object property
+        var prop = dataObject[objectPropertyInfo.name];
         if (typeof (prop) == "function") {
             //It's a jpvs.property; the setter must assign the value to the property
             return function (value) {
                 var oldValue = prop();
-                prop(value);
-                return !valueEquals(value, oldValue);
+                var valueTranslated = objectPropertyInfo.translate(value);
+
+                prop(valueTranslated);
+                return !valueEquals(valueTranslated, oldValue);
             };
         }
         else {
             //It's a normal value; the setter must overwrite it with the new one
             return function (value) {
-                var oldValue = dataObject[objectPropertyName];
-                dataObject[objectPropertyName] = value;
-                return !valueEquals(value, oldValue);
+                var oldValue = dataObject[objectPropertyInfo.name];
+                var valueTranslated = objectPropertyInfo.translate(value);
+
+                dataObject[objectPropertyInfo.name] = valueTranslated;
+                return !valueEquals(valueTranslated, oldValue);
             };
         }
     }

@@ -79,6 +79,11 @@
             Section of a document
             </summary>
         </member>
+        <member name="F:JpvsNet.DocumentEditor.Document.Section.customData">
+            <summary>
+            Custom data that may be used to store application-specific information related to this section
+            </summary>
+        </member>
         <member name="F:JpvsNet.DocumentEditor.Document.Section.margins">
             <summary>
             Margins of the current section

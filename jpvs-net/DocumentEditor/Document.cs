@@ -79,6 +79,11 @@ namespace JpvsNet.DocumentEditor {
         /// </summary>
         public class Section {
             /// <summary>
+            /// Custom data that may be used to store application-specific information related to this section
+            /// </summary>
+            public string customData;
+
+            /// <summary>
             /// Margins of the current section
             /// </summary>
             public SectionMargins margins = new SectionMargins();

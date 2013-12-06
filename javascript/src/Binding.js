@@ -309,10 +309,7 @@ Depends: core
 
     //Function used to determine if a value has changed or if it is equal to its old value
     function valueEquals(a, b) {
-        if (typeof (a) == "number" && isNaN(a) && typeof (b) == "number" && isNaN(b))
-            return true;
-
-        return a == b;
+        return jpvs.equals(a, b);
     }
 
     var chgMonitorThread;

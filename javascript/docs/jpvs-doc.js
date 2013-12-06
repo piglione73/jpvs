@@ -523,6 +523,15 @@ jpvs.Storage = {
 
 window.jpvs = window.jpvs || {};
 
+jpvs.equals = function (x,y) {
+    /// <summary>Determines if two objects are deeply equal.</summary>
+    /// <param name="x" type="Object">The first object.</param>
+    /// <param name="y" type="Object">The second object.</param>
+    /// <returns type="Boolean">The result of the comparison.</returns>
+};
+
+window.jpvs = window.jpvs || {};
+
 jpvs.Button = function (selector) {
     /// <summary>Attaches the widget to an existing element.</summary>
     /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
@@ -1240,6 +1249,7 @@ jpvs.Tree = function (selector) {
 
     this.nodeClick = jpvs.event(this);
     this.nodeRightClick = jpvs.event(this);
+    this.nodeRendered = jpvs.event(this);
 };
 
 jpvs.Tree.Templates = {

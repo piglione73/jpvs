@@ -105,6 +105,7 @@
             w.cntTree.nodeTemplate();
 
             w.cntTree.childrenSelector(function (node) { return node.sons || []; });
+            w.cntTree.nodeRendered(onNodeRendered).nodeClick(onNodeClick);
             w.cntTree.dataBind(data);
 
             //Create a second tree, configured just like the first one
@@ -114,6 +115,22 @@
             tree2.dataBind(data);
 
             var test = tree2.nodeElements();
+
+            function onNodeClick(nodeElement) {
+                alert("Clicked: " + nodeElement.node.toString());
+            }
+
+            function onNodeRendered(nodeElement) {
+                //Let's activate drag & drop on this node
+                nodeElement.element.draggable({ revert: true });
+                nodeElement.element.droppable({
+                    drop: function (e, ui) {
+                        var nodeElementDraggable = ui.draggable.data("nodeElement");
+                        var nodeElementDroppable = $(this).data("nodeElement");
+                        alert("Draggable " + nodeElementDraggable.node.toString() + " dropped on " + nodeElementDroppable.node.toString());
+                    }
+                });
+            }
         });
     </script>
 </head>

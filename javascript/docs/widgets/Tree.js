@@ -6,6 +6,7 @@ jpvs.Tree = function (selector) {
 
     this.nodeClick = jpvs.event(this);
     this.nodeRightClick = jpvs.event(this);
+    this.nodeRendered = jpvs.event(this);
 };
 
 jpvs.Tree.Templates = {

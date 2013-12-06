@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <script type="text/javascript" src="../../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../../libs/qunit.js"></script>
+    <link rel="stylesheet" href="../../libs/qunit.css" type="text/css" />
+    <title>Equals</title>
+    <!--
+    *********************************************************
+    Test code
+    *********************************************************
+    -->
+    <script type="text/javascript" src="../../src/jpvs.js"></script>
+    <script type="text/javascript" src="../../src/Core.js"></script>
+    <script type="text/javascript" src="../../src/utils/Equals.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            test("Simple Objects", function () {
+                equals(jpvs.equals(null, null), true, "null and null");
+                equals(jpvs.equals(null, undefined), false, "null and undefined");
+                equals(jpvs.equals(undefined, null), false, "null and undefined");
+                equals(jpvs.equals(undefined, undefined), true, "undefined and undefined");
+                equals(jpvs.equals(null, true), false, "null and boolean");
+                equals(jpvs.equals(null, false), false, "null and boolean");
+                equals(jpvs.equals(undefined, true), false, "undefined and boolean");
+                equals(jpvs.equals(undefined, false), false, "undefined and boolean");
+
+                equals(jpvs.equals(null, 1), false, "null and number");
+                equals(jpvs.equals(undefined, 1), false, "undefined and number");
+
+                equals(jpvs.equals(null, "aaa"), false, "null and string");
+                equals(jpvs.equals(undefined, "aaa"), false, "undefined and string");
+
+                equals(jpvs.equals(true, true), true, "booleans");
+                equals(jpvs.equals(true, false), false, "booleans");
+                equals(jpvs.equals(false, true), false, "booleans");
+                equals(jpvs.equals(false, false), true, "booleans");
+                equals(jpvs.equals(false, 1), false, "booleans");
+                equals(jpvs.equals(false, 0), false, "booleans");
+
+                equals(jpvs.equals(1, 1), true, "numbers");
+                equals(jpvs.equals(1, 2), false, "numbers");
+                equals(jpvs.equals(1, "aaa"), false, "numbers");
+                equals(jpvs.equals(1, true), false, "numbers");
+                equals(jpvs.equals(1, false), false, "numbers");
+
+                equals(jpvs.equals("aa", "aa"), true, "strings");
+                equals(jpvs.equals("aa", "bb"), false, "strings");
+                equals(jpvs.equals("aa", 1), false, "strings");
+                equals(jpvs.equals("aa", true), false, "strings");
+                equals(jpvs.equals("aa", false), false, "strings");
+            });
+
+            test("Complex objects", function () {
+                equals(jpvs.equals({}, null), false, "Empty object");
+                equals(jpvs.equals({}, undefined), false, "Empty object");
+                equals(jpvs.equals({}, 1), false, "Empty object");
+                equals(jpvs.equals({}, "sss"), false, "Empty object");
+                equals(jpvs.equals({}, []), false, "Empty object");
+                equals(jpvs.equals({}, { a: 1 }), false, "Empty object");
+                equals(jpvs.equals({}, {}), true, "Empty object");
+
+                equals(jpvs.equals({ a: 1 }, { b: 2 }), false, "With fields");
+                equals(jpvs.equals({ a: 1, b: 2 }, { b: 2 }), false, "With fields");
+                equals(jpvs.equals({ a: 1, b: 2 }, { b: 2, a: 1 }), true, "With fields");
+            });
+
+            test("Arrays", function () {
+                equals(jpvs.equals([1, 2, 3], []), false);
+                equals(jpvs.equals([1, 2, 3], [1, 2]), false);
+                equals(jpvs.equals([1, 2, 3], [1, 2, 3]), true);
+                equals(jpvs.equals([3, 2, 1], [1, 2, 3]), false);
+                equals(jpvs.equals([1, { a: 2 }, 3], [1, { a: 2 }, 3]), true);
+            });
+
+        });
+    </script>
+</head>
+<body>
+    <h1 id="qunit-header">
+        Test</h1>
+    <h2 id="qunit-banner">
+    </h2>
+    <div id="qunit-testrunner-toolbar">
+    </div>
+    <h2 id="qunit-userAgent">
+    </h2>
+    <ol id="qunit-tests">
+    </ol>
+    <div id="qunit-fixture">
+        test markup, will be hidden</div>
+</body>
+</html>

@@ -1037,10 +1037,7 @@ Depends: core
 
     //Function used to determine if a value has changed or if it is equal to its old value
     function valueEquals(a, b) {
-        if (typeof (a) == "number" && isNaN(a) && typeof (b) == "number" && isNaN(b))
-            return true;
-
-        return a == b;
+        return jpvs.equals(a, b);
     }
 
     var chgMonitorThread;
@@ -3795,6 +3792,137 @@ Depends: core, utils
             return newDomObj;
         }
     };
+})();
+
+/* JPVS
+Module: utils
+Classes: 
+Depends: core
+*/
+
+(function () {
+
+    jpvs.equals = function (x, y) {
+        //If the objects are strictly equal, no other work is required
+        if (x === y)
+            return true;
+
+        //Nulls
+        if (x === null && y === null)
+            return true;
+        else if (x === null && y !== null)
+            return false;
+        else if (x !== null && y === null)
+            return false;
+
+        //Undefineds
+        if (x === undefined && y === undefined)
+            return true;
+        else if (x === undefined && y !== undefined)
+            return false;
+        else if (x !== undefined && y === undefined)
+            return false;
+
+        //Booleans
+        if (x === true && y === true)
+            return true;
+        else if (x === true && y !== true)
+            return false;
+        else if (x !== true && y === true)
+            return false;
+
+        if (x === false && y === false)
+            return true;
+        else if (x === false && y !== false)
+            return false;
+        else if (x !== false && y === false)
+            return false;
+
+        //Object typeof: if different, the object can't be equal
+        if (typeof (x) != typeof (y))
+            return false;
+
+        //Objects have the same typeof
+        //Numbers
+        if (typeof (x) == "number") {
+            //NaNs
+            if (isNaN(x) && isNaN(y))
+                return true;
+            else if (isNaN(x) && !isNaN(y))
+                return false;
+            else if (!isNaN(x) && isNaN(y))
+                return false;
+
+            return x == y;
+        }
+
+        //Strings
+        if (typeof (x) == "string")
+            return x == y;
+
+        //Objects and arrays
+        if (x.length !== undefined && y.length !== undefined) {
+            //Arrays
+            return arraysEqual(x, y);
+        }
+        else if (x.length !== undefined && y.length === undefined) {
+            //Array and object
+            return false;
+        }
+        else if (x.length === undefined && y.length !== undefined) {
+            //Object and array
+            return false;
+        }
+        else {
+            //Objects
+            return objectsEqual(x, y);
+        }
+
+    };
+
+    function arraysEqual(x, y) {
+        if (x.length != y.length)
+            return false;
+
+        //Same length, then all elements must be equal
+        for (var i = 0; i < x.length; i++) {
+            var xVal = x[i];
+            var yVal = y[i];
+            if (!jpvs.equals(xVal, yVal))
+                return false;
+        }
+
+        //No reason to say x and y are different
+        return true;
+    }
+
+    function objectsEqual(x, y) {
+        //All members of x must exist in y and be equal
+        var alreadyChecked = {};
+        for (var key in x) {
+            var xVal = x[key];
+            var yVal = y[key];
+            if (!jpvs.equals(xVal, yVal))
+                return false;
+
+            alreadyChecked[key] = true;
+        }
+
+        //Other way round; for speed, exclude those already checked
+        for (var key in y) {
+            if (alreadyChecked[key])
+                continue;
+
+            var xVal = x[key];
+            var yVal = y[key];
+            if (!jpvs.equals(xVal, yVal))
+                return false;
+        }
+
+        //No reason to say x and y are different
+        return true;
+    }
+
 })();
 
 /* JPVS
@@ -8169,6 +8297,7 @@ Depends: core
 
         this.nodeClick = jpvs.event(this);
         this.nodeRightClick = jpvs.event(this);
+        this.nodeRendered = jpvs.event(this);
     };
 
 
@@ -8199,13 +8328,29 @@ Depends: core
             jpvs.write(txt, node.toString());
 
             //Events
+            var mouseDownTime;
             var tree = nodeElement.getTree();
             txt.dblclick(function () {
                 //Toggle on double click
                 nodeElement.toggle();
             }).mousedown(function (e) {
+                //Let's save the current time, so we can decide in "mouseup" when the sequence mousedown/up can
+                //be considered a real click. We do this so we make drag & drop possible without triggering nodeClick and
+                //nodeRightClick. We want our nodeClick and nodeRightClick events to be triggered only when a "real" click occurred.
+                //A "real" click is a mousedown/up sequence shorter than 0.5 secs. If it's longer, then the user is probably not
+                //clicking but dragging.
+                mouseDownTime = new Date().getTime();
+            }).mouseup(function (e) {
+                //Let's determine if this is a "real" click
+                var mouseUpTime = new Date().getTime();
+                if (mouseUpTime > mouseDownTime + 500) {
+                    //Not a "real" click
+                    return;
+                }
+
+                //If it's a real click...
                 if (e.button == 2) {
-                    //Select and fire event on right-click
+                    //...select and fire event on right-click
                     nodeElement.select();
                     tree.nodeRightClick.fire(tree, null, nodeElement, e);
 
@@ -8213,7 +8358,7 @@ Depends: core
                     return false;
                 }
                 else {
-                    //Select and fire event on click
+                    //...select and fire event on click
                     nodeElement.select();
                     tree.nodeClick.fire(tree, null, nodeElement, e);
                 }
@@ -8440,6 +8585,9 @@ Depends: core
         var nodeTemplate = W.nodeTemplate() || jpvs.Tree.Templates.StandardNode;
         var nodeElement = jpvs.applyTemplate(elem, nodeTemplate, node);
 
+        //Save for later
+        nodeElement.element.data("nodeElement", nodeElement);
+
         //Render the children container
         //And leave it intentionally empty, so we can load it dynamically later
         var childrenContainerTemplate = W.childrenContainerTemplate() || jpvs.Tree.Templates.StandardChildrenContainer;
@@ -8454,6 +8602,10 @@ Depends: core
 
         //Refresh the node state so the icons are initially correct based on children/visibility/etc.
         nodeElement.refreshState();
+
+        //Let's notify anyone who could be interested in modifying a newly-rendered node
+        //It's a good chance to enable drag & drop on nodes, if necessary
+        W.nodeRendered.fire(W, null, nodeElement);
 
         //Return the nodeElement
         return nodeElement;

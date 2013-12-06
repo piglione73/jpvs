@@ -11,6 +11,7 @@ Depends: core
 
         this.nodeClick = jpvs.event(this);
         this.nodeRightClick = jpvs.event(this);
+        this.nodeRendered = jpvs.event(this);
     };
 
 
@@ -41,13 +42,29 @@ Depends: core
             jpvs.write(txt, node.toString());
 
             //Events
+            var mouseDownTime;
             var tree = nodeElement.getTree();
             txt.dblclick(function () {
                 //Toggle on double click
                 nodeElement.toggle();
             }).mousedown(function (e) {
+                //Let's save the current time, so we can decide in "mouseup" when the sequence mousedown/up can
+                //be considered a real click. We do this so we make drag & drop possible without triggering nodeClick and
+                //nodeRightClick. We want our nodeClick and nodeRightClick events to be triggered only when a "real" click occurred.
+                //A "real" click is a mousedown/up sequence shorter than 0.5 secs. If it's longer, then the user is probably not
+                //clicking but dragging.
+                mouseDownTime = new Date().getTime();
+            }).mouseup(function (e) {
+                //Let's determine if this is a "real" click
+                var mouseUpTime = new Date().getTime();
+                if (mouseUpTime > mouseDownTime + 500) {
+                    //Not a "real" click
+                    return;
+                }
+
+                //If it's a real click...
                 if (e.button == 2) {
-                    //Select and fire event on right-click
+                    //...select and fire event on right-click
                     nodeElement.select();
                     tree.nodeRightClick.fire(tree, null, nodeElement, e);
 
@@ -55,7 +72,7 @@ Depends: core
                     return false;
                 }
                 else {
-                    //Select and fire event on click
+                    //...select and fire event on click
                     nodeElement.select();
                     tree.nodeClick.fire(tree, null, nodeElement, e);
                 }
@@ -282,6 +299,9 @@ Depends: core
         var nodeTemplate = W.nodeTemplate() || jpvs.Tree.Templates.StandardNode;
         var nodeElement = jpvs.applyTemplate(elem, nodeTemplate, node);
 
+        //Save for later
+        nodeElement.element.data("nodeElement", nodeElement);
+
         //Render the children container
         //And leave it intentionally empty, so we can load it dynamically later
         var childrenContainerTemplate = W.childrenContainerTemplate() || jpvs.Tree.Templates.StandardChildrenContainer;
@@ -296,6 +316,10 @@ Depends: core
 
         //Refresh the node state so the icons are initially correct based on children/visibility/etc.
         nodeElement.refreshState();
+
+        //Let's notify anyone who could be interested in modifying a newly-rendered node
+        //It's a good chance to enable drag & drop on nodes, if necessary
+        W.nodeRendered.fire(W, null, nodeElement);
 
         //Return the nodeElement
         return nodeElement;

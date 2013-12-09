@@ -28,50 +28,94 @@ jQuery(function ($) {
     };
 });
 
-jpvs.DateBox = function (selector) {
-    this.attach(selector);
 
-    this.change = jpvs.event(this);
-};
+(function () {
 
-jpvs.makeWidget({
-    widget: jpvs.DateBox,
-    type: "DateBox",
-    cssClass: "DateBox",
+    jpvs.DateBox = function (selector) {
+        this.attach(selector);
 
-    create: function (container) {
-        var obj = document.createElement("input");
-        $(obj).attr("type", "text");
-        $(container).append(obj);
-        return obj;
-    },
+        this.change = jpvs.event(this);
+    };
 
-    init: function (W) {
-        this.element.datepicker({
-            onSelect: function (dateText, inst) {
+    jpvs.makeWidget({
+        widget: jpvs.DateBox,
+        type: "DateBox",
+        cssClass: "DateBox",
+
+        create: function (container) {
+            var obj = document.createElement("input");
+            $(obj).attr("type", "text");
+            $(container).append(obj);
+            return obj;
+        },
+
+        init: function (W) {
+            this.element.datepicker({
+                onSelect: function (dateText, inst) {
+                    return W.change.fire(W);
+                }
+            });
+
+            this.element.change(function () {
                 return W.change.fire(W);
-            }
-        });
+            });
 
-        this.element.change(function () {
-            return W.change.fire(W);
-        });
+            this.element.datepicker("option", $.datepicker.regional[jpvs.currentLocale()]);
 
-        this.element.datepicker("option", $.datepicker.regional[jpvs.currentLocale()]);
+            this.element.datepicker("hide");
+        },
 
-        this.element.datepicker("hide");
-    },
+        canAttachTo: function (obj) {
+            return false;
+        },
 
-    canAttachTo: function (obj) {
-        return false;
-    },
+        prototype: {
+            date: jpvs.property({
+                get: function () { return this.element.datepicker("getDate"); },
+                set: function (value) { this.element.datepicker("setDate", value); }
+            }),
 
-    prototype: {
-        date: jpvs.property({
-            get: function () { return this.element.datepicker("getDate"); },
-            set: function (value) { this.element.datepicker("setDate", value); }
-        })
+            dateString: jpvs.property({
+                get: function () {
+                    return format(this.date());
+                },
+                set: function (value) {
+                    this.date(parse(value));
+                }
+            })
+        }
+    });
+
+    function format(date) {
+        if (!date)
+            return "";
+
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        var d = date.getDate();
+
+        return pad(y, 4) + pad(m, 2) + pad(d, 2);
     }
-});
 
+    function pad(s, len) {
+        s = $.trim(s.toString());
+        while (s.length < len)
+            s = "0" + s;
 
+        return s;
+    }
+
+    function parse(yyyymmdd) {
+        yyyymmdd = $.trim(yyyymmdd);
+
+        if (yyyymmdd == "" || yyyymmdd.length != 8)
+            return null;
+
+        var y = parseInt(yyyymmdd.substring(0, 4));
+        var m = parseInt(yyyymmdd.substring(4, 6));
+        var d = parseInt(yyyymmdd.substring(6, 8));
+
+        return new Date(y, m - 1, d);
+    }
+
+})();

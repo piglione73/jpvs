@@ -781,7 +781,13 @@ jpvs.makeWidget({
         date: function (value) {
             /// <summary>Property: date of the datebox.</summary>
             return this;
+        },
+
+        dateString: function (value) {
+            /// <summary>Property: date of the datebox as a string in the YYYYMMDD format.</summary>
+            return this;
         }
+
     }
 });
 

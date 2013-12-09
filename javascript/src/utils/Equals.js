@@ -101,6 +101,20 @@ Depends: core
     }
 
     function objectsEqual(x, y) {
+        //If dates, special treatment
+        if (x.getTime && y.getTime) {
+            //Both dates
+            return x.getTime() == y.getTime();
+        }
+        else if (!x.getTime && y.getTime) {
+            //Not "both dates"
+            return false;
+        }
+        else if (x.getTime && !y.getTime) {
+            //Not "both dates"
+            return false;
+        }
+
         //All members of x must exist in y and be equal
         var alreadyChecked = {};
         for (var key in x) {

@@ -75,6 +75,12 @@
                 equals(jpvs.equals([1, { a: 2 }, 3], [1, { a: 2 }, 3]), true);
             });
 
+            test("Dates", function () {
+                equals(jpvs.equals(new Date(2010, 5, 4, 15, 20), new Date(2010, 5, 4)), false);
+                equals(jpvs.equals(new Date(2010, 5, 4, 15, 20), new Date(2010, 5, 4, 15)), false);
+                equals(jpvs.equals(new Date(2010, 5, 4, 15, 20), new Date(2010, 5, 4, 15, 20)), true);
+            });
+
         });
     </script>
 </head>

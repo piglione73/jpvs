@@ -22,15 +22,15 @@
     <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript">
-        jpvs(function (w) {
-            var obj = {
-                val1: "VAL1",
-                val2: "VAL2",
-                flag: true,
-                val3: "V2",
-                val4: 0
-            };
+        var obj = {
+            val1: "VAL1",
+            val2: "VAL2",
+            flag: true,
+            val3: "V2",
+            val4: 0
+        };
 
+        jpvs(function (w) {
             jpvs.bindContainer("body", obj, function (toElement, toData) {
                 if (toElement)
                     jpvs.writeln("body", "Change propagated to element");
@@ -41,6 +41,13 @@
 
             setInterval(function () { obj.val4++; }, 10000);
         });
+
+        function findBound(name) {
+            var list = jpvs.findElementsBoundTo(obj, name);
+            $.each(list, function (i, elem) {
+                jpvs.getElementIfWidget(elem).css("background-color", "red");
+            });
+        }
     </script>
 </head>
 <body>
@@ -50,12 +57,15 @@
         <input type="text" data-bind="value=val1" />
         <--> span element bound to text: <span data-bind="jQuery.text=val1"></span><-->
         span element bound to html: <span data-bind="jQuery.html=val1"></span>
+        <button type="button" onclick="findBound('val1');">Find bound to val1</button>
         <br />
         <input type="text" data-bind="value=val2" />
         <--->
         <input type="text" data-bind="value=val2" />
         <--->
         <input type="text" data-bind="value=val2" />
+
+        <button type="button" onclick="findBound('val2');">Find bound to val2</button>
         <br />
         <input type="checkbox" data-bind="checked=flag" />
         <--->

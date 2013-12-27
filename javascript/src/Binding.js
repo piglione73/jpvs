@@ -52,6 +52,19 @@ Depends: core
         });
     };
 
+    jpvs.findElementsBoundTo = function (dataObject, objectPropertyName) {
+        var elementsOrWidgets = [];
+        //Search for all relations having this idTo
+        var idTo = getDataObjectBindingID(dataObject) + "/" + objectPropertyName;
+        $.each(changeMonitorQueue.relations, function (key, item) {
+            if (item.idTo == idTo) {
+                elementsOrWidgets.push(item.element);
+            }
+        });
+
+        return elementsOrWidgets;
+    };
+
     function bindElementToObject(element, elementPropertyName, dataObject, objectPropertyName, onChangeDetected) {
         //First copy from dataObject to element
         var getter = getterDataObjectProperty(dataObject, objectPropertyName);
@@ -71,7 +84,7 @@ Depends: core
             idTo: getElementBindingID(element) + "/" + elementPropertyName,
             idFrom: getDataObjectBindingID(dataObject) + "/" + objectPropertyName
         };
-        onDataObjectPropertyChange(relation, dataObject, objectPropertyName, setterElementProperty(element, elementPropertyName), onChangeDetected);
+        onDataObjectPropertyChange(relation, dataObject, objectPropertyName, element, setterElementProperty(element, elementPropertyName), onChangeDetected);
     }
 
     function getElementBindingID(element) {
@@ -100,7 +113,7 @@ Depends: core
         var getter = getterElementProperty(element, elementPropertyName);
 
         //Monitor for changes by putting all the necessary info into the changeMonitorQueue
-        changeMonitorQueue.put(relation.idFrom, relation.idTo, getter, function (value) {
+        changeMonitorQueue.put(relation.idFrom, relation.idTo, element, getter, function (value) {
             //When the change monitor detects a change, we must execute the action
             if (onChangeAction(value)) {
                 //And signal the event (towards the data object) only if the value has changed
@@ -111,13 +124,13 @@ Depends: core
         });
     }
 
-    function onDataObjectPropertyChange(relation, dataObject, objectPropertyName, onChangeAction, onChangeDetected) {
+    function onDataObjectPropertyChange(relation, dataObject, objectPropertyName, element, onChangeAction, onChangeDetected) {
         //Monitor for changes. When a change is detected, execute the on-change action
         //Get the function for reading the dataObject property
         var getter = getterDataObjectProperty(dataObject, objectPropertyName);
 
         //Monitor for changes by putting all the necessary info into the changeMonitorQueue
-        changeMonitorQueue.put(relation.idFrom, relation.idTo, getter, function (value) {
+        changeMonitorQueue.put(relation.idFrom, relation.idTo, element, getter, function (value) {
             //When the change monitor detects a change, we must execute the action
             if (onChangeAction(value)) {
                 //And signal the event (towards the element) only if the value has changed
@@ -335,10 +348,11 @@ Depends: core
         this.relations = {};
     };
 
-    ChangeMonitorQueue.prototype.put = function (idFrom, idTo, getter, onChangeAction) {
+    ChangeMonitorQueue.prototype.put = function (idFrom, idTo, element, getter, onChangeAction) {
         this.relations[idFrom + "§" + idTo] = {
             idFrom: idFrom,
             idTo: idTo,
+            element: element,
             getter: getter,
             onChangeAction: onChangeAction,
             curValue: getter()

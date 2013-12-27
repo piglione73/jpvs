@@ -164,6 +164,12 @@ jpvs.bind = function (element, dataObject, dataBind, onChangeDetected) {
     /// <param name="onChangeDetected" type="Function">Callback that is called whenever one or more values are propagated between the container and the dataObject, in either direction. The signature is: function onChangeDetected(towardsElement, towardsDataObject) {}. The two arguments are boolean flags.</param>
 };
 
+jpvs.findElementsBoundTo = function (dataObject, objectPropertyName) {
+    /// <summary>Finds all elements/widgets bound to the specified property of the specified data object.
+    ///  All elements/widgets bound to that property will be returned as an array.</summary>
+    /// <param name="dataObject" type="Object">Data object.</param>
+    /// <param name="objectPropertyName" type="Object">Name of a data object property.</param>
+};
 
 
 

@@ -8446,21 +8446,27 @@ Depends: core
                 if (this.childrenNodeElements && this.childrenNodeElements.length != 0) {
                     //Has children
                     if (this.isExpanded()) {
-                        imageButton.imageUrls({
-                            normal: jpvs.Resources.images.nodeOpen
-                        });
+                        if (imageButton) {
+                            imageButton.imageUrls({
+                                normal: jpvs.Resources.images.nodeOpen
+                            });
+                        }
                     }
                     else {
-                        imageButton.imageUrls({
-                            normal: jpvs.Resources.images.nodeClosed
-                        });
+                        if (imageButton) {
+                            imageButton.imageUrls({
+                                normal: jpvs.Resources.images.nodeClosed
+                            });
+                        }
                     }
                 }
                 else {
                     //Has no children
-                    imageButton.imageUrls({
-                        normal: jpvs.Resources.images.nodeNoChildren
-                    });
+                    if (imageButton) {
+                        imageButton.imageUrls({
+                            normal: jpvs.Resources.images.nodeNoChildren
+                        });
+                    }
 
                     //Force invisibility anyway
                     this.childrenContainerElement.element.hide();
@@ -8528,16 +8534,18 @@ Depends: core
         var tree = this.getTree();
 
         //Let's load/reload/refresh children
-        tree.refreshChildren(nodeElem, function () {
-            if (nodeElem.childrenNodeElements && nodeElem.childrenNodeElements.length != 0) {
-                //Expand only if we have children
-                nodeElem.childrenContainerElement.element.show(100, function () { nodeElem.refreshState(); });
-            }
-            else {
-                //Otherwise let's just refresh the state
-                nodeElem.refreshState();
-            }
-        });
+        if (tree) {
+            tree.refreshChildren(nodeElem, function () {
+                if (nodeElem.childrenNodeElements && nodeElem.childrenNodeElements.length != 0) {
+                    //Expand only if we have children
+                    nodeElem.childrenContainerElement.element.show(100, function () { nodeElem.refreshState(); });
+                }
+                else {
+                    //Otherwise let's just refresh the state
+                    nodeElem.refreshState();
+                }
+            });
+        }
     };
 
 

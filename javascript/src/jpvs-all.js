@@ -740,8 +740,6 @@ Depends: core
     };
 
     jpvs.bindContainer = function (container, dataObject, onChangeDetected, dataBindingAttrName) {
-        enableChangeMonitor();
-
         if (!container)
             return;
 
@@ -750,9 +748,18 @@ Depends: core
 
         //We want to two-way bind every element (ordinary element or jpvs widget) to dataObject
         //Let's look for elements that specify a binding in attribute "data-bind"
-        container.find("*").each(function () {
-            //Loop over all elements in container and see if they need binding
-            var obj = this;
+        jpvs.bindElements(container.find("*"), dataObject, onChangeDetected, dataBindingAttrName);
+    };
+
+    jpvs.bindElements = function (elements, dataObject, onChangeDetected, dataBindingAttrName) {
+        if (!elements)
+            return;
+
+        //We want to two-way bind every element (ordinary element or jpvs widget) to dataObject
+        //Let's look for elements that specify a binding in attribute "data-bind"
+        for (var i = 0; i < elements.length; i++) {
+            //Loop over all elements and see if they need binding
+            var obj = elements[i];
             var $this = $(obj);
 
             //Let's read the "data-bind" attribute (or another name if specified)
@@ -761,7 +768,7 @@ Depends: core
                 //If "data-bind" is specified, apply it
                 jpvs.bind($this, dataObject, dataBind, onChangeDetected);
             }
-        });
+        }
     };
 
     jpvs.bind = function (element, dataObject, dataBind, onChangeDetected) {

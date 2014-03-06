@@ -30,11 +30,18 @@ Depends: core
                 nodeElement.toggle();
             });
 
+            //Optional node marker
+            if (node.marker) {
+                var imgMarker = jpvs.writeTag(element, "img")
+                imgMarker.addClass("Marker");
+                imgMarker.attr("src", node.marker);
+            }
+
             //Optional node icon
             if (node.icon) {
-                var img = jpvs.writeTag(element, "img")
-                img.addClass("Icon");
-                img.attr("src", node.icon);
+                var imgIcon = jpvs.writeTag(element, "img")
+                imgIcon.addClass("Icon");
+                imgIcon.attr("src", node.icon);
             }
 
             //Node text
@@ -171,7 +178,7 @@ Depends: core
         this.childrenContainerElement.element.hide(100, function () { nodeElem.refreshState(); });
     };
 
-    jpvs.Tree.NodeElement.prototype.expand = function () {
+    jpvs.Tree.NodeElement.prototype.expand = function (callback) {
         var nodeElem = this;
         var tree = this.getTree();
 
@@ -180,14 +187,25 @@ Depends: core
             tree.refreshChildren(nodeElem, function () {
                 if (nodeElem.childrenNodeElements && nodeElem.childrenNodeElements.length != 0) {
                     //Expand only if we have children
-                    nodeElem.childrenContainerElement.element.show(100, function () { nodeElem.refreshState(); });
+                    nodeElem.childrenContainerElement.element.show(100, function () {
+                        nodeElem.refreshState();
+                        if (callback)
+                            callback();
+                    });
                 }
                 else {
                     //Otherwise let's just refresh the state
                     nodeElem.refreshState();
+                    if (callback)
+                        callback();
                 }
             });
         }
+    };
+
+    jpvs.Tree.NodeElement.prototype.setMarkerIcon = function (imgUrl) {
+        var img = this.element.find("img.Marker");
+        img.attr("src", imgUrl);
     };
 
 

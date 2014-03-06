@@ -1330,8 +1330,14 @@ jpvs.Tree.NodeElement.prototype.collapse = function () {
     /// <summary>Collapses the node.</summary>
 };
 
-jpvs.Tree.NodeElement.prototype.expand = function () {
+jpvs.Tree.NodeElement.prototype.expand = function (callback) {
     /// <summary>Expands the node.</summary>
+    ///<param name="callback" type="Function">Function with no arguments that will be called at the end of the operation.</param>
+};
+
+jpvs.Tree.NodeElement.prototype.setMarkerIcon = function (imgUrl) {
+    /// <summary>Changes the marker icon, if a marker icon is present.</summary>
+    /// <param name="imgUrl" type="String">The new marker icon to set.</param>
 };
 
 

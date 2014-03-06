@@ -94,7 +94,7 @@
                 },
                 {
                     toString: nodeToString,
-                    firstName: "Susie", lastName: "Hayes", icon: "dummy-images/close.png",
+                    firstName: "Susie", lastName: "Hayes", icon: "dummy-images/close.png", marker: "dummy-images/TreeNodeMarker.png",
                     sons: [{ toString: nodeToString,
                         firstName: "Harry", lastName: "Kelly", icon: "dummy-images/close.png"
                     }]
@@ -118,6 +118,15 @@
 
             function onNodeClick(nodeElement) {
                 alert("Clicked: " + nodeElement.node.toString());
+
+                if (nodeElement.node.toString() == "Susie Hayes") {
+                    if (nodeElement.node.marker == "dummy-images/TreeNodeMarker.png")
+                        nodeElement.node.marker = "dummy-images/TreeNodeNoMarker.png"
+                    else
+                        nodeElement.node.marker = "dummy-images/TreeNodeMarker.png"
+
+                    nodeElement.setMarkerIcon(nodeElement.node.marker);
+                }
             }
 
             function onNodeRendered(nodeElement) {

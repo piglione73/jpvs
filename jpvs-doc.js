@@ -1024,6 +1024,30 @@ jpvs.makeWidget({
     type: "MultiSelectBox",
 
     prototype: {
+        caption: function () {
+            /// <summary>Property: caption of the widget. Used as the title of the selection popup.</summary>
+            return this;
+        },
+
+        prompt: function () {
+            /// <summary>Property: prompt string used in the selection popup. May be empty, which means "no prompt string".</summary>
+            return this;
+        },
+
+        containerTemplate: function () {
+            /// <summary>Property: container template. Must create a container (e.g.: UL element) and return it. If not specified, 
+            /// a default container template is used which creates and returns a UL element. When used, no dataItem is passed to this template.</summary>
+            return this;
+        },
+
+        itemTemplate: function () {
+            /// <summary>Property: item template. Must create an item. If not specified, 
+            /// a default item template is used which creates an LI element with a checkbox inside.
+            /// The template must return an object that has a "selected" property and a "change" event. This object allows
+            /// the MultiSelectBox to select/unselect the item, read its state and subscribe to its "change" event.</summary>
+            return this;
+        },
+
         clearItems: function () {
             /// <summary>Removes all the items.</summary>
             return this;
@@ -1050,6 +1074,11 @@ jpvs.makeWidget({
 
         selectedValues: function (value) {
             /// <summary>Property: array of selected values.</summary>
+            return this;
+        },
+
+        selectedValuesString: function (value) {
+            /// <summary>Property: selected values as a comma-separated list.</summary>
             return this;
         }
     }

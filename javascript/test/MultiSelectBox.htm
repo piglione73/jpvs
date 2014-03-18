@@ -73,6 +73,11 @@
                 w.cmb1.selectedValues(["1", "2", "3"]);
                 cmb2.selectedValues(["1", "2", "3", "4"]);
             });
+            jpvs.LinkButton.create("#pnl").text("Click me too").click(function () {
+                alert(cmb2.selectedValuesString());
+                cmb2.selectedValuesString("2,3");
+            });
+
         });
     </script>
 </head>

@@ -7449,6 +7449,20 @@ Depends: core
         this.change = jpvs.event(this);
     };
 
+    jpvs.MultiSelectBox.allStrings = {
+        en: {
+            selectAll: "Select all",
+            unselectAll: "Unselect all",
+            selectItems: "Item selection"
+        },
+
+        it: {
+            selectAll: "Seleziona tutto",
+            unselectAll: "Deseleziona tutto",
+            selectItems: "Selezione elementi"
+        }
+    };
+
     jpvs.makeWidget({
         widget: jpvs.MultiSelectBox,
         type: "MultiSelectBox",
@@ -7461,6 +7475,8 @@ Depends: core
         },
 
         init: function (W) {
+            jpvs.MultiSelectBox.strings = jpvs.MultiSelectBox.allStrings[jpvs.currentLocale()];
+
             //Read items
             var items = [];
             this.element.find("option").each(function () {
@@ -7505,6 +7521,42 @@ Depends: core
         },
 
         prototype: {
+            caption: jpvs.property({
+                get: function () {
+                    return this.element.data("caption");
+                },
+                set: function (value) {
+                    this.element.data("caption", value);
+                }
+            }),
+
+            prompt: jpvs.property({
+                get: function () {
+                    return this.element.data("prompt");
+                },
+                set: function (value) {
+                    this.element.data("prompt", value);
+                }
+            }),
+
+            containerTemplate: jpvs.property({
+                get: function () {
+                    return this.element.data("containerTemplate");
+                },
+                set: function (value) {
+                    this.element.data("containerTemplate", value);
+                }
+            }),
+
+            itemTemplate: jpvs.property({
+                get: function () {
+                    return this.element.data("itemTemplate");
+                },
+                set: function (value) {
+                    this.element.data("itemTemplate", value);
+                }
+            }),
+
             clearItems: function () {
                 setItems(this, []);
                 updateLabel(this);
@@ -7547,6 +7599,17 @@ Depends: core
             selectedValues: jpvs.property({
                 get: function () { return getSelectedValues(this); },
                 set: function (value) { setSelectedValues(this, value); }
+            }),
+
+            selectedValuesString: jpvs.property({
+                get: function () { return this.selectedValues().join(","); },
+                set: function (value) {
+                    var x = $.trim(value);
+                    if (x != "")
+                        this.selectedValues(x.split(","));
+                    else
+                        this.selectedValues([]);
+                }
             })
         }
     });
@@ -7619,25 +7682,105 @@ Depends: core
     function showPopup(W) {
         var items = getItems(W);
 
-        var pop = jpvs.Popup.create().title("...").close(function () { pop.destroy(); });
-        var ul = jpvs.writeTag(pop, "ul");
+        //Create the popup with the caption
+        var pop = jpvs.Popup.create().title(W.caption() || jpvs.MultiSelectBox.strings.selectItems).close(function () { pop.destroy(); });
 
+        //Write the prompt string
+        var prompt = W.prompt();
+        if (prompt)
+            jpvs.writeln(pop, prompt);
+
+        //Select all/unselect all buttons
+        jpvs.LinkButton.create(pop).text(jpvs.MultiSelectBox.strings.selectAll).click(onSelectAll);
+        jpvs.write(pop, " ");
+        jpvs.LinkButton.create(pop).text(jpvs.MultiSelectBox.strings.unselectAll).click(onUnselectAll);
+        jpvs.writeln(pop);
+
+        //Create the container, using a default container template (UL)
+        //No data item is passed to this template
+        var containerTemplate = W.containerTemplate() || defaultContainerTemplate;
+        var ul = jpvs.applyTemplate(pop, containerTemplate);
+
+        //Then create the data items (checkboxes), using the item template
+        //Use a default item template that renders the item as an LI element with a checkbox inside
+        //The item template must return an object with a "selected" property and a "change" event, so we can use it from here no
+        //matter how the item is rendered
+        var itemTemplate = W.itemTemplate() || defaultItemTemplate;
+        var itemObjects = [];
         $.each(items, function (i, item) {
-            var li = jpvs.writeTag(ul, "li");
-            jpvs.CheckBox.create(li).text(item.text).checked(!!item.selected).change(onItemSelectChange(item));
+            var itemObject = jpvs.applyTemplate(ul, itemTemplate, item);
+            itemObjects.push(itemObject);
+
+            //Se the state and subscribe to the change event
+            itemObject.selected(!!item.selected);
+            itemObject.change(onItemSelectChange(itemObject, item));
         });
 
         pop.show();
 
-        function onItemSelectChange(item) {
-            return function () {
-                item.selected = this.checked();
-                setItems(W, items);
-                updateLabel(W);
+        function onSelectAll() {
+            selectAll(true);
+        }
 
-                //Fire the change event
-                W.change.fire(W);
+        function onUnselectAll() {
+            selectAll(false);
+        }
+
+        function selectAll(value) {
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var itemObject = itemObjects[i];
+
+                itemObject.selected(value);
+                item.selected = value;
+            }
+
+            updateAndFire();
+        }
+
+        function onItemSelectChange(itemObject, item) {
+            return function () {
+                item.selected = itemObject.selected();
+                updateAndFire();
             };
+        }
+
+        function updateAndFire() {
+            setItems(W, items);
+            updateLabel(W);
+
+            //Fire the change event
+            W.change.fire(W);
+        }
+
+        function defaultContainerTemplate() {
+            return jpvs.writeTag(this, "ul");
+        }
+
+        function defaultItemTemplate(dataItem) {
+            var li = jpvs.writeTag(this, "li");
+            var chk = jpvs.CheckBox.create(li).text(dataItem.text).change(onCheckBoxChange);
+
+            //Prepare the item object with the "selected" property and the "change" event
+            var itemObject = {
+                selected: jpvs.property({
+                    get: function () {
+                        return chk.checked();
+                    },
+                    set: function (value) {
+                        chk.checked(value);
+                    }
+                }),
+
+                change: jpvs.event(W)
+            };
+
+            return itemObject;
+
+            function onCheckBoxChange() {
+                //We just fire the change event
+                itemObject.change.fire(itemObject);
+            }
         }
     }
 

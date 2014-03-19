@@ -23,6 +23,38 @@ jpvs.makeWidget({
             return this;
         },
 
+        autoHide: function (value) {
+            /// <summary>Property: auto-hide flag (true/false). 
+            /// If true, when the user clicks outside the popup, the popup is hidden automatically</summary>
+            return this;
+        },
+
+        autoDestroy: function (value) {
+            /// <summary>Property: auto-destroy flag (true/false). 
+            /// If true, when the user clicks outside the popup, the popup is destroyed automatically</summary>
+            return this;
+        },
+
+        position: function (value) {
+            /// <summary>Property: specifies how to position the popup when shown. By default, the popup is displayed
+            /// centered in the browser viewport. In order to customize the positioning, pass an object like the
+            /// following: { my: ..., at: ..., of: ..., collision: ..., position: ... }.
+            /// Please see the jQuery UI Position utility for information about "my", "at", "of" and "collision". 
+            /// As regards the "position" property, it is applied as a CSS property to the popup. You can pass either "absolute"
+            /// or "fixed" depending on how the popup should behave on page scrolling. If "absolute", the popup will scroll together
+            /// with the page. If "fixed", the popup will not move when the user scrolls the page.
+            /// The default value is: { my: "center", at: "center", of: $(window), collision: "fit", position: "fixed" }, which
+            /// means that the popup is centered in the viewport and must not move on page scrolling.</summary>
+            return this;
+        },
+
+        applyPosition: function () {
+            /// <summary>This function applies the positioning set into the "position" property and makes sure
+            /// this popup is not bigger than the viewport. If bigger, it is automatically reduced and scrollbars
+            /// are displayed.</summary>
+            return this;
+        },
+
         show: function (callback) {
             /// <summary>Shows the popup.</summary>
             /// <param name="callback" type="Function">Optional: Function that will be called at the end of the showing animation.</param>
@@ -46,7 +78,7 @@ jpvs.makeWidget({
         },
 
         title: function (value) {
-            /// <summary>Property: title of the popup.</summary>
+            /// <summary>Property: title of the popup. If false or null or empty, no title bar is displayed.</summary>
             return this;
         },
 

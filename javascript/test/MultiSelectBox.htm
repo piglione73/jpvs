@@ -40,6 +40,7 @@
         }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/Resources.js"></script>
@@ -64,7 +65,7 @@
                 jpvs.writeln("body", "Selected values: " + w.cmb1.selectedValues().join(", "));
             });
 
-            var cmb2 = jpvs.MultiSelectBox.create("#pnl");
+            var cmb2 = jpvs.MultiSelectBox.create("#pnl2");
             cmb2.addItem("0", "Zero");
             cmb2.addItem("1", "One");
             cmb2.addItem("2", "Two");
@@ -73,6 +74,7 @@
                 w.cmb1.selectedValues(["1", "2", "3"]);
                 cmb2.selectedValues(["1", "2", "3", "4"]);
             });
+            jpvs.write("#pnl", " ");
             jpvs.LinkButton.create("#pnl").text("Click me too").click(function () {
                 alert(cmb2.selectedValuesString());
                 cmb2.selectedValuesString("2,3");
@@ -82,13 +84,19 @@
     </script>
 </head>
 <body>
-    <div id="pnl">
-        <select id="cmb1" data-jpvs-type="MultiSelectBox">
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3" selected>Three</option>
-            <option value="4">Four</option>
-        </select>
-    </div>
+    <table>
+        <tr>
+            <td id="pnl1">
+                <select id="cmb1" data-jpvs-type="MultiSelectBox">
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3" selected>Three</option>
+                    <option value="4">Four</option>
+                </select>
+            </td>
+            <td id="pnl2"></td>
+            <td id="pnl"></td>
+        </tr>
+    </table>
 </body>
 </html>

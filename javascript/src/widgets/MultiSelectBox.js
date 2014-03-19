@@ -15,14 +15,12 @@ Depends: core
     jpvs.MultiSelectBox.allStrings = {
         en: {
             selectAll: "Select all",
-            unselectAll: "Unselect all",
-            selectItems: "Item selection"
+            unselectAll: "Unselect all"
         },
 
         it: {
             selectAll: "Seleziona tutto",
-            unselectAll: "Deseleziona tutto",
-            selectItems: "Selezione elementi"
+            unselectAll: "Deseleziona tutto"
         }
     };
 
@@ -245,8 +243,10 @@ Depends: core
     function showPopup(W) {
         var items = getItems(W);
 
-        //Create the popup with the caption
-        var pop = jpvs.Popup.create().title(W.caption() || jpvs.MultiSelectBox.strings.selectItems).close(function () { pop.destroy(); });
+        //Create the popup with no title, not modal and below the label
+        //Autoclose if the user clicks outside
+        var pop = jpvs.Popup.create().title(null).modal(false).position({ my: "left top", at: "left bottom", of: W.label, collision: "fit", position: "absolute" });
+        pop.autoDestroy(true);
 
         //Write the prompt string
         var prompt = W.prompt();

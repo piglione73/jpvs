@@ -9,6 +9,16 @@ Depends: core, ImageButton
     //Keep track of all popups
     var allPopups = {};
 
+    //Attach global events for handling auto-hide/destroy popups and the ESC keystroke
+    $(document).ready(function () {
+        try {
+            $(document).on("click.jpvsPopup", onGlobalClick).on("keydown.jpvsPopup", onGlobalKeyDown);
+        }
+        catch (e) {
+        }
+    });
+
+
     jpvs.Popup = function (selector) {
         this.attach(selector);
 
@@ -47,7 +57,7 @@ Depends: core, ImageButton
 
         init: function (W) {
             //Keep track
-            allPopups[this.element.attr("id")] = { open: false, widget: this };
+            allPopups[this.element.attr("id")] = { open: false, autoDestroy: false, autoHide: false, widget: this };
 
             //Wrap any current contents "xxxxxx" in structure: <div class="DimScreen"></div><div class="Contents">xxxxxx</div>
             var contents = this.element.contents();
@@ -129,6 +139,9 @@ Depends: core, ImageButton
 
             //Hide the popup and, only at the end of the animation, destroy the widget
             this.hide(function () {
+                //Keep track
+                delete allPopups[pop.element.attr("id")];
+
                 //Let's effect the default behavior here, AFTER the end of the "hide animation"
                 pop.element.remove();
             });
@@ -154,55 +167,35 @@ Depends: core, ImageButton
                 }
             }),
 
-            show: function (callback) {
-                var pop = this;
+            autoHide: jpvs.property({
+                get: function () {
+                    return !!allPopups[this.element.attr("id")].autoHide;
+                },
+                set: function (value) {
+                    allPopups[this.element.attr("id")].autoHide = !!value;
+                }
+            }),
 
-                //Show popup
-                this.element.show();
+            autoDestroy: jpvs.property({
+                get: function () {
+                    return !!allPopups[this.element.attr("id")].autoDestroy;
+                },
+                set: function (value) {
+                    allPopups[this.element.attr("id")].autoDestroy = !!value;
+                }
+            }),
 
-                //First attempt to center (BEFORE the animation)
-                this.center();
+            position: jpvs.property({
+                get: function () {
+                    return this.element.data("position");
+                },
+                set: function (value) {
+                    this.element.data("position", value);
+                }
+            }),
 
-                //Second attempt to center (DURING the fadeIn animation)
-                setTimeout(function () { pop.center(); }, 0);
-
-                this.contentsElement.hide();
-                this.contentsElement.fadeIn(function () {
-                    //Third attempt to center (at the END of the animation), in case the first and second attempts failed because the layout was not
-                    //available yet
-                    pop.center();
-
-                    //Callback after the animation
-                    if (callback)
-                        callback();
-                });
-
-                //Dim screen if modal
-                if (this.modal())
-                    this.blanketElement.show();
-                else
-                    this.blanketElement.hide();
-
-                //Keep track
-                allPopups[this.element.attr("id")].open = true;
-
-                //Put it on top of popup stack
-                this.bringForward();
-
-                return this;
-            },
-
-            hide: function (callback) {
-                this.blanketElement.hide();
-                this.contentsElement.fadeOut(callback);
-
-                //Keep track
-                allPopups[this.element.attr("id")].open = false;
-
-                return this;
-            },
-
-            center: function () {
+            applyPosition: function () {
+                //First, if bigger than viewport, reduce the popup
                 var W = this.contentsElement.outerWidth();
                 var H = this.contentsElement.outerHeight();
 
@@ -229,21 +222,66 @@ Depends: core, ImageButton
                         bodyH -= deltaH;
                         this.bodyElement.css("height", bodyH + "px");
                     }
-
-                    //Here's the new size
-                    H = this.contentsElement.outerHeight();
-                    W = this.contentsElement.outerWidth();
                 }
 
-                //Now center
-                var x = (wndW - W) / 2;
-                var y = (wndH - H) / 2;
+                //Finally, apply the desired position or, if no desired position was specified, center in viewport
+                var pos = this.position() || { my: "center", at: "center", of: $(window), collision: "fit", position: "fixed" };
+                this.contentsElement.css("position", pos.position).position(pos);
+                return this;
+            },
 
-                this.contentsElement.css({
-                    position: "fixed",
-                    top: y + "px",
-                    left: x + "px"
+            center: function () {
+                //Default position (center in viewport)
+                this.position(null);
+                this.applyPosition();
+                return this;
+            },
+
+            show: function (callback) {
+                var pop = this;
+
+                //Show popup
+                this.element.show();
+
+                //First attempt to center or position (BEFORE the animation)
+                this.applyPosition();
+
+                //Second attempt to center or position (DURING the fadeIn animation)
+                setTimeout(function () { pop.applyPosition(); }, 0);
+
+                this.contentsElement.hide();
+                this.contentsElement.fadeIn(function () {
+                    //Third attempt to center or position (at the END of the animation), in case the first and second attempts failed because the layout was not
+                    //available yet
+                    pop.applyPosition();
+
+                    //Callback after the animation
+                    if (callback)
+                        callback();
                 });
+
+                //Dim screen if modal
+                if (this.modal())
+                    this.blanketElement.show();
+                else
+                    this.blanketElement.hide();
+
+                //Keep track
+                allPopups[this.element.attr("id")].open = true;
+                allPopups[this.element.attr("id")].openTimestamp = new Date().getTime();
+
+                //Put it on top of popup stack
+                this.bringForward();
+
+                return this;
+            },
+
+            hide: function (callback) {
+                //Keep track
+                allPopups[this.element.attr("id")].open = false;
+
+                this.blanketElement.hide();
+                this.contentsElement.fadeOut(callback);
 
                 return this;
             },
@@ -406,20 +444,46 @@ Depends: core, ImageButton
         ]);
     };
 
-    //ESC button must close the topmost popup currently open
-    $(document).ready(function () {
-        $(document).keydown(function (e) {
-            if (e.which == 27) {
-                //ESC key pressed: search for the topmost popup
-                var topMost = jpvs.Popup.getTopMost();
 
-                //Now close it and do not propagate the ESC event
-                //Simulate a click on the close button instead of simply hiding
-                if (topMost) {
-                    topMost.closeButton.click.fire(topMost);
-                    return false;
-                }
+
+    function onGlobalKeyDown(e) {
+        //ESC button must close the topmost popup currently open
+        if (e.which == 27) {
+            //ESC key pressed: search for the topmost popup
+            var topMost = jpvs.Popup.getTopMost();
+
+            //Now close it and do not propagate the ESC event
+            //Simulate a click on the close button instead of simply hiding
+            if (topMost) {
+                topMost.closeButton.click.fire(topMost);
+                return false;
+            }
+        }
+    }
+
+    function onGlobalClick(e) {
+        //What did the user click?
+        var clickedElem = $(e.target);
+        var clickedPopup = clickedElem.closest(".Popup");
+
+        //Close all "auto-close" (autohide or autodestroy) popups that are currently open, but leave clickedPopupId open
+        //That is, if the user clicked on a popup, leave that one open and close all the others
+        var clickedPopupId = clickedPopup.length ? clickedPopup.attr("id") : "";
+
+        //Preserve newly-opened popups, so the button click that triggered the popup does not immediately trigger its destruction
+        var threshold = new Date().getTime() - 500;
+
+        $.each(allPopups, function (popId, pop) {
+            if (pop.open && pop.openTimestamp < threshold && popId != clickedPopupId) {
+                //If autohide, then hide
+                if (pop.autoHide)
+                    pop.widget.hide();
+
+                //If autodestroy, then destroy
+                if (pop.autoDestroy)
+                    pop.widget.destroy();
             }
         });
-    });
+    }
+
 })();

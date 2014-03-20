@@ -7502,8 +7502,10 @@ Depends: core
             var tr = jpvs.writeTag(tbody, "tr");
 
             this.label = jpvs.writeTag(tr, "td");
+            this.label.addClass("Label");
 
             var buttonContainer = jpvs.writeTag(tr, "td");
+            buttonContainer.addClass("ButtonContainer");
 
             this.button = jpvs.Button.create(buttonContainer).text("...").click(function () {
                 showPopup(W);
@@ -7682,7 +7684,7 @@ Depends: core
 
         //Create the popup with no title, not modal and below the label
         //Autoclose if the user clicks outside
-        var pop = jpvs.Popup.create().title(null).modal(false).position({ my: "left top", at: "left bottom", of: W.label, collision: "fit", position: "absolute" });
+        var pop = jpvs.Popup.create().addState("MultiSelectBox").title(null).modal(false).position({ my: "left top", at: "left bottom", of: W.label, collision: "fit", position: "absolute" });
         pop.autoDestroy(true);
 
         //Write the prompt string

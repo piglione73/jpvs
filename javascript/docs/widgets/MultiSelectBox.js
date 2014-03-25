@@ -23,7 +23,7 @@ jpvs.makeWidget({
         },
 
         containerTemplate: function () {
-            /// <summary>Property: container template. Must create a container (e.g.: UL element) and return it. If not specified, 
+            /// <summary>Property: container template. Must create a container and return it. If not specified, 
             /// a default container template is used which creates and returns a UL element. When used, no dataItem is passed to this template.</summary>
             return this;
         },

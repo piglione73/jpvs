@@ -276,7 +276,7 @@ Depends: core
             var itemObject = jpvs.applyTemplate(ul, itemTemplate, item);
             itemObjects.push(itemObject);
 
-            //Se the state and subscribe to the change event
+            //Set the state and subscribe to the change event
             itemObject.selected(!!item.selected);
             itemObject.change(onItemSelectChange(itemObject, item));
         });

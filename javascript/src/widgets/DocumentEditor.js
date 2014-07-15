@@ -179,6 +179,15 @@ Depends: core, parsers
                 set: function (value) {
                     this.element.data("fieldEditor", value);
                 }
+            }),
+
+            fieldDisplayMapper: jpvs.property({
+                get: function () {
+                    return this.element.data("fieldDisplayMapper");
+                },
+                set: function (value) {
+                    this.element.data("fieldDisplayMapper", value);
+                }
             })
         }
     });
@@ -204,8 +213,12 @@ Depends: core, parsers
                     //Let's update the doc, without highlight
                     fields[thisFieldName] = { value: newField.value };
 
-                    //Let's update the DOM element
-                    jpvs.write(fld.empty(), newField.value);
+                    //Let's update the DOM element, optionally mapping the text that we render into the field area
+                    //Optionally map the text that will be rendered into the field area
+                    var defaultFieldDisplayMapper = function (text) { return text; };
+                    var fieldDisplayMapper = W.fieldDisplayMapper() || defaultFieldDisplayMapper;
+                    var fieldDisplayedValue = fieldDisplayMapper(newField.value);
+                    jpvs.write(fld.empty(), fieldDisplayedValue);
 
                     //Let's enqueue for flashing, if requested
                     if (newField.highlight)
@@ -661,6 +674,12 @@ Depends: core, parsers
         var fieldValue = field && field.value;
         var fieldHighlighted = field && field.highlight;
 
+        //Optionally map the text that will be rendered into the field area
+        var defaultFieldDisplayMapper = function (text) { return text; };
+        var fieldDisplayMapper = W.fieldDisplayMapper() || defaultFieldDisplayMapper;
+        fieldValue = fieldDisplayMapper(fieldValue);
+
+        //If empty, render a placeholder text instead
         if ($.trim(fieldValue) == "")
             fieldValue = jpvs.DocumentEditor.strings.clickToEditField;
 

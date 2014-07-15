@@ -33,6 +33,15 @@ jpvs.makeWidget({
         fieldEditor: function (value) {
             /// <summary>Property: field editor. This property allows any field editor to be used. Just pass an object like this: { editField: function(fields, fieldName, onDone) {} }. The function is responsible for displaying the field editor and allows the user to change the content. The function takes three parameters: (1) "fields" is the fields collection as passed to the "document" property; (2) "fieldName" is the field name that must be edited; (3) onDone is a callback function like this: function onDone(newValue) {}. The editField function must call the onDone callback when the user is done editing the field.</summary>
             return this;
+        },
+
+        fieldDisplayMapper: function (value) {
+            /// <summary>Property: optional field display mapper. If present, changes the way the field is rendered in the document editor.
+            /// It does not change the field value, only the way it is rendered in the document editor. It is a function(text) {} that
+            /// must return the text to render. The default field display mapper is function(text) { return text; }. With the default
+            /// field display mapper, field values are displayed. By changing this property, you can choose to display some other
+            /// text instead of the field value.</summary>
+            return this;
         }
     }
 });

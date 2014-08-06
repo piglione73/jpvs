@@ -8044,6 +8044,9 @@ Depends: core, ImageButton
                 });
             }
 
+            //By default, the popup is modal
+            this.modal(true);
+
             //When clicking on the popup, put it on top of the popup stack
             this.contentsElement.mousedown(onPopupClick(this));
 
@@ -8081,15 +8084,8 @@ Depends: core, ImageButton
 
         prototype: {
             modal: jpvs.property({
-                get: function () {
-                    return this.blanketElement.is(":visible");
-                },
-                set: function (value) {
-                    if (value)
-                        this.blanketElement.show();
-                    else
-                        this.blanketElement.hide();
-                }
+                get: function () { return this.element.data("modal"); },
+                set: function (value) { this.element.data("modal", !!value); }
             }),
 
             autoHide: jpvs.property({

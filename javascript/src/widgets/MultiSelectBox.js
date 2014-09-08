@@ -145,7 +145,7 @@ Depends: core
                 $.each(items, function (i, item) {
                     if (item != null) {
                         if (item.value != null)
-                            W.addItem(item.value, item.text);
+                            W.addItem(item.value, item.text, item.selected);
                         else
                             W.addItem(item);
                     }

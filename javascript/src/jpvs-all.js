@@ -1867,7 +1867,8 @@ Depends: bootstrap
         //Let's return an object that allows code manipulation (manual refreshing, for now)
         return {
             refresh: function () {
-                refreshHeaderPosition();
+                //Re-measure and reposition
+                measurePosition();
             }
         };
 

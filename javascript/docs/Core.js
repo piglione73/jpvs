@@ -199,9 +199,12 @@ jpvs.fitInWindow = function (element) {
 jpvs.fixTableHeader = function (element) {
     /// <summary>Takes a table and fixes its header so that it does not disappear when scrolling upwards.</summary>
     /// <param name="element" type="Object">jpvs widget or jQuery selector or jQuery object or DOM element.</param>
-    /// <returns type="Object">An object containing the "refresh" function, that forces a repositioning of the header. 
-    /// Calling the refresh function after changing the table content ensures the header is properly repositioned.</returns>
+    /// <returns type="Object">An object containing the "refresh" function, that forces a repositioning of the header, and the "deactivate" function,
+    /// that disables the header fixing. 
+    /// Calling the refresh function after changing the table content ensures the header is properly repositioned. Calling the
+    /// deactivate function, restores the header in the original position.</returns>
     return {
-        refresh: function () { }
+        refresh: function () { },
+        deactivate: function () { }
     };
 };

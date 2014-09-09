@@ -1830,7 +1830,7 @@ Depends: bootstrap
             "width": sumOfAllCols + "px"
         });
 
-        element.children("colgroup").remove();
+        element.children("colgroup, col").remove();
 
         var colgroup = jpvs.writeTag(element, "colgroup");
         $.each(colWidths, function (i, colWidth) {

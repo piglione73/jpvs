@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <title>FitTableHeader</title>
+    <title>FixTableHeader</title>
     <style type="text/css">
         table
         {
@@ -20,11 +20,18 @@
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript">
         jpvs(function (w) {
-            jpvs.fixTableHeader("#tbl1");
-            jpvs.fixTableHeader("#tbl2");
-            jpvs.fixTableHeader("#tbl3");
+            $("table").each(function () {
+                setup(this);
+            });
+
+            function setup(tbl) {
+                var pnl = jpvs.writeTag("body", "div");
+                pnl.insertBefore(tbl);
+
+            }
         });
     </script>
 </head>

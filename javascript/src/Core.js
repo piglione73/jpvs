@@ -681,7 +681,7 @@ Depends: bootstrap
         var colWidths = [];
         element.find("tbody > tr:first").each(function () {
             $(this).children("td").each(function (i, td) {
-                colWidths[i] = $(td).width();
+                colWidths[i] = $(td).outerWidth();
             });
         });
 
@@ -731,15 +731,32 @@ Depends: bootstrap
         (scrollingContainer || $(window)).resize(measurePosition).scroll(refreshHeaderPosition);
 
         //Let's return an object that allows code manipulation (manual refreshing, for now)
+        var deactivated = false;
+
         return {
             refresh: function () {
                 //Re-measure and reposition
                 measurePosition();
+            },
+
+            deactivate: function () {
+                deactivated = true;
+
+                //Clean things and move thead back into place; then delete the cloned table
+                headerPlaceHolder.remove();
+                var thead = header.children("thead");
+                var tbody = element.children("tbody");
+                thead.insertBefore(tbody);
+                element.css("margin-top", header.css("margin-top"));
+                header.remove();
             }
         };
 
 
         function measurePosition() {
+            if (deactivated)
+                return;
+
             //Before measuring, let's reposition the header into its natural location
             setNormal();
 
@@ -749,7 +766,15 @@ Depends: bootstrap
             //From Relative To Offset Parent...
             var xHeaderRTOP = header.position().left;
             var yHeaderRTOP = header.position().top;
-            var yScrollingContainerRTOP = scrollingContainer && !absolute && scrollingContainer.position().top || 0;
+            var yScrollingContainerRTOP = 0;
+            if (scrollingContainer) {
+                if (!absolute)
+                    yScrollingContainerRTOP = scrollingContainer.position().top;
+
+                //Also account for scrolling
+                xHeaderRTOP += scrollingContainer.scrollLeft();
+                yHeaderRTOP += scrollingContainer.scrollTop();
+            }
 
             //...to Relative To Scrolling Container
             yHeaderRTSC = yHeaderRTOP - yScrollingContainerRTOP;
@@ -764,7 +789,7 @@ Depends: bootstrap
                     if (absolute)
                         return scrollingContainer.scrollTop() - yDelta;
                     else
-                        return yScrollingContainerRTOP - yDelta - parseFloat(scrollingContainer.css("padding-top"));
+                        return yScrollingContainerRTOP - yDelta;
                 }
                 else
                     return $(window).scrollTop() - yDelta;
@@ -791,6 +816,9 @@ Depends: bootstrap
         }
 
         function refreshHeaderPosition() {
+            if (deactivated)
+                return;
+
             //If the header is scrolling upwards out of the container, then fix the header, otherwise leave it in the
             //original position
             var scroll = getScrollingContainerScrollState();

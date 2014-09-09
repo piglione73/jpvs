@@ -30,7 +30,24 @@
             function setup(tbl) {
                 var pnl = jpvs.writeTag("body", "div");
                 pnl.insertBefore(tbl);
+                var pnl2 = jpvs.writeTag("body", "div");
+                pnl2.insertAfter(tbl);
 
+                var fix = null;
+
+                writeInto(pnl);
+                writeInto(pnl2);
+
+                function writeInto(pnl) {
+                    jpvs.Button.create(pnl).text("Fix").click(function () { fix = jpvs.fixTableHeader(tbl); });
+                    jpvs.Button.create(pnl).text("Refresh").click(function () { if (fix) fix.refresh(); });
+                    jpvs.Button.create(pnl).text("Unfix").click(function () { if (fix) fix.deactivate(); fix = null });
+                    var lbl = jpvs.writeTag(pnl, "div");
+
+                    setInterval(function () {
+                        lbl.text("position().top = " + $(tbl).position().top);
+                    }, 250);
+                }
             }
         });
     </script>

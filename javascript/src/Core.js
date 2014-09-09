@@ -730,6 +730,14 @@ Depends: bootstrap
 
         (scrollingContainer || $(window)).resize(measurePosition).scroll(refreshHeaderPosition);
 
+        //Let's return an object that allows code manipulation (manual refreshing, for now)
+        return {
+            refresh: function () {
+                refreshHeaderPosition();
+            }
+        };
+
+
         function measurePosition() {
             //Before measuring, let's reposition the header into its natural location
             setNormal();

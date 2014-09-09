@@ -390,6 +390,10 @@ jpvs.fitInWindow = function (element) {
     /// <param name="element" type="Object">jpvs widget or jQuery selector or jQuery object or DOM element.</param>
 };
 
+jpvs.fixTableHeader = function (element) {
+    /// <summary>Takes a table and fixes its header so that it does not disappear when scrolling upwards.</summary>
+    /// <param name="element" type="Object">jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+};
 
 window.jpvs = window.jpvs || {};
 

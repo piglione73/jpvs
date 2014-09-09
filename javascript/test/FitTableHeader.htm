@@ -1,0 +1,266 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>FitTableHeader</title>
+    <style type="text/css">
+        table
+        {
+            background-color: pink;
+            border: 1px solid red;
+            border-collapse: collapse;
+        }
+        table td, table th
+        {
+            background-color: pink;
+            border: 1px solid red;
+        }
+    </style>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+            jpvs.fixTableHeader("#tbl1");
+            jpvs.fixTableHeader("#tbl2");
+        });
+    </script>
+</head>
+<body>
+    Some text just to move the table away from the edge.<br />
+    Some text just to move the table away from the edge.<br />
+    Some text just to move the table away from the edge.<br />
+    Some text just to move the table away from the edge.<br />
+    <table id="tbl1" style="margin: 5pt">
+        <thead>
+            <tr>
+                <th>Head 1</th>
+                <th>Head 2</th>
+                <th>Head 3</th>
+            </tr>
+            <tr>
+                <th>Second Head 1</th>
+                <th colspan="2">Second Head 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td>1</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>2</td></tr>
+            <tr><td>1</td><td>1</td><td>3</td></tr>
+            <tr><td>1</td><td>1</td><td>4</td></tr>
+            <tr><td>1</td><td>1</td><td>5</td></tr>
+            <tr><td>1</td><td>1</td><td>6</td></tr>
+            <tr><td>1</td><td>1</td><td>7</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2 XXXXXXXXXXXXXX</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+        </tbody>
+    </table>
+    <hr />
+    <div style="overflow:auto; height: 10cm; padding:10pt" id="pnl1">
+    Some text just to move the table away from the edge.<br />
+    Some text just to move the table away from the edge.<br />
+    Some text just to move the table away from the edge.<br />
+    Some text just to move the table away from the edge.<br />
+        <table id="tbl2" style="margin: 5pt">
+            <thead>
+                <tr>
+                    <th>Head 1</th>
+                    <th>Head 2</th>
+                    <th>Head 3</th>
+                </tr>
+                <tr>
+                    <th>Second Head 1</th>
+                    <th colspan="2">Second Head 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>1</td><td>1</td></tr>
+                <tr><td>1</td><td>1</td><td>2</td></tr>
+                <tr><td>1</td><td>1</td><td>3</td></tr>
+                <tr><td>1</td><td>1</td><td>4</td></tr>
+                <tr><td>1</td><td>1</td><td>5</td></tr>
+                <tr><td>1</td><td>1</td><td>6</td></tr>
+                <tr><td>1</td><td>1</td><td>7</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2 XXXXXXXXXXXXXX</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+                <tr><td>Col 1</td><td>Col 2</td><td>Col 3</td></tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

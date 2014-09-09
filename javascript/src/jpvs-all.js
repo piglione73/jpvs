@@ -1786,6 +1786,157 @@ Depends: bootstrap
         }
     };
 
+    jpvs.fixTableHeader = function (element) {
+        if (!element)
+            return;
+
+        //This line allows us to accept DOM elements, jQuery objects AND jpvs widgets
+        element = toElement(element);
+
+        //Let's find the element's scrolling container (the first ancestor that has overflow: auto/scroll/hidden)
+        var scrollingContainer = element;
+        while (true) {
+            scrollingContainer = scrollingContainer.parent();
+            var test = scrollingContainer[0].nodeName;
+            if (!scrollingContainer || scrollingContainer.length == 0 || scrollingContainer[0].nodeName.toLowerCase() == "body") {
+                //We have just climbed up to the body, so we have no scrolling container (we scroll the window)
+                scrollingContainer = null;
+                break;
+            } else {
+                var overflow = scrollingContainer.css("overflow");
+                if (overflow == "auto" || overflow == "scroll" || overflow == "hidden") {
+                    //We have found it
+                    break;
+                }
+            }
+        }
+
+        //Measure all tbody columns
+        var colWidths = [];
+        element.find("tbody > tr:first").each(function () {
+            $(this).children("td").each(function (i, td) {
+                colWidths[i] = $(td).width();
+            });
+        });
+
+        //Set fixed table layout and explicitly set columns widths
+        var sumOfAllCols = 0;
+        $.each(colWidths, function (i, colWidth) {
+            sumOfAllCols += colWidth;
+        });
+
+        element.css({
+            "table-layout": "fixed",
+            "width": sumOfAllCols + "px"
+        });
+
+        element.children("colgroup").remove();
+
+        var colgroup = jpvs.writeTag(element, "colgroup");
+        $.each(colWidths, function (i, colWidth) {
+            jpvs.writeTag(colgroup, "col").css("width", colWidth + "px");
+        });
+
+        //Split the table into two tables. The first one contains the thead, the second the tbody
+        var header = element.clone().attr("id", element.attr("id") + "_header");
+        header.insertBefore(element);
+
+        header.children("tbody, tfoot").remove();
+        element.children("caption, thead").remove();
+
+        //No margin between the two tables
+        header.css("margin-bottom", "0px");
+        element.css("margin-top", "0px");
+
+        //Placeholder, for keeping other things in place when we use absolute positioning for the header
+        var headerPlaceHolder = jpvs.writeTag(element.parent(), "div");
+        headerPlaceHolder.insertBefore(element);
+
+        headerPlaceHolder.css({
+            width: sumOfAllCols + "px",
+            height: header.outerHeight() + "px"
+        });
+
+        //On scroll, decide where to put the header
+        var yHeaderRTSC;        //Relative To Scrolling Container (or window)
+        var calcX, calcY;       //Functions that calculate (x, y) when we must float the header
+        measurePosition();
+
+        (scrollingContainer || $(window)).resize(measurePosition).scroll(refreshHeaderPosition);
+
+        function measurePosition() {
+            //Before measuring, let's reposition the header into its natural location
+            setNormal();
+
+            //From Relative To Offset Parent...
+            var xHeaderRTOP = header.offset().left;
+            var yHeaderRTOP = header.offset().top;
+            var yScrollingContainerRTOP = scrollingContainer && scrollingContainer.offset().top || 0;
+
+            //...to Relative To Scrolling Container
+            yHeaderRTSC = yHeaderRTOP - yScrollingContainerRTOP;
+
+            //Table margins and border sizes in pixels, so we can subtract them when absolute positioning
+            var xDelta = parseFloat(header.css("margin-left")) + parseFloat(header.css("border-left-width"));
+            var yDelta = parseFloat(header.css("margin-top")) + parseFloat(header.css("border-top-width"));
+
+            //Functions for applying the floating position
+            calcY = function () {
+                if (scrollingContainer)
+                    return yScrollingContainerRTOP - yDelta - parseFloat(scrollingContainer.css("padding-top"));
+                else
+                    return $(window).scrollTop() - yDelta;
+            };
+
+            calcX = function () {
+                if (scrollingContainer)
+                    return xHeaderRTOP - xDelta - scrollingContainer.scrollLeft();
+                else
+                    return xHeaderRTOP - xDelta;
+            };
+
+            //At the end, let's restore the correct positioning based on scroll state
+            refreshHeaderPosition();
+        }
+
+        function getScrollingContainerScrollState() {
+            var $scr = scrollingContainer || $(window);
+
+            return {
+                top: $scr.scrollTop(),
+                left: $scr.scrollLeft()
+            };
+        }
+
+        function refreshHeaderPosition() {
+            //If the header is scrolling upwards out of the container, then fix the header, otherwise leave it in the
+            //original position
+            var scroll = getScrollingContainerScrollState();
+            if (scroll.top > yHeaderRTSC)
+                setFloating();
+            else
+                setNormal();
+        }
+
+        function setNormal() {
+            headerPlaceHolder.hide();
+            header.css({
+                position: "static"
+            });
+        }
+
+        function setFloating() {
+            //Float the header
+            headerPlaceHolder.show();
+            header.css({
+                position: "absolute",
+                top: calcY() + "px",
+                left: calcX() + "px",
+                "z-index": 99999
+            });
+        }
+    };
+
 })();
 
 /* JPVS

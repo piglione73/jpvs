@@ -1868,10 +1868,13 @@ Depends: bootstrap
             //Before measuring, let's reposition the header into its natural location
             setNormal();
 
+            var position = scrollingContainer && scrollingContainer.css("position");
+            var absolute = (position == "absolute" || position == "fixed" || position == "relative");
+
             //From Relative To Offset Parent...
-            var xHeaderRTOP = header.offset().left;
-            var yHeaderRTOP = header.offset().top;
-            var yScrollingContainerRTOP = scrollingContainer && scrollingContainer.offset().top || 0;
+            var xHeaderRTOP = header.position().left;
+            var yHeaderRTOP = header.position().top;
+            var yScrollingContainerRTOP = scrollingContainer && !absolute && scrollingContainer.position().top || 0;
 
             //...to Relative To Scrolling Container
             yHeaderRTSC = yHeaderRTOP - yScrollingContainerRTOP;
@@ -1882,17 +1885,21 @@ Depends: bootstrap
 
             //Functions for applying the floating position
             calcY = function () {
-                if (scrollingContainer)
-                    return yScrollingContainerRTOP - yDelta - parseFloat(scrollingContainer.css("padding-top"));
+                if (scrollingContainer) {
+                    if (absolute)
+                        return scrollingContainer.scrollTop() - yDelta;
+                    else
+                        return yScrollingContainerRTOP - yDelta - parseFloat(scrollingContainer.css("padding-top"));
+                }
                 else
                     return $(window).scrollTop() - yDelta;
             };
 
             calcX = function () {
                 if (scrollingContainer)
-                    return xHeaderRTOP - xDelta - scrollingContainer.scrollLeft();
+                    return xHeaderRTOP;
                 else
-                    return xHeaderRTOP - xDelta;
+                    return xHeaderRTOP;
             };
 
             //At the end, let's restore the correct positioning based on scroll state

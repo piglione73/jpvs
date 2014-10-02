@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>TileBrowser</title>
+    <style type="text/css">
+        body
+        {
+            background-color: #ddd;
+        }
+        
+        .TileBrowser
+        {
+            border: 2pt solid #000;
+            background-color: #fff;
+        }
+        
+        .Tile
+        {
+            border: 1pt solid #000;
+            background-color: #fff;
+            box-shadow: 5pt 5pt 10pt 2pt #aaa;
+        }
+    </style>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/BackgroundTask.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Animations.js"></script>
+    <script type="text/javascript" src="../src/parsers/XmlParser.js"></script>
+    <script type="text/javascript" src="../src/parsers/HtmlCleaner.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/Table.js"></script>
+    <script type="text/javascript" src="../src/widgets/DataGrid.js"></script>
+    <script type="text/javascript" src="../src/widgets/Menu.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript" src="../src/widgets/TileBrowser.js"></script>
+    <script type="text/javascript">
+        function MyTile(N) {
+            this.N = N;
+        }
+
+        MyTile.prototype.getNextTile = function () {
+            if (this.N < 100)
+                return new MyTile(this.N + 1);
+        };
+
+        MyTile.prototype.getPreviousTile = function () {
+            if (this.N > -100)
+                return new MyTile(this.N - 1);
+        };
+
+        MyTile.prototype.template = function (dataItem) {
+            jpvs.writeTag(this, "span", dataItem.tileObject.N.toString()).css({
+                "font-size": (dataItem.tileBrowser.tileWidth() / 2) + "px"
+            });
+        };
+
+        jpvs(function (w) {
+            var tileZero = new MyTile(0);
+            w.tb.tileWidth(w.tb.tileWidth() / 2);
+            w.tb.startingTile(tileZero);
+        });
+    </script>
+</head>
+<body>
+    <div id="tb" data-jpvs-type="TileBrowser" style="position: fixed; top: 20pt; left: 20pt;
+        right: 20pt; bottom: 20pt">
+    </div>
+</body>
+</html>

@@ -8986,6 +8986,50 @@ jpvs.makeWidget({
 
 /* JPVS
 Module: widgets
+Classes: TileBrowser
+Depends: core
+*/
+
+(function () {
+
+    jpvs.TileBrowser = function (selector) {
+        this.attach(selector);
+    };
+
+    jpvs.makeWidget({
+        widget: jpvs.TileBrowser,
+        type: "TileBrowser",
+        cssClass: "TileBrowser",
+
+        create: function (container) {
+            var obj = document.createElement("div");
+            $(container).append(obj);
+            return obj;
+        },
+
+        init: function (W) {
+        },
+
+        canAttachTo: function (obj) {
+            return false;
+        },
+
+        prototype: {
+            startingTile: jpvs.property({
+                get: function () {
+                    return this.element.data("startingTile");
+                },
+                set: function (value) {
+                    this.element.data("startingTile", value);
+                }
+            })
+        }
+    });
+
+})();
+
+/* JPVS
+Module: widgets
 Classes: Tree
 Depends: core
 */

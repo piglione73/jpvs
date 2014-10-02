@@ -1418,6 +1418,30 @@ jpvs.makeWidget({
             ///The other two functions should return the next tile object and the previous tile object, if any, otherwise they must return nothing
             ///(null or undefined).
             ///</summary>
+        },
+
+        width: function (value) {
+            ///<summary>Property: gets the width in pixels, sets the width as CSS units (e.g.: 100px, 150pt, 6cm, 80%, ...).</summary>
+        },
+
+        height: function (value) {
+            ///<summary>Property: gets the height in pixels, sets the height as CSS units (e.g.: 100px, 150pt, 6cm, 80%, ...).</summary>
+        },
+
+        tileWidth: function (value) {
+            ///<summary>Property: gets/sets the tile width in pixels. If not specified or null, defaults to 1/8 of the TileBrowser width.</summary>
+        },
+
+        tileHeight: function (value) {
+            ///<summary>Property: gets/sets the tile height in pixels. If not specified or null, defaults to the value of the tileWidth property.</summary>
+        },
+
+        tileSpacingHorz: function (value) {
+            ///<summary>Property: gets/sets the horizontal spacing between tiles in pixels. If not specified or null, defaults to 1/5 of the tileWidth property.</summary>
+        },
+
+        tileSpacingVert: function (value) {
+            ///<summary>Property: gets/sets the vertical spacing between tiles in pixels. If not specified or null, defaults to 1/5 of the tileHeight property.</summary>
         }
     }
 });

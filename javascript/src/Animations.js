@@ -11,6 +11,11 @@ Depends: core
         window.setTimeout(callback, 1000 / 60);
     };
 
+    jpvs.requestAnimationFrame = function () {
+        //Ensure we call with this = window
+        requestAnimFrame.apply(window, arguments);
+    }
+
     //Animation queue
     var queue = [];
     var running = false;

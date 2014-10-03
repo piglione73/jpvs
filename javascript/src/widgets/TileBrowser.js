@@ -22,9 +22,14 @@ Depends: core
         },
 
         init: function (W) {
+            //Clear the drawing area
+            W.element.empty();
+
             W.element.css({
                 overflow: "hidden"
             });
+
+            W.element.on("wheel", onWheel(W));
         },
 
         canAttachTo: function (obj) {
@@ -98,6 +103,26 @@ Depends: core
                 set: function (value) {
                     this.element.data("tileSpacingVert", value);
                 }
+            }),
+
+            originX: jpvs.property({
+                get: function () {
+                    var x = this.element.data("originX");
+                    return x != null ? x : this.tileSpacingHorz();
+                },
+                set: function (value) {
+                    this.element.data("originX", value);
+                }
+            }),
+
+            originY: jpvs.property({
+                get: function () {
+                    var x = this.element.data("originY");
+                    return x != null ? x : this.tileSpacingVert();
+                },
+                set: function (value) {
+                    this.element.data("originY", value);
+                }
             })
 
         }
@@ -115,11 +140,8 @@ Depends: core
         var dx = tw + sx;
         var dy = th + sy;
 
-        //Clear the drawing area
-        W.element.empty();
-
-        var x0 = w / 2;
-        var y0 = h / 2;
+        var x0 = W.originX();
+        var y0 = W.originY();
 
         //Let's determine the allowed x coordinates
         //We don't want tiles to be cut out by the right/left borders. We lay out tiles at fixed x coordinates
@@ -139,6 +161,8 @@ Depends: core
         while (allowedXs[ix] < x && ix < allowedXs.length)
             ix++;
         ix--;
+        ix = Math.max(ix, 0);
+        ix = Math.min(ix, allowedXs.length - 1);
 
         var y = sy + y0;
         var tile0 = W.startingTile();
@@ -161,7 +185,7 @@ Depends: core
 
             //Draw the tile
             x = allowedXs[ix2];
-            drawTile(W, x, y, tw, th, tileObject);
+            drawTile(W, x, y, tw, th, w, h, tileObject);
 
             //Increment coordinates
             ix2++;
@@ -189,7 +213,7 @@ Depends: core
 
             //Draw the tile
             x = allowedXs[ix2];
-            drawTile(W, x, y, tw, th, tileObject);
+            drawTile(W, x, y, tw, th, w, h, tileObject);
 
             //Decrement coordinates
             ix2--;
@@ -199,16 +223,78 @@ Depends: core
         }
     }
 
-    function drawTile(W, x, y, w, h, tileObject) {
+    function isTileVisible(x, y, tw, th, w, h) {
+        var x2 = x + tw;
+        var y2 = y + th;
+
+        //If at least one of the four corners is visible, then the tile is visible
+        function tlVisible() { return 0 <= x && x <= w && 0 <= y && y <= h; }
+        function trVisible() { return 0 <= x2 && x2 <= w && 0 <= y && y <= h; }
+        function blVisible() { return 0 <= x && x <= w && 0 <= y2 && y2 <= h; }
+        function brVisible() { return 0 <= x2 && x2 <= w && 0 <= y2 && y2 <= h; }
+
+        return tlVisible() || trVisible() || blVisible() || brVisible();
+    }
+
+    function drawTile(W, x, y, tw, th, w, h, tileObject) {
+        if (!tileObject)
+            return;
+
+        //If the tile already exists, then simply adjust its coordinates: it's way faster
+        var info = tileObject.jpvsTileBrowserInfo;
+        if (info) {
+            if (isTileVisible(x, y, tw, th, w, h)) {
+                //OK, let's show it
+                if (info.x != x) {
+                    info.x = x;
+                    info.tile.css("left", x + "px");
+                }
+
+                if (info.y != y) {
+                    info.y = y;
+                    info.tile.css("top", y + "px");
+                }
+
+                if (info.tw != tw) {
+                    info.tw = tw;
+                    info.tile.css("width", tw + "px");
+                }
+
+                if (info.th != th) {
+                    info.th = th;
+                    info.tile.css("height", th + "px");
+                }
+            }
+            else {
+                //The new position is not visible, let's remove the DOM object
+                info.tile.remove();
+                tileObject.jpvsTileBrowserInfo = null;
+            }
+
+            return;
+        }
+
+        //Otherwise, we must create the tile
+        if (!isTileVisible(x, y, tw, th, w, h))
+            return;
+
         var tile = jpvs.writeTag(W, "div");
+
         tile.data("tileObject", tileObject);
+        tileObject.jpvsTileBrowserInfo = {
+            tile: tile,
+            x: x,
+            y: y,
+            tw: tw,
+            th: th
+        };
 
         tile.addClass("Tile").css({
             position: "absolute",
             left: x + "px",
             top: y + "px",
-            width: w + "px",
-            height: h + "px",
+            width: tw + "px",
+            height: th + "px",
             overflow: "hidden"
         });
 
@@ -216,6 +302,28 @@ Depends: core
             jpvs.applyTemplate(tile, tileObject.template, { tileObject: tileObject, tileBrowser: W, tile: tile });
 
         return tile;
+    }
+
+    function onWheel(W) {
+        return function (e) {
+            var deltaY = e && e.originalEvent && e.originalEvent.deltaY || e.originalEvent.deltaX || 0;
+            var oldOriginY = W.originY();
+
+            if (e.shiftKey) {
+                var tw = W.tileWidth();
+                var th = W.tileHeight();
+
+                W.tileWidth(tw * (deltaY < 0 ? 1.1 : (1 / 1.1)));
+                W.tileHeight(th * (deltaY < 0 ? 1.1 : (1 / 1.1)));
+                jpvs.requestAnimationFrame(function () { render(W); });
+            }
+            else {
+                jpvs.animate({ duration: 1000 }, function (t) {
+                    W.originY(oldOriginY - t * deltaY);
+                    render(W);
+                });
+            }
+        };
     }
 
 })();

@@ -9011,6 +9011,8 @@ Depends: core
             W.element.css({
                 overflow: "hidden"
             });
+
+            W.element.on("wheel", onWheel(W));
         },
 
         canAttachTo: function (obj) {
@@ -9084,6 +9086,26 @@ Depends: core
                 set: function (value) {
                     this.element.data("tileSpacingVert", value);
                 }
+            }),
+
+            originX: jpvs.property({
+                get: function () {
+                    var x = this.element.data("originX");
+                    return x != null ? x : this.tileSpacingHorz();
+                },
+                set: function (value) {
+                    this.element.data("originX", value);
+                }
+            }),
+
+            originY: jpvs.property({
+                get: function () {
+                    var x = this.element.data("originY");
+                    return x != null ? x : this.tileSpacingVert();
+                },
+                set: function (value) {
+                    this.element.data("originY", value);
+                }
             })
 
         }
@@ -9104,52 +9126,86 @@ Depends: core
         //Clear the drawing area
         W.element.empty();
 
-        var x0 = w / 2;
-        var y0 = h / 2;
+        var x0 = W.originX();
+        var y0 = W.originY();
+
+        //Let's determine the allowed x coordinates
+        //We don't want tiles to be cut out by the right/left borders. We lay out tiles at fixed x coordinates
+        //The tile browser is free to scroll vertically, however
+        var x = sx;
+        var allowedXs = [];
+        while (x + tw < w) {
+            allowedXs.push(x);
+            x += dx;
+        }
 
         //Lay tiles over the surface
-        var x = sx + x0;
+        var ix = 0;
+        x = sx + x0;
+
+        //Round x to the previous allowedX
+        while (allowedXs[ix] < x && ix < allowedXs.length)
+            ix++;
+        ix--;
+        ix = Math.max(ix, 0);
+        ix = Math.min(ix, allowedXs.length - 1);
+
         var y = sy + y0;
         var tile0 = W.startingTile();
 
         //Forward
+        var ix2 = ix;
         var tileObject = tile0;
         while (tileObject) {
-            drawTile(W, x, y, tw, th, tileObject);
-
-            //Increment coordinates
-            x += dx;
-            if (x >= w) {
-                x = sx;
+            //Ensure the tile is not clipped out by the right border
+            if (ix2 >= allowedXs.length) {
+                //Return to left
+                ix2 = 0;
                 y += dy;
+
+                //We allow tiles to be clipped out by the bottom border, however
+                //So, we stop when the tile is completely outside
                 if (y >= h)
                     break;
             }
+
+            //Draw the tile
+            x = allowedXs[ix2];
+            drawTile(W, x, y, tw, th, tileObject);
+
+            //Increment coordinates
+            ix2++;
 
             //Move to next tile object, if any
             tileObject = tileObject.getNextTile && tileObject.getNextTile();
         }
 
         //Backwards
-        x = sx + x0;
+        ix2 = ix - 1;
         y = sy + y0;
-        tileObject = tile0;
-        while (true) {
-            //Move to previous tile object, if any
-            tileObject = tileObject.getPreviousTile && tileObject.getPreviousTile();
-            if (!tileObject)
-                break;
-
-            //Decrement coordinates
-            x -= dx;
-            if (x + tw < 0) {
-                x = w;
+        tileObject = tile0.getPreviousTile && tile0.getPreviousTile();
+        while (tileObject) {
+            //Ensure the tile is not clipped out by the left border
+            if (ix2 < 0) {
+                //Return to right
+                ix2 = allowedXs.length - 1;
                 y -= dy;
-                if (y + th < 0)
+
+                //We allow tiles to be clipped out by the top border, however
+                //So, we stop when the tile is completely outside
+                if (y + th <= 0)
                     break;
             }
 
+            //Draw the tile
+            x = allowedXs[ix2];
             drawTile(W, x, y, tw, th, tileObject);
+
+            //Decrement coordinates
+            ix2--;
+
+            //Move to next tile object, if any
+            tileObject = tileObject.getPreviousTile && tileObject.getPreviousTile();
         }
     }
 
@@ -9170,6 +9226,14 @@ Depends: core
             jpvs.applyTemplate(tile, tileObject.template, { tileObject: tileObject, tileBrowser: W, tile: tile });
 
         return tile;
+    }
+
+    function onWheel(W) {
+        return function (e) {
+            var deltaY = e && e.originalEvent && e.originalEvent.deltaY;
+            W.originY(W.originY() + deltaY);
+            render(W);
+        };
     }
 
 })();

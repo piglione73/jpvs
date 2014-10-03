@@ -22,3 +22,7 @@ jpvs.flashClass = function (element, cssClass, duration, count, leaveOnTime) {
     /// <param name="count" type="Number">Optional: number of flashes desired.</param>
     /// <param name="leaveOnTime" type="Number">Optional: Time (in ms). After the end of the animation, after this time, the CSS class is removed.</param>
 };
+
+jpvs.requestAnimationFrame = function (callback, element) {
+    /// <summary>Shim layer for the requestAnimationFrame function.</summary>
+};

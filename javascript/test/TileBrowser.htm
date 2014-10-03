@@ -46,16 +46,28 @@
     <script type="text/javascript">
         function MyTile(N) {
             this.N = N;
+            this.prev = null;
+            this.next = null;
         }
 
         MyTile.prototype.getNextTile = function () {
-            if (this.N < 100)
-                return new MyTile(this.N + 1);
+            if (this.next)
+                return this.next;
+
+            if (this.N < 100) {
+                this.next = new MyTile(this.N + 1);
+                return this.next;
+            }
         };
 
         MyTile.prototype.getPreviousTile = function () {
-            if (this.N > -100)
-                return new MyTile(this.N - 1);
+            if (this.prev)
+                return this.prev;
+
+            if (this.N > -100) {
+                this.prev = new MyTile(this.N - 1);
+                return this.prev;
+            }
         };
 
         MyTile.prototype.template = function (dataItem) {

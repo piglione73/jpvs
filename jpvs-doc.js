@@ -1442,6 +1442,14 @@ jpvs.makeWidget({
 
         tileSpacingVert: function (value) {
             ///<summary>Property: gets/sets the vertical spacing between tiles in pixels. If not specified or null, defaults to 1/5 of the tileHeight property.</summary>
+        },
+
+        originX: function (value) {
+            ///<summary>Property: gets/sets the X coordinate of the origin. The origin is where the starting tile is positioned.</summary>
+        },
+
+        originY: function (value) {
+            ///<summary>Property: gets/sets the Y coordinate of the origin. The origin is where the starting tile is positioned.</summary>
         }
     }
 });

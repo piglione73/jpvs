@@ -23,6 +23,10 @@ jpvs.flashClass = function (element, cssClass, duration, count, leaveOnTime) {
     /// <param name="leaveOnTime" type="Number">Optional: Time (in ms). After the end of the animation, after this time, the CSS class is removed.</param>
 };
 
+jpvs.requestAnimationFrame = function (callback, element) {
+    /// <summary>Shim layer for the requestAnimationFrame function.</summary>
+};
+
 window.jpvs = window.jpvs || {};
 
 
@@ -1436,6 +1440,14 @@ jpvs.makeWidget({
             ///<summary>Property: gets/sets the tile height in pixels. If not specified or null, defaults to the value of the tileWidth property.</summary>
         },
 
+        desiredTileWidth: function (value) {
+            ///<summary>Property: gets/sets the desired tile width in pixels. If different from the tileWidth, then the tileWidth will be animated to match.</summary>
+        },
+
+        desiredTileHeight: function (value) {
+            ///<summary>Property: gets/sets the desired tile height in pixels. If different from the tileHeight, then the tileHeight will be animated to match.</summary>
+        },
+
         tileSpacingHorz: function (value) {
             ///<summary>Property: gets/sets the horizontal spacing between tiles in pixels. If not specified or null, defaults to 1/5 of the tileWidth property.</summary>
         },
@@ -1450,6 +1462,14 @@ jpvs.makeWidget({
 
         originY: function (value) {
             ///<summary>Property: gets/sets the Y coordinate of the origin. The origin is where the starting tile is positioned.</summary>
+        },
+
+        desiredOriginX: function (value) {
+            ///<summary>Property: gets/sets the desired X coordinate of the origin. If different from originX, then originX will be animated to match.</summary>
+        },
+
+        desiredOriginY: function (value) {
+            ///<summary>Property: gets/sets the desired Y coordinate of the origin. If different from originY, then originY will be animated to match.</summary>
         }
     }
 });

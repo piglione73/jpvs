@@ -9427,6 +9427,9 @@ Depends: core
 
             //Ensure we animate values if desiredXXXX is different from XXXX
             ensureAnimation(W);
+
+            //Stop event propagation
+            return false;
         };
     }
 

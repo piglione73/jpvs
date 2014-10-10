@@ -129,7 +129,7 @@ Depends: core
             originX: jpvs.property({
                 get: function () {
                     var x = this.element.data("originX");
-                    return x != null ? x : this.tileSpacingHorz();
+                    return x != null ? x : this.width() / 2;
                 },
                 set: function (value) {
                     this.element.data("originX", value);
@@ -139,7 +139,7 @@ Depends: core
             originY: jpvs.property({
                 get: function () {
                     var x = this.element.data("originY");
-                    return x != null ? x : this.tileSpacingVert();
+                    return x != null ? x : this.height() / 2;
                 },
                 set: function (value) {
                     this.element.data("originY", value);
@@ -187,7 +187,8 @@ Depends: core
         //Let's determine the allowed x coordinates
         //We don't want tiles to be cut out by the right/left borders. We lay out tiles at fixed x coordinates
         //The tile browser is free to scroll vertically, however
-        var x = x0;
+        //Coordinates (x0, y0) are the coordinates of the tile center
+        var x = x0 - tw / 2;
         while (x > 0)
             x -= dx;
         x += dx;
@@ -200,12 +201,13 @@ Depends: core
 
         //Lay tiles over the surface
         var ix = 0;
-        x = sx + x0;
+        x = x0 - tw / 2;
 
-        //Round x to the previous allowedX
-        while (allowedXs[ix] < x && ix < allowedXs.length)
-            ix++;
-        ix--;
+        //Get the closest allowedX
+        var minDist = +Infinity;
+        for (var j = 0; j < allowedXs.length && Math.abs(allowedXs[j] - x) < minDist; j++)
+            minDist = Math.abs(allowedXs[j] - x);
+        ix = j - 1;
         ix = Math.max(ix, 0);
         ix = Math.min(ix, allowedXs.length - 1);
 
@@ -214,7 +216,7 @@ Depends: core
         W.lastRenderedGeneration = currentGeneration;
 
         //Forward
-        var y = sy + y0;
+        var y = y0 - th / 2;
         var tile0 = W.startingTile();
         var tileIndex = 0;
         var ix2 = ix;
@@ -246,7 +248,7 @@ Depends: core
 
         //Backwards
         ix2 = ix - 1;
-        y = sy + y0;
+        y = y0 - th / 2;
         tileObject = tile0.getPreviousTile && tile0.getPreviousTile();
         tileIndex = -1;
         while (tileObject) {
@@ -409,25 +411,9 @@ Depends: core
                 W.desiredTileWidth(tw * (deltaY < 0 ? 1.1 : (1 / 1.1)));
                 W.desiredTileHeight(th * (deltaY < 0 ? 1.1 : (1 / 1.1)));
 
-                //Also move the origin, so the hovered tile does not move when zooming in/out
-                var tileObject = W.hoveredTileObject;
-                if (tileObject) {
-                    var info = tileObject.jpvsTileBrowserInfo;
-                    if (info) {
-                        //Tile center
-                        var cx = info.x + info.tw / 2;
-                        var cy = info.y + info.th / 2;
-
-                        //We want the new tile center to be invariant, so here are the new tile coordinates
-                        var nx = cx - W.desiredTileWidth() / 2;
-                        var ny = cy - W.desiredTileHeight() / 2;
-
-                        //Let's set this tile as the starting tile, so the origin is this tile and we can adjust its coordinates
-                        W.startingTile(tileObject);
-                        W.originX(nx);
-                        W.originY(ny);
-                    }
-                }
+                //TODO: Determine the closest-to-center tile
+                //TODO: Change the starting tile to that tile and move originX and originY to the center of that tile, so that this zooming animation
+                //is centered on that tile (when we zoom, we want the center tile to stand still)
             }
             else {
                 //Move
@@ -449,13 +435,13 @@ Depends: core
 
         //See if we must animate
         var deltas = getPixelDeltas();
-        if (mustAnimate()) {
+        if (mustAnimate(deltas)) {
             //Yes, we have a mismatch greater than 1 pixel in origin/tile size, so we must animate
             W.animating = true;
             jpvs.requestAnimationFrame(animate);
         }
 
-        function mustAnimate() {
+        function mustAnimate(deltas) {
             return (Math.abs(deltas.originX) >= 1 || Math.abs(deltas.originY) >= 1 || Math.abs(deltas.tileWidth) >= 1 || Math.abs(deltas.tileHeight) >= 1);
         }
 
@@ -473,7 +459,7 @@ Depends: core
 
         function animate() {
             var deltas = getPixelDeltas();
-            if (mustAnimate()) {
+            if (mustAnimate(deltas)) {
                 //Yes, we have a mismatch greater than 1 pixel in origin/tile size, so we must animate
                 //Let's reduce deltas
                 var deltaX = deltas.originX * kOrigin;

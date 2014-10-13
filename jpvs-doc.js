@@ -1457,11 +1457,11 @@ jpvs.makeWidget({
         },
 
         originX: function (value) {
-            ///<summary>Property: gets/sets the X coordinate of the origin. The origin is where the starting tile is positioned.</summary>
+            ///<summary>Property: gets/sets the X coordinate of the origin. The origin is where the center of the starting tile is positioned.</summary>
         },
 
         originY: function (value) {
-            ///<summary>Property: gets/sets the Y coordinate of the origin. The origin is where the starting tile is positioned.</summary>
+            ///<summary>Property: gets/sets the Y coordinate of the origin. The origin is where the center of the starting tile is positioned.</summary>
         },
 
         desiredOriginX: function (value) {

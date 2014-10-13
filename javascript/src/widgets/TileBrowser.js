@@ -93,6 +93,9 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredTileWidth", value);
+
+                    //Ensure we animate values if desiredXXXX is different from XXXX
+                    ensureAnimation(this);
                 }
             }),
 
@@ -103,6 +106,9 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredTileHeight", value);
+
+                    //Ensure we animate values if desiredXXXX is different from XXXX
+                    ensureAnimation(this);
                 }
             }),
 
@@ -153,6 +159,9 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredOriginX", value);
+
+                    //Ensure we animate values if desiredXXXX is different from XXXX
+                    ensureAnimation(this);
                 }
             }),
 
@@ -163,6 +172,9 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredOriginY", value);
+
+                    //Ensure we animate values if desiredXXXX is different from XXXX
+                    ensureAnimation(this);
                 }
             })
 
@@ -203,7 +215,7 @@ Depends: core
         var ix = 0;
         x = x0 - tw / 2;
 
-        //Get the closest allowedX
+        //Get the allowedX closest to x0
         var minDist = +Infinity;
         for (var j = 0; j < allowedXs.length && Math.abs(allowedXs[j] - x) < minDist; j++)
             minDist = Math.abs(allowedXs[j] - x);
@@ -211,7 +223,7 @@ Depends: core
         ix = Math.max(ix, 0);
         ix = Math.min(ix, allowedXs.length - 1);
 
-        //At every rendering we assign a generation number, useful for cleaning up at the end
+        //At every rendering we assign a generation number, useful for cleaning up invisible tiles at the end
         var currentGeneration = 1 + (W.lastRenderedGeneration || 0);
         W.lastRenderedGeneration = currentGeneration;
 
@@ -405,23 +417,57 @@ Depends: core
 
             if (e.shiftKey) {
                 //Zoom
-                var tw = W.desiredTileWidth();
-                var th = W.desiredTileHeight();
+                var zoomFactor = deltaY < 0 ? 1.1 : (1 / 1.1);
+                var tw = W.desiredTileWidth() * zoomFactor;
+                var th = W.desiredTileHeight() * zoomFactor;
 
-                W.desiredTileWidth(tw * (deltaY < 0 ? 1.1 : (1 / 1.1)));
-                W.desiredTileHeight(th * (deltaY < 0 ? 1.1 : (1 / 1.1)));
+                W.desiredTileWidth(tw);
+                W.desiredTileHeight(th);
 
-                //TODO: Determine the closest-to-center tile
-                //TODO: Change the starting tile to that tile and move originX and originY to the center of that tile, so that this zooming animation
+                //Determine the closest-to-center tile
+                var w = W.width();
+                var h = W.height();
+                var xc = w / 2;
+                var yc = h / 2;
+                var minDist = +Infinity;
+                var closestTile;
+                var closestTileX, closestTileY;
+
+                W.element.children(".Tile").each(function () {
+                    var $this = $(this);
+                    var tileObject = $this.data("tileObject");
+                    var jpvsTileBrowserInfo = tileObject && tileObject.jpvsTileBrowserInfo;
+                    if (jpvsTileBrowserInfo) {
+                        //Tile center
+                        var tx = jpvsTileBrowserInfo.x + jpvsTileBrowserInfo.tw / 2;
+                        var ty = jpvsTileBrowserInfo.y + jpvsTileBrowserInfo.th / 2;
+
+                        var tileToCenter = (xc - tx) * (xc - tx) + (yc - ty) * (yc - ty);
+                        if (tileToCenter < minDist) {
+                            minDist = tileToCenter;
+                            closestTile = tileObject;
+                            closestTileX = tx;
+                            closestTileY = ty;
+                        }
+                    }
+                });
+
+                //Change the starting tile to that tile and move originX and originY to the center of that tile, so that this zooming animation
                 //is centered on that tile (when we zoom, we want the center tile to stand still)
+                //We set both the origin and the desired origin, so that we stop any running scrolling animation 
+                //(it could interfere with the zooming animation and the change in starting tile and origin)
+                if (closestTile) {
+                    W.originX(closestTileX);
+                    W.desiredOriginX(closestTileX);
+                    W.originY(closestTileY);
+                    W.desiredOriginY(closestTileY);
+                    W.startingTile(closestTile);
+                }
             }
             else {
                 //Move
                 W.desiredOriginY(oldOriginY - deltaY);
             }
-
-            //Ensure we animate values if desiredXXXX is different from XXXX
-            ensureAnimation(W);
 
             //Stop event propagation
             return false;
@@ -429,16 +475,26 @@ Depends: core
     }
 
     function ensureAnimation(W) {
-        //If we are already animating, then we have no work to do
-        if (W.animating)
-            return;
-
         //See if we must animate
         var deltas = getPixelDeltas();
         if (mustAnimate(deltas)) {
             //Yes, we have a mismatch greater than 1 pixel in origin/tile size, so we must animate
-            W.animating = true;
-            jpvs.requestAnimationFrame(animate);
+            //Let's determine the final values for our animation
+            //If ensureAnimation is called during a running animation, the animation end time is simply moved away. The animation will end a fixed time
+            //away from now
+            var animationDuration = 500;
+            var tNow = new Date().getTime();
+            var tEnd = tNow + animationDuration;
+            W.animationInfo = {
+                x: { tEnd: tEnd, finalValue: W.desiredOriginX(), k: calcAnimationK(tNow, tEnd, W.originX(), W.desiredOriginX()) },
+                y: { tEnd: tEnd, finalValue: W.desiredOriginY(), k: calcAnimationK(tNow, tEnd, W.originY(), W.desiredOriginY()) },
+                tw: { tEnd: tEnd, finalValue: W.desiredTileWidth(), k: calcAnimationK(tNow, tEnd, W.tileWidth(), W.desiredTileWidth()) },
+                th: { tEnd: tEnd, finalValue: W.desiredTileHeight(), k: calcAnimationK(tNow, tEnd, W.tileHeight(), W.desiredTileHeight()) }
+            };
+
+            //Now, let's schedule the animation. If already running, then, there's no need to do that
+            if (!W.animating)
+                jpvs.requestAnimationFrame(animate);
         }
 
         function mustAnimate(deltas) {
@@ -454,35 +510,53 @@ Depends: core
             };
         }
 
-        var kOrigin = 0.2;
-        var kSize = 0.2;
+        function calcAnimationK(tNow, tEnd, currentValue, finalValue) {
+            //Parabolic animation
+            var delta = currentValue - finalValue;
+            var dt = tEnd - tNow;
+            var k = delta / dt / dt;
+            return k;
+        }
 
-        function animate() {
-            var deltas = getPixelDeltas();
-            if (mustAnimate(deltas)) {
-                //Yes, we have a mismatch greater than 1 pixel in origin/tile size, so we must animate
-                //Let's reduce deltas
-                var deltaX = deltas.originX * kOrigin;
-                var deltaY = deltas.originY * kOrigin;
-                var deltaTW = deltas.tileWidth * kSize;
-                var deltaTH = deltas.tileHeight * kSize;
-
-                W.originX(W.originX() + deltaX);
-                W.originY(W.originY() + deltaY);
-
-                W.tileWidth(W.tileWidth() + deltaTW);
-                W.tileHeight(W.tileHeight() + deltaTH);
-
-                //Render the frame
-                render(W);
-
-                //Schedule next animation frame
-                jpvs.requestAnimationFrame(animate);
+        function calcNewAnimatedValue(tNow, tEnd, k, finalValue) {
+            if (tNow >= tEnd) {
+                //We are past the end of the animation
+                return finalValue;
             }
             else {
-                //No further animation is necessary
-                W.animating = false;
+                //We are still animating
+                var dt = tEnd - tNow;
+                var currentDelta = k * dt * dt;
+                var currentValue = finalValue + currentDelta;
+                return currentValue;
             }
+        }
+
+        function animate() {
+            //If end of animation, then no more work to do
+            if (!W.animationInfo) {
+                W.animating = false;
+                return;
+            }
+
+            W.animating = true;
+
+            //Let's apply the new values
+            var tNow = new Date().getTime();
+            W.originX(calcNewAnimatedValue(tNow, W.animationInfo.x.tEnd, W.animationInfo.x.k, W.animationInfo.x.finalValue));
+            W.originY(calcNewAnimatedValue(tNow, W.animationInfo.y.tEnd, W.animationInfo.y.k, W.animationInfo.y.finalValue));
+            W.tileWidth(calcNewAnimatedValue(tNow, W.animationInfo.tw.tEnd, W.animationInfo.tw.k, W.animationInfo.tw.finalValue));
+            W.tileHeight(calcNewAnimatedValue(tNow, W.animationInfo.th.tEnd, W.animationInfo.th.k, W.animationInfo.th.finalValue));
+
+            //Render the frame
+            render(W);
+
+            //See if the animation is done
+            if (tNow > W.animationInfo.x.tEnd && tNow > W.animationInfo.y.tEnd && tNow > W.animationInfo.tw.tEnd && tNow > W.animationInfo.th.tEnd)
+                W.animationInfo = null;
+
+            //Schedule next animation frame (if done, the animation will stop)
+            jpvs.requestAnimationFrame(animate);
         }
     }
 

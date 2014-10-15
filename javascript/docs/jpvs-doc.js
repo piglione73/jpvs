@@ -1420,7 +1420,7 @@ jpvs.makeWidget({
             ///fixed sized tiles. A tile object must define at least three members: "template", "getNextTile", "getPreviousTile".
             ///The "template" member will be used for rendering the tile object into the tile area by calling jpvs.applyTemplate(template, { tileObject: XXX, tileBrowser: YYY }).
             ///The other two functions should return the next tile object and the previous tile object, if any, otherwise they must return nothing
-            ///(null or undefined).
+            ///(null or undefined). If null is passed as the starting tile, then the tile browser will have no tiles.
             ///</summary>
         },
 

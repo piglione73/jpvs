@@ -183,6 +183,13 @@ Depends: core
 
 
     function render(W) {
+        //Starting tile; if null, then the tile browser has no tiles and no rendering is needed
+        var tile0 = W.startingTile();
+        if (!tile0) {
+            W.element.empty();
+            return;
+        }
+
         //Get shortcuts
         var w = W.width();
         var h = W.height();
@@ -229,7 +236,6 @@ Depends: core
 
         //Forward
         var y = y0 - th / 2;
-        var tile0 = W.startingTile();
         var tileIndex = 0;
         var ix2 = ix;
         var tileObject = tile0;
@@ -289,7 +295,7 @@ Depends: core
         }
 
         //Now we must delete tiles that were visible during the last layout but that were not laid out during this one
-        //We just delete tile that do not belong to the current generation
+        //We just delete tiles that do not belong to the current generation
         W.element.children(".Tile").each(function () {
             var $this = $(this);
             var tileObject = $this.data("tileObject");

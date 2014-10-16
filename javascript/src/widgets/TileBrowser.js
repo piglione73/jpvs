@@ -30,7 +30,7 @@ Depends: core
             });
 
             W.element.on("wheel", onWheel(W));
-            W.element.on("mousemove", "div.Tile", onMouseMove(W));
+            W.element.on("touchmove", "div.Tile", onTouchMove(W));
         },
 
         canAttachTo: function (obj) {
@@ -408,14 +408,6 @@ Depends: core
         }
     }
 
-    function onMouseMove(W) {
-        return function (e) {
-            var tileObject = $(e.target).data("tileObject");
-            if (tileObject)
-                W.hoveredTileObject = tileObject;
-        };
-    }
-
     function onWheel(W) {
         return function (e) {
             var deltaY = e && e.originalEvent && e.originalEvent.deltaY || e.originalEvent.deltaX || 0;
@@ -476,6 +468,31 @@ Depends: core
             }
 
             //Stop event propagation
+            return false;
+        };
+    }
+
+    function onTouchMove(W) {
+        return function (e) {
+            var touch = e.originalEvent.changedTouches[0];
+            if (touch) {
+                //Move the touched tile to the touch coordinates
+                var tile = $(touch.target);
+                var tileObject = tile && tile.data("tileObject");
+                var info = tileObject && tileObject.jpvsTileBrowserInfo;
+                if (info) {
+                    if (tileObject !== W.startingTile()) {
+                        W.originX(info.x + info.tw / 2);
+                        W.originY(info.y + info.th / 2);
+                        W.startingTile(tileObject);
+                    }
+
+                    W.desiredOriginX(touch.pageX);
+                    W.desiredOriginY(touch.pageY);
+                }
+            }
+
+            e.preventDefault();
             return false;
         };
     }

@@ -29,6 +29,45 @@ Depends: core
                 overflow: "hidden"
             });
 
+            //Also create buttons for scrolling/zooming
+            var buttonContainer = jpvs.writeTag(W, "div").addClass("Buttons").css({
+                overflow: "hidden",
+                position: "absolute",
+                right: "0px",
+                top: "0px",
+                bottom: "0px",
+                width: "3em",
+                zIndex: 99999
+            });
+
+            jpvs.writeTag(buttonContainer, "img").addClass("Up").click(onClick(W, "up")).attr("src", jpvs.Resources.images.up).css({
+                position: "absolute",
+                right: "0px",
+                top: "0px",
+                width: "100%"
+            });
+
+            jpvs.writeTag(buttonContainer, "img").addClass("Down").click(onClick(W, "down")).attr("src", jpvs.Resources.images.down).css({
+                position: "absolute",
+                right: "0px",
+                bottom: "0px",
+                width: "100%"
+            });
+
+            jpvs.writeTag(buttonContainer, "img").addClass("Plus").click(onClick(W, "plus")).attr("src", jpvs.Resources.images.plus).css({
+                position: "absolute",
+                right: "0px",
+                bottom: "50%",
+                width: "100%"
+            });
+
+            jpvs.writeTag(buttonContainer, "img").addClass("Minus").click(onClick(W, "minus")).attr("src", jpvs.Resources.images.minus).css({
+                position: "absolute",
+                right: "0px",
+                top: "50%",
+                width: "100%"
+            });
+
             W.element.on("wheel", onWheel(W));
             W.element.on("touchmove", "div.Tile", onTouchMove(W));
         },
@@ -38,13 +77,21 @@ Depends: core
         },
 
         prototype: {
+            refresh: function (flagAnimate) {
+                render(this);
+
+                if (flagAnimate)
+                    ensureAnimation(this);
+
+                return this;
+            },
+
             startingTile: jpvs.property({
                 get: function () {
                     return this.element.data("startingTile");
                 },
                 set: function (value) {
                     this.element.data("startingTile", value);
-                    render(this);
                 }
             }),
 
@@ -93,9 +140,6 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredTileWidth", value);
-
-                    //Ensure we animate values if desiredXXXX is different from XXXX
-                    ensureAnimation(this);
                 }
             }),
 
@@ -106,9 +150,6 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredTileHeight", value);
-
-                    //Ensure we animate values if desiredXXXX is different from XXXX
-                    ensureAnimation(this);
                 }
             }),
 
@@ -159,9 +200,6 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredOriginX", value);
-
-                    //Ensure we animate values if desiredXXXX is different from XXXX
-                    ensureAnimation(this);
                 }
             }),
 
@@ -172,9 +210,6 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredOriginY", value);
-
-                    //Ensure we animate values if desiredXXXX is different from XXXX
-                    ensureAnimation(this);
                 }
             })
 
@@ -186,7 +221,7 @@ Depends: core
         //Starting tile; if null, then the tile browser has no tiles and no rendering is needed
         var tile0 = W.startingTile();
         if (!tile0) {
-            W.element.empty();
+            W.element.children(".Tile").remove();
             return;
         }
 
@@ -408,6 +443,72 @@ Depends: core
         }
     }
 
+    function onClick(W, command) {
+        var zoomFactor = 1.1;
+
+        return function () {
+            if (command == "up")
+                W.desiredOriginY(W.desiredOriginY() + W.height() / 4);
+            else if (command == "down")
+                W.desiredOriginY(W.desiredOriginY() - W.height() / 4);
+            else if (command == "plus")
+                zoom(W, zoomFactor);
+            else if (command == "minus")
+                zoom(W, 1 / zoomFactor);
+
+            //Refresh with an animation
+            W.refresh(true);
+        };
+    }
+
+    function zoom(W, zoomFactor) {
+        var tw = W.desiredTileWidth() * zoomFactor;
+        var th = W.desiredTileHeight() * zoomFactor;
+
+        W.desiredTileWidth(tw);
+        W.desiredTileHeight(th);
+
+        //Determine the closest-to-center tile
+        var w = W.width();
+        var h = W.height();
+        var xc = w / 2;
+        var yc = h / 2;
+        var minDist = +Infinity;
+        var closestTile;
+        var closestTileX, closestTileY;
+
+        W.element.children(".Tile").each(function () {
+            var $this = $(this);
+            var tileObject = $this.data("tileObject");
+            var jpvsTileBrowserInfo = tileObject && tileObject.jpvsTileBrowserInfo;
+            if (jpvsTileBrowserInfo) {
+                //Tile center
+                var tx = jpvsTileBrowserInfo.x + jpvsTileBrowserInfo.tw / 2;
+                var ty = jpvsTileBrowserInfo.y + jpvsTileBrowserInfo.th / 2;
+
+                var tileToCenter = (xc - tx) * (xc - tx) + (yc - ty) * (yc - ty);
+                if (tileToCenter < minDist) {
+                    minDist = tileToCenter;
+                    closestTile = tileObject;
+                    closestTileX = tx;
+                    closestTileY = ty;
+                }
+            }
+        });
+
+        //Change the starting tile to that tile and move originX and originY to the center of that tile, so that this zooming animation
+        //is centered on that tile (when we zoom, we want the center tile to stand still)
+        //We set both the origin and the desired origin, so that we stop any running scrolling animation 
+        //(it could interfere with the zooming animation and the change in starting tile and origin)
+        if (closestTile) {
+            W.originX(closestTileX);
+            W.desiredOriginX(closestTileX);
+            W.originY(closestTileY);
+            W.desiredOriginY(closestTileY);
+            W.startingTile(closestTile);
+        }
+    }
+
     function onWheel(W) {
         return function (e) {
             var deltaY = e && e.originalEvent && e.originalEvent.deltaY || e.originalEvent.deltaX || 0;
@@ -416,56 +517,15 @@ Depends: core
             if (e.shiftKey) {
                 //Zoom
                 var zoomFactor = deltaY < 0 ? 1.1 : (1 / 1.1);
-                var tw = W.desiredTileWidth() * zoomFactor;
-                var th = W.desiredTileHeight() * zoomFactor;
-
-                W.desiredTileWidth(tw);
-                W.desiredTileHeight(th);
-
-                //Determine the closest-to-center tile
-                var w = W.width();
-                var h = W.height();
-                var xc = w / 2;
-                var yc = h / 2;
-                var minDist = +Infinity;
-                var closestTile;
-                var closestTileX, closestTileY;
-
-                W.element.children(".Tile").each(function () {
-                    var $this = $(this);
-                    var tileObject = $this.data("tileObject");
-                    var jpvsTileBrowserInfo = tileObject && tileObject.jpvsTileBrowserInfo;
-                    if (jpvsTileBrowserInfo) {
-                        //Tile center
-                        var tx = jpvsTileBrowserInfo.x + jpvsTileBrowserInfo.tw / 2;
-                        var ty = jpvsTileBrowserInfo.y + jpvsTileBrowserInfo.th / 2;
-
-                        var tileToCenter = (xc - tx) * (xc - tx) + (yc - ty) * (yc - ty);
-                        if (tileToCenter < minDist) {
-                            minDist = tileToCenter;
-                            closestTile = tileObject;
-                            closestTileX = tx;
-                            closestTileY = ty;
-                        }
-                    }
-                });
-
-                //Change the starting tile to that tile and move originX and originY to the center of that tile, so that this zooming animation
-                //is centered on that tile (when we zoom, we want the center tile to stand still)
-                //We set both the origin and the desired origin, so that we stop any running scrolling animation 
-                //(it could interfere with the zooming animation and the change in starting tile and origin)
-                if (closestTile) {
-                    W.originX(closestTileX);
-                    W.desiredOriginX(closestTileX);
-                    W.originY(closestTileY);
-                    W.desiredOriginY(closestTileY);
-                    W.startingTile(closestTile);
-                }
+                zoom(W, zoomFactor);
             }
             else {
                 //Move
                 W.desiredOriginY(oldOriginY - deltaY);
             }
+
+            //Refresh with an animation
+            W.refresh(true);
 
             //Stop event propagation
             return false;
@@ -477,18 +537,28 @@ Depends: core
             var touch = e.originalEvent.changedTouches[0];
             if (touch) {
                 //Move the touched tile to the touch coordinates
-                var tile = $(touch.target);
+                //Find the touched tileObject (it might be the touch.target or a parent, depending on where the touch happened)
+                var tile = $(touch.target).closest(".Tile");
                 var tileObject = tile && tile.data("tileObject");
                 var info = tileObject && tileObject.jpvsTileBrowserInfo;
                 if (info) {
+                    //Ensure the starting tile is the touched one (change also the origin, so we move nothing)
                     if (tileObject !== W.startingTile()) {
                         W.originX(info.x + info.tw / 2);
                         W.originY(info.y + info.th / 2);
                         W.startingTile(tileObject);
                     }
 
-                    W.desiredOriginX(touch.pageX);
-                    W.desiredOriginY(touch.pageY);
+                    //Then have the desired origin follow the touch, so the touched tile follows the touch
+                    //We want no animation because the moving finger is already an animation, so we set the origin equal to the desired origin
+                    var tileBrowserCoordinates = W.element.offset();
+                    W.originX(touch.pageX - tileBrowserCoordinates.left);
+                    W.originY(touch.pageY - tileBrowserCoordinates.top);
+                    W.desiredOriginX(touch.pageX - tileBrowserCoordinates.left);
+                    W.desiredOriginY(touch.pageY - tileBrowserCoordinates.top);
+
+                    //No animation
+                    W.refresh(false);
                 }
             }
 

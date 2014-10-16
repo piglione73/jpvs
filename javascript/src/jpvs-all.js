@@ -3744,7 +3744,12 @@ jpvs.Resources = {
 
         nodeClosed: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuNtCDrVoAAABrSURBVDhP7ZI9CsAgDEY9fM7g6iReJYcIuAXUwSN8kkLHgj+FLs0cHo+XOPfPYwFmRu8d24lijEgpIee8BzFArRUhBIjIOsQApl9KgfcerbU1yA0wiKqCiC6j6SavGBw3OLrC8R9Mx/p8cQCaS2KwCQA20AAAAABJRU5ErkJggg==",
         nodeOpen: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuNtCDrVoAAABCSURBVDhPY2AYBfQJgV27dv3v6Oj4T5ZtIM1qampgTLIBMM2RkZGkG4CsmWQD0DWTbAAowGD+htFkByLJATcCNQAAuT01LwirJNQAAAAASUVORK5CYII=",
-        nodeNoChildren: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuNtCDrVoAAABlSURBVDhP7ZAxCoAhCIW7/zl0ChcHIQiiwQt0IX9sCNoy+LcEF/F9Pl9Kr/5JgIgMAAwRV4uIHV9zYSllCcYYExQC+HKt1VR1Cq8ALmbmO0BrbVnuvcdeyDlvAbp9nx1n8BZjCXzXd1UGM4buRAAAAABJRU5ErkJggg=="
+        nodeNoChildren: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29mdHdhcmUAUGFpbnQuTkVUIHYzLjUuNtCDrVoAAABlSURBVDhP7ZAxCoAhCIW7/zl0ChcHIQiiwQt0IX9sCNoy+LcEF/F9Pl9Kr/5JgIgMAAwRV4uIHV9zYSllCcYYExQC+HKt1VR1Cq8ALmbmO0BrbVnuvcdeyDlvAbp9nx1n8BZjCXzXd1UGM4buRAAAAABJRU5ErkJggg==",
+
+        down: "data:image/png;base64,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",
+        minus: "data:image/png;base64,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",
+        plus: "data:image/png;base64,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",
+        up: "data:image/png;base64,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"
     }
 };
 
@@ -9020,8 +9025,47 @@ Depends: core
                 overflow: "hidden"
             });
 
+            //Also create buttons for scrolling/zooming
+            var buttonContainer = jpvs.writeTag(W, "div").addClass("Buttons").css({
+                overflow: "hidden",
+                position: "absolute",
+                right: "0px",
+                top: "0px",
+                bottom: "0px",
+                width: "3em",
+                zIndex: 99999
+            });
+
+            jpvs.writeTag(buttonContainer, "img").addClass("Up").click(onClick(W, "up")).attr("src", jpvs.Resources.images.up).css({
+                position: "absolute",
+                right: "0px",
+                top: "0px",
+                width: "100%"
+            });
+
+            jpvs.writeTag(buttonContainer, "img").addClass("Down").click(onClick(W, "down")).attr("src", jpvs.Resources.images.down).css({
+                position: "absolute",
+                right: "0px",
+                bottom: "0px",
+                width: "100%"
+            });
+
+            jpvs.writeTag(buttonContainer, "img").addClass("Plus").click(onClick(W, "plus")).attr("src", jpvs.Resources.images.plus).css({
+                position: "absolute",
+                right: "0px",
+                bottom: "50%",
+                width: "100%"
+            });
+
+            jpvs.writeTag(buttonContainer, "img").addClass("Minus").click(onClick(W, "minus")).attr("src", jpvs.Resources.images.minus).css({
+                position: "absolute",
+                right: "0px",
+                top: "50%",
+                width: "100%"
+            });
+
             W.element.on("wheel", onWheel(W));
-            W.element.on("mousemove", "div.Tile", onMouseMove(W));
+            W.element.on("touchmove", "div.Tile", onTouchMove(W));
         },
 
         canAttachTo: function (obj) {
@@ -9029,13 +9073,21 @@ Depends: core
         },
 
         prototype: {
+            refresh: function (flagAnimate) {
+                render(this);
+
+                if (flagAnimate)
+                    ensureAnimation(this);
+
+                return this;
+            },
+
             startingTile: jpvs.property({
                 get: function () {
                     return this.element.data("startingTile");
                 },
                 set: function (value) {
                     this.element.data("startingTile", value);
-                    render(this);
                 }
             }),
 
@@ -9084,9 +9136,6 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredTileWidth", value);
-
-                    //Ensure we animate values if desiredXXXX is different from XXXX
-                    ensureAnimation(this);
                 }
             }),
 
@@ -9097,9 +9146,6 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredTileHeight", value);
-
-                    //Ensure we animate values if desiredXXXX is different from XXXX
-                    ensureAnimation(this);
                 }
             }),
 
@@ -9150,9 +9196,6 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredOriginX", value);
-
-                    //Ensure we animate values if desiredXXXX is different from XXXX
-                    ensureAnimation(this);
                 }
             }),
 
@@ -9163,9 +9206,6 @@ Depends: core
                 },
                 set: function (value) {
                     this.element.data("desiredOriginY", value);
-
-                    //Ensure we animate values if desiredXXXX is different from XXXX
-                    ensureAnimation(this);
                 }
             })
 
@@ -9177,7 +9217,7 @@ Depends: core
         //Starting tile; if null, then the tile browser has no tiles and no rendering is needed
         var tile0 = W.startingTile();
         if (!tile0) {
-            W.element.empty();
+            W.element.children(".Tile").remove();
             return;
         }
 
@@ -9399,12 +9439,70 @@ Depends: core
         }
     }
 
-    function onMouseMove(W) {
-        return function (e) {
-            var tileObject = $(e.target).data("tileObject");
-            if (tileObject)
-                W.hoveredTileObject = tileObject;
+    function onClick(W, command) {
+        var zoomFactor = 1.1;
+
+        return function () {
+            if (command == "up")
+                W.desiredOriginY(W.desiredOriginY() + W.height() / 4);
+            else if (command == "down")
+                W.desiredOriginY(W.desiredOriginY() - W.height() / 4);
+            else if (command == "plus")
+                zoom(W, zoomFactor);
+            else if (command == "minus")
+                zoom(W, 1 / zoomFactor);
+
+            //Refresh with an animation
+            W.refresh(true);
         };
+    }
+
+    function zoom(W, zoomFactor) {
+        var tw = W.desiredTileWidth() * zoomFactor;
+        var th = W.desiredTileHeight() * zoomFactor;
+
+        W.desiredTileWidth(tw);
+        W.desiredTileHeight(th);
+
+        //Determine the closest-to-center tile
+        var w = W.width();
+        var h = W.height();
+        var xc = w / 2;
+        var yc = h / 2;
+        var minDist = +Infinity;
+        var closestTile;
+        var closestTileX, closestTileY;
+
+        W.element.children(".Tile").each(function () {
+            var $this = $(this);
+            var tileObject = $this.data("tileObject");
+            var jpvsTileBrowserInfo = tileObject && tileObject.jpvsTileBrowserInfo;
+            if (jpvsTileBrowserInfo) {
+                //Tile center
+                var tx = jpvsTileBrowserInfo.x + jpvsTileBrowserInfo.tw / 2;
+                var ty = jpvsTileBrowserInfo.y + jpvsTileBrowserInfo.th / 2;
+
+                var tileToCenter = (xc - tx) * (xc - tx) + (yc - ty) * (yc - ty);
+                if (tileToCenter < minDist) {
+                    minDist = tileToCenter;
+                    closestTile = tileObject;
+                    closestTileX = tx;
+                    closestTileY = ty;
+                }
+            }
+        });
+
+        //Change the starting tile to that tile and move originX and originY to the center of that tile, so that this zooming animation
+        //is centered on that tile (when we zoom, we want the center tile to stand still)
+        //We set both the origin and the desired origin, so that we stop any running scrolling animation 
+        //(it could interfere with the zooming animation and the change in starting tile and origin)
+        if (closestTile) {
+            W.originX(closestTileX);
+            W.desiredOriginX(closestTileX);
+            W.originY(closestTileY);
+            W.desiredOriginY(closestTileY);
+            W.startingTile(closestTile);
+        }
     }
 
     function onWheel(W) {
@@ -9415,58 +9513,52 @@ Depends: core
             if (e.shiftKey) {
                 //Zoom
                 var zoomFactor = deltaY < 0 ? 1.1 : (1 / 1.1);
-                var tw = W.desiredTileWidth() * zoomFactor;
-                var th = W.desiredTileHeight() * zoomFactor;
-
-                W.desiredTileWidth(tw);
-                W.desiredTileHeight(th);
-
-                //Determine the closest-to-center tile
-                var w = W.width();
-                var h = W.height();
-                var xc = w / 2;
-                var yc = h / 2;
-                var minDist = +Infinity;
-                var closestTile;
-                var closestTileX, closestTileY;
-
-                W.element.children(".Tile").each(function () {
-                    var $this = $(this);
-                    var tileObject = $this.data("tileObject");
-                    var jpvsTileBrowserInfo = tileObject && tileObject.jpvsTileBrowserInfo;
-                    if (jpvsTileBrowserInfo) {
-                        //Tile center
-                        var tx = jpvsTileBrowserInfo.x + jpvsTileBrowserInfo.tw / 2;
-                        var ty = jpvsTileBrowserInfo.y + jpvsTileBrowserInfo.th / 2;
-
-                        var tileToCenter = (xc - tx) * (xc - tx) + (yc - ty) * (yc - ty);
-                        if (tileToCenter < minDist) {
-                            minDist = tileToCenter;
-                            closestTile = tileObject;
-                            closestTileX = tx;
-                            closestTileY = ty;
-                        }
-                    }
-                });
-
-                //Change the starting tile to that tile and move originX and originY to the center of that tile, so that this zooming animation
-                //is centered on that tile (when we zoom, we want the center tile to stand still)
-                //We set both the origin and the desired origin, so that we stop any running scrolling animation 
-                //(it could interfere with the zooming animation and the change in starting tile and origin)
-                if (closestTile) {
-                    W.originX(closestTileX);
-                    W.desiredOriginX(closestTileX);
-                    W.originY(closestTileY);
-                    W.desiredOriginY(closestTileY);
-                    W.startingTile(closestTile);
-                }
+                zoom(W, zoomFactor);
             }
             else {
                 //Move
                 W.desiredOriginY(oldOriginY - deltaY);
             }
 
+            //Refresh with an animation
+            W.refresh(true);
+
             //Stop event propagation
+            return false;
+        };
+    }
+
+    function onTouchMove(W) {
+        return function (e) {
+            var touch = e.originalEvent.changedTouches[0];
+            if (touch) {
+                //Move the touched tile to the touch coordinates
+                //Find the touched tileObject (it might be the touch.target or a parent, depending on where the touch happened)
+                var tile = $(touch.target).closest(".Tile");
+                var tileObject = tile && tile.data("tileObject");
+                var info = tileObject && tileObject.jpvsTileBrowserInfo;
+                if (info) {
+                    //Ensure the starting tile is the touched one (change also the origin, so we move nothing)
+                    if (tileObject !== W.startingTile()) {
+                        W.originX(info.x + info.tw / 2);
+                        W.originY(info.y + info.th / 2);
+                        W.startingTile(tileObject);
+                    }
+
+                    //Then have the desired origin follow the touch, so the touched tile follows the touch
+                    //We want no animation because the moving finger is already an animation, so we set the origin equal to the desired origin
+                    var tileBrowserCoordinates = W.element.offset();
+                    W.originX(touch.pageX - tileBrowserCoordinates.left);
+                    W.originY(touch.pageY - tileBrowserCoordinates.top);
+                    W.desiredOriginX(touch.pageX - tileBrowserCoordinates.left);
+                    W.desiredOriginY(touch.pageY - tileBrowserCoordinates.top);
+
+                    //No animation
+                    W.refresh(false);
+                }
+            }
+
+            e.preventDefault();
             return false;
         };
     }

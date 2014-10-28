@@ -1089,7 +1089,7 @@ Depends: core
     };
 
     ChangeMonitorQueue.prototype.put = function (idFrom, idTo, element, getter, onChangeAction) {
-        this.relations[idFrom + "ยง" + idTo] = {
+        this.relations[idFrom + "§" + idTo] = {
             idFrom: idFrom,
             idTo: idTo,
             element: element,

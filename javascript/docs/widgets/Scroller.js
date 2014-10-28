@@ -1,4 +1,4 @@
-﻿window.jpvs = window.jpvs || {};
+window.jpvs = window.jpvs || {};
 
 
 jpvs.Scroller = function (selector) {

@@ -1,4 +1,4 @@
-﻿/* JPVS
+/* JPVS
 Module: widgets
 Classes: Table
 Depends: core

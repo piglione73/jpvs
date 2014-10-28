@@ -1,4 +1,4 @@
-﻿window.jpvs = window.jpvs || {};
+window.jpvs = window.jpvs || {};
 
 jpvs.DropDownList = function (selector) {
     /// <summary>Attaches the widget to an existing element.</summary>

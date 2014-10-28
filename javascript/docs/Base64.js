@@ -1,4 +1,4 @@
-﻿window.jpvs = window.jpvs || {};
+window.jpvs = window.jpvs || {};
 
 jpvs.encodeUtf8Base64 = function (str) {
     /// <summary>Encodes a string as UTF-8 and then encodes the resulting byte array into a base-64 string.</summary>

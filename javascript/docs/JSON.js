@@ -1,4 +1,4 @@
-﻿window.jpvs = window.jpvs || {};
+window.jpvs = window.jpvs || {};
 
 jpvs.parseJSON = function (jsonString) {
     /// <summary>Parses a JSON string.</summary>

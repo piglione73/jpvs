@@ -1,4 +1,4 @@
-﻿jpvs.Composite = function (selector) {
+jpvs.Composite = function (selector) {
     this.attach(selector);
 
     this.customEvent = jpvs.event(this);

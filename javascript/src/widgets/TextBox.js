@@ -1,4 +1,4 @@
-﻿/* JPVS
+/* JPVS
 Module: widgets
 Classes: TextBox
 Depends: core

@@ -1,4 +1,4 @@
-﻿window.jpvs = window.jpvs || {};
+window.jpvs = window.jpvs || {};
 
 jpvs.find = function (selector) {
     /// <summary>Finds jpvs widgets by selector.</summary>

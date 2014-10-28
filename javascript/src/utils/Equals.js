@@ -1,4 +1,4 @@
-﻿/* JPVS
+/* JPVS
 Module: utils
 Classes: 
 Depends: core

@@ -1,4 +1,4 @@
-﻿window.jpvs = window.jpvs || {};
+window.jpvs = window.jpvs || {};
 
 jpvs.cleanHtml = function (html, options) {
     /// <summary>Cleans an html string using the jquery-clean plugin. This function is merely a wrapper to that plugin.</summary>

@@ -1,4 +1,4 @@
-﻿window.jpvs = window.jpvs || {};
+window.jpvs = window.jpvs || {};
 
 jpvs.resetAllBindings = function () {
     /// <summary>Resets all bindings. After calling this function, all bindings set in place by bindContainer or bind are dropped.

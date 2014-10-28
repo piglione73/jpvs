@@ -1,4 +1,4 @@
-﻿/* JPVS
+/* JPVS
 Module: core
 Classes: Event
 Depends:

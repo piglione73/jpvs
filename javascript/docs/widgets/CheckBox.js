@@ -1,4 +1,4 @@
-﻿window.jpvs = window.jpvs || {};
+window.jpvs = window.jpvs || {};
 
 jpvs.CheckBox = function (selector) {
     /// <summary>Attaches the widget to an existing element.</summary>

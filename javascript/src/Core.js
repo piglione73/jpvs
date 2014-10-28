@@ -1,4 +1,4 @@
-﻿/* JPVS
+/* JPVS
 Module: core
 Classes: jpvs
 Depends: bootstrap

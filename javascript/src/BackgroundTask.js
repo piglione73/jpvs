@@ -1,4 +1,4 @@
-﻿/* JPVS
+/* JPVS
 Module: tasks
 Classes: 
 Depends: core

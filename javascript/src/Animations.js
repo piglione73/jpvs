@@ -1,4 +1,4 @@
-﻿/* JPVS
+/* JPVS
 Module: animations
 Classes: 
 Depends: core

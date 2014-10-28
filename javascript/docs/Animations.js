@@ -1,4 +1,4 @@
-﻿window.jpvs = window.jpvs || {};
+window.jpvs = window.jpvs || {};
 
 /*
 Can be called as: jpvs.animate(animationFunction) 

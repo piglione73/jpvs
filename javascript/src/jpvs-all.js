@@ -8320,7 +8320,7 @@ Depends: core, ImageButton
                 }
             }),
 
-            applyPosition: function () {
+            applyPosition: function (flagAnimate) {
                 //First, if bigger than viewport, reduce the popup
                 var W = this.contentsElement.outerWidth();
                 var H = this.contentsElement.outerHeight();
@@ -8351,8 +8351,20 @@ Depends: core, ImageButton
                 }
 
                 //Finally, apply the desired position or, if no desired position was specified, center in viewport
-                var pos = this.position() || { my: "center", at: "center", of: $(window), collision: "fit", position: "fixed" };
-                this.contentsElement.css("position", pos.position).position(pos);
+                var pos = this.position() || {
+                    my: "center",
+                    at: "center",
+                    of: $(window),
+                    collision: "fit",
+                    position: "fixed"
+                };
+
+                if (flagAnimate)
+                    pos.using = function (css) { $(this).animate(css); };
+                else
+                    delete pos.using;
+
+                this.contentsElement.css("position", pos.position || "fixed").position(pos);
                 return this;
             },
 
@@ -8369,17 +8381,15 @@ Depends: core, ImageButton
                 //Show popup
                 this.element.show();
 
-                //First attempt to center or position (BEFORE the animation)
-                this.applyPosition();
-
-                //Second attempt to center or position (DURING the fadeIn animation)
-                setTimeout(function () { pop.applyPosition(); }, 0);
+                //If never positioned before, then do it now with no animation
+                var posType = this.contentsElement.css("position");
+                if (posType != "absolute" && posType != "fixed")
+                    this.applyPosition(false);
 
                 this.contentsElement.hide();
                 this.contentsElement.fadeIn(function () {
-                    //Third attempt to center or position (at the END of the animation), in case the first and second attempts failed because the layout was not
-                    //available yet
-                    pop.applyPosition();
+                    //Animate to desired position, if not already there
+                    pop.applyPosition(true);
 
                     //Callback after the animation
                     if (callback)

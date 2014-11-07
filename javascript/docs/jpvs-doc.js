@@ -564,6 +564,11 @@ jpvs.Storage = {
 
 window.jpvs = window.jpvs || {};
 
+jpvs.addGestureListener = function () {
+};
+
+window.jpvs = window.jpvs || {};
+
 jpvs.equals = function (x,y) {
     /// <summary>Determines if two objects are deeply equal.</summary>
     /// <param name="x" type="Object">The first object.</param>

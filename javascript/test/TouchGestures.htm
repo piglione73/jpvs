@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, height=device-height">
+    <title>TouchGestures</title>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/TouchGestures.js"></script>
+    <script type="text/javascript">
+        jpvs(function () {
+            jpvs.addGestureListener("#div1", null, onGesture1);
+            jpvs.addGestureListener("#div2", null, onGesture2);
+
+            function onGesture1(e) {
+                jpvs.writeln("#div1", e.toString());
+            }
+
+            function onGesture2(e) {
+                jpvs.writeln("#div1", e.toString());
+
+                if (e.isEndDrag) {
+                    alert("End of drag");
+                }
+                else if (e.isDrag) {
+                    var elem = $("#div2");
+                    var coords = elem.offset();
+                    coords.top += e.dragY;
+                    coords.left += e.dragX;
+
+                    elem.css({
+                        top: coords.top + "px",
+                        left: coords.left + "px"
+                    });
+                }
+                else if (e.isEndZoom) {
+                    alert("End of zoom");
+                }
+                else if (e.isZoom) {
+                    var elem = $("#div2");
+                    var w = elem.width();
+                    var h = elem.height();
+
+                    var w2 = w * e.zoomFactor;
+                    var h2 = h * e.zoomFactor;
+
+                    var coords = elem.offset();
+                    coords.top -= (h2 - h) / 2;
+                    coords.left -= (w2 - w) / 2;
+
+                    elem.css({
+                        top: coords.top + "px",
+                        left: coords.left + "px",
+                        width: w2 + "px",
+                        height: h2 + "px",
+                        backgroundColor: "#ff0"
+                    });
+                }
+                else if (e.isEndRotate) {
+                    alert("End of rotation");
+                }
+                else if (e.isRotate) {
+                    var elem = $("#div2");
+                    var angle = elem.data("angle") || 0;
+                    angle += e.angle;
+                    elem.data("angle", angle);
+
+                    elem.css({
+                        transform: "rotate(" + angle + "rad)"
+                    });
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="div1" style="position: fixed; top: 0px; left: 0px; right: 0px; bottom: 0px;
+        overflow: auto; font-size: 10pt">
+    </div>
+    <div id="div2" style="position: fixed; top: 200px; left: 200px; width: 200px; height: 200px;
+        border: 1px solid black">
+    </div>
+</body>
+</html>

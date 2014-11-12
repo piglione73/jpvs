@@ -19,20 +19,23 @@ jpvs.addGestureListener = function (element, params, onGesture) {
     /// The event listener function. Signature: function onGesture(e) {}.
     /// The "e" argument is the gesture event object and carries information about the touch gesture.
     ///
-    /// Gesture: TAP; the event object is { isTap: true, isLongTap: true/false, isDoubleTap: true or missing }
+    /// Gesture: TAP; the event object is { isTap: true, isLongTap: true/false, isDoubleTap: true or missing, target: ... }
     ///
-    /// Gesture: DRAG; the event object is { isDrag: true, dragX: ..., dragY: ..., totalDragX: ..., totalDragY: ... }.
-    /// Gesture END of DRAG; the event object is { isDrag: false, isEndDrag: true, totalDragX: ..., totalDragY: ... }.
+    /// Gesture: DRAG; the event object is { isDrag: true, dragX: ..., dragY: ..., totalDragX: ..., totalDragY: ..., target: ... }.
+    /// Gesture END of DRAG; the event object is { isDrag: false, isEndDrag: true, totalDragX: ..., totalDragY: ..., target: ... }.
     ///
-    /// Gesture: ROTATE; the event object is { isRotate: true, angle: ..., totalAngle: ... }.
-    /// Gesture: END of ROTATE; the event object is { isRotate: false, isEndRotate: true, totalAngle: ... }.
+    /// Gesture: ROTATE; the event object is { isRotate: true, angle: ..., totalAngle: ..., target1: ..., target2: ... }.
+    /// Gesture: END of ROTATE; the event object is { isRotate: false, isEndRotate: true, totalAngle: ..., target1: ..., target2: ... }.
     ///
-    /// Gesture: ZOOM; the event object is { isZoom: true, zoomFactor: ..., totalZoomFactor: ... }.
-    /// Gesture: END of ZOOM; the event object is { isZoom: false, isEndZoom: true, totalZoomFactor: ... }.
+    /// Gesture: ZOOM; the event object is { isZoom: true, zoomFactor: ..., totalZoomFactor: ..., target1: ..., target2: ... }.
+    /// Gesture: END of ZOOM; the event object is { isZoom: false, isEndZoom: true, totalZoomFactor: ..., target1: ..., target2: ... }.
     ///
     /// Values dragX and dragY contain the amount of drag since the last onGesture call. Values totalDragX and totalDragY contain the total
     /// amount of drag since the start of the current drag gesture.
     ///
     /// Similar logic applies to angle/totalAngle and zoomFactor/totalZoomFactor.
+    ///
+    /// The target field contains the DOM element where the gesture occurred/started.
+    /// In case the gesture involves two touches, target1/target2 contain the DOM element(s) where the gesture started.
     /// </param>
 };

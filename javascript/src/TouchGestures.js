@@ -70,6 +70,7 @@ Depends: core
                     //If dragging, then fire event
                     if (f[0].dragging) {
                         var evt = {
+                            target: f[0].start.target,
                             isDrag: true,
                             dragX: f[0].current.clientX - f[0].previous.clientX,
                             dragY: f[0].current.clientY - f[0].previous.clientY,
@@ -130,6 +131,8 @@ Depends: core
                     //If rotating, then fire event
                     if (f[0].rotating && f[1].rotating) {
                         var evt = {
+                            target1: f[0].start.target,
+                            target2: f[1].start.target,
                             isRotate: true,
                             angle: segmentAngle - previousSegmentAngle,
                             totalAngle: segmentAngle - initialSegmentAngle
@@ -141,6 +144,8 @@ Depends: core
 
                         //Track the total angle also on the finger object, so on end rotate we can signal the total angle applied
                         f[0].rotateTracker.totalAngle = evt.totalAngle;
+                        f[0].rotateTracker.target1 = evt.target1;
+                        f[0].rotateTracker.target2 = evt.target2;
 
                         onGesture(evt);
                     }
@@ -148,6 +153,8 @@ Depends: core
                     //If zooming, then fire event
                     if (f[0].zooming && f[1].zooming) {
                         var evt = {
+                            target1: f[0].start.target,
+                            target2: f[1].start.target,
                             isZoom: true,
                             zoomFactor: segmentLength / previousSegmentLength,
                             totalZoomFactor: segmentLength / initialSegmentLength
@@ -159,6 +166,8 @@ Depends: core
 
                         //Track the total zoom also on the finger object, so on end zoom we can signal the total zoom factor applied
                         f[0].zoomTracker.totalZoomFactor = evt.totalZoomFactor;
+                        f[0].zoomTracker.target1 = evt.target1;
+                        f[0].zoomTracker.target2 = evt.target2;
 
                         onGesture(evt);
                     }
@@ -176,11 +185,13 @@ Depends: core
                     if (!finger) {
                         finger = {
                             start: {
+                                target: touch.target,
                                 time: now,
                                 clientX: touch.clientX,
                                 clientY: touch.clientY
                             },
                             current: {
+                                target: touch.target,
                                 time: now,
                                 clientX: touch.clientX,
                                 clientY: touch.clientY
@@ -195,6 +206,7 @@ Depends: core
 
                     //Let's now set the current values
                     finger.current = {
+                        target: touch.target,
                         time: now,
                         clientX: touch.clientX,
                         clientY: touch.clientY
@@ -211,6 +223,8 @@ Depends: core
                         if (finger.rotating) {
                             //End of rotate
                             var evt = {
+                                target1: finger.rotateTracker.target1,
+                                target2: finger.rotateTracker.target2,
                                 isRotate: false,
                                 isEndRotate: true,
                                 totalAngle: finger.rotateTracker.totalAngle
@@ -225,6 +239,8 @@ Depends: core
                         else if (finger.zooming) {
                             //End of zoom
                             var evt = {
+                                target1: finger.zoomTracker.target1,
+                                target2: finger.zoomTracker.target2,
                                 isZoom: false,
                                 isEndZoom: true,
                                 totalZoomFactor: finger.zoomTracker.totalZoomFactor
@@ -239,6 +255,7 @@ Depends: core
                         else if (finger.dragging) {
                             //End of drag
                             var evt = {
+                                target: finger.start.target,
                                 isDrag: false,
                                 isEndDrag: true,
                                 totalDragX: finger.current.clientX - finger.start.clientX,
@@ -262,6 +279,7 @@ Depends: core
                                     //Let's see if it was a short tap or a long tap
                                     var dt = now - finger.start.time;
                                     var evt = {
+                                        target: finger.start.target,
                                         isTap: true,
                                         isLongTap: dt >= params.longTapThreshold
                                     };

@@ -4086,6 +4086,7 @@ Depends: core
                     //If dragging, then fire event
                     if (f[0].dragging) {
                         var evt = {
+                            target: f[0].start.target,
                             isDrag: true,
                             dragX: f[0].current.clientX - f[0].previous.clientX,
                             dragY: f[0].current.clientY - f[0].previous.clientY,
@@ -4146,6 +4147,8 @@ Depends: core
                     //If rotating, then fire event
                     if (f[0].rotating && f[1].rotating) {
                         var evt = {
+                            target1: f[0].start.target,
+                            target2: f[1].start.target,
                             isRotate: true,
                             angle: segmentAngle - previousSegmentAngle,
                             totalAngle: segmentAngle - initialSegmentAngle
@@ -4157,6 +4160,8 @@ Depends: core
 
                         //Track the total angle also on the finger object, so on end rotate we can signal the total angle applied
                         f[0].rotateTracker.totalAngle = evt.totalAngle;
+                        f[0].rotateTracker.target1 = evt.target1;
+                        f[0].rotateTracker.target2 = evt.target2;
 
                         onGesture(evt);
                     }
@@ -4164,6 +4169,8 @@ Depends: core
                     //If zooming, then fire event
                     if (f[0].zooming && f[1].zooming) {
                         var evt = {
+                            target1: f[0].start.target,
+                            target2: f[1].start.target,
                             isZoom: true,
                             zoomFactor: segmentLength / previousSegmentLength,
                             totalZoomFactor: segmentLength / initialSegmentLength
@@ -4175,6 +4182,8 @@ Depends: core
 
                         //Track the total zoom also on the finger object, so on end zoom we can signal the total zoom factor applied
                         f[0].zoomTracker.totalZoomFactor = evt.totalZoomFactor;
+                        f[0].zoomTracker.target1 = evt.target1;
+                        f[0].zoomTracker.target2 = evt.target2;
 
                         onGesture(evt);
                     }
@@ -4192,11 +4201,13 @@ Depends: core
                     if (!finger) {
                         finger = {
                             start: {
+                                target: touch.target,
                                 time: now,
                                 clientX: touch.clientX,
                                 clientY: touch.clientY
                             },
                             current: {
+                                target: touch.target,
                                 time: now,
                                 clientX: touch.clientX,
                                 clientY: touch.clientY
@@ -4211,6 +4222,7 @@ Depends: core
 
                     //Let's now set the current values
                     finger.current = {
+                        target: touch.target,
                         time: now,
                         clientX: touch.clientX,
                         clientY: touch.clientY
@@ -4227,6 +4239,8 @@ Depends: core
                         if (finger.rotating) {
                             //End of rotate
                             var evt = {
+                                target1: finger.rotateTracker.target1,
+                                target2: finger.rotateTracker.target2,
                                 isRotate: false,
                                 isEndRotate: true,
                                 totalAngle: finger.rotateTracker.totalAngle
@@ -4241,6 +4255,8 @@ Depends: core
                         else if (finger.zooming) {
                             //End of zoom
                             var evt = {
+                                target1: finger.zoomTracker.target1,
+                                target2: finger.zoomTracker.target2,
                                 isZoom: false,
                                 isEndZoom: true,
                                 totalZoomFactor: finger.zoomTracker.totalZoomFactor
@@ -4255,6 +4271,7 @@ Depends: core
                         else if (finger.dragging) {
                             //End of drag
                             var evt = {
+                                target: finger.start.target,
                                 isDrag: false,
                                 isEndDrag: true,
                                 totalDragX: finger.current.clientX - finger.start.clientX,
@@ -4278,6 +4295,7 @@ Depends: core
                                     //Let's see if it was a short tap or a long tap
                                     var dt = now - finger.start.time;
                                     var evt = {
+                                        target: finger.start.target,
                                         isTap: true,
                                         isLongTap: dt >= params.longTapThreshold
                                     };
@@ -9392,7 +9410,7 @@ Depends: core
             });
 
             W.element.on("wheel", onWheel(W));
-            W.element.on("touchmove", "div.Tile", onTouchMove(W));
+            jpvs.addGestureListener(W.element, null, onGesture(W));
         },
 
         canAttachTo: function (obj) {
@@ -9855,14 +9873,13 @@ Depends: core
         };
     }
 
-    function onTouchMove(W) {
+    function onGesture(W) {
         return function (e) {
-            var touch = e.originalEvent.changedTouches[0];
-            if (touch) {
-                //Move the touched tile to the touch coordinates
+            if (e.isDrag) {
+                //Drag the touched tile to the touch coordinates
                 //Find the touched tileObject (it might be the touch.target or a parent, depending on where the touch happened)
-                var tile = $(touch.target).closest(".Tile");
-                var tileObject = tile && tile.data("tileObject");
+                var tile = $(e.target).closest(".Tile");
+                var tileObject = tile && tile.length && tile.data("tileObject");
                 var info = tileObject && tileObject.jpvsTileBrowserInfo;
                 if (info) {
                     //Ensure the starting tile is the touched one (change also the origin, so we move nothing)
@@ -9872,21 +9889,50 @@ Depends: core
                         W.startingTile(tileObject);
                     }
 
-                    //Then have the desired origin follow the touch, so the touched tile follows the touch
+                    //Then have the desired origin follow dragX/dragY, so the touched tile follows the touch
                     //We want no animation because the moving finger is already an animation, so we set the origin equal to the desired origin
-                    var tileBrowserCoordinates = W.element.offset();
-                    W.originX(touch.pageX - tileBrowserCoordinates.left);
-                    W.originY(touch.pageY - tileBrowserCoordinates.top);
-                    W.desiredOriginX(touch.pageX - tileBrowserCoordinates.left);
-                    W.desiredOriginY(touch.pageY - tileBrowserCoordinates.top);
+                    var orX = W.originX() + e.dragX;
+                    var orY = W.originY() + e.dragY;
+                    W.originX(orX);
+                    W.originY(orY);
+                    W.desiredOriginX(orX);
+                    W.desiredOriginY(orY);
 
                     //No animation
                     W.refresh(false);
                 }
             }
+            else if (e.isZoom) {
+                //Zoom as specified
+                zoom(W, e.zoomFactor);
+                W.tileWidth(W.desiredTileWidth());
+                W.tileHeight(W.desiredTileHeight());
 
-            e.preventDefault();
-            return false;
+                //No animation
+                W.refresh(false);
+            }
+            else if (e.isTap) {
+                //If the user taps a button in the .Buttons div, then let's forward a click to it
+                var clickedElem = $(e.target);
+                if (clickedElem.is(".Buttons > *")) {
+                    clickedElem.click();
+
+                    //If long tap, then we simulate a long click by clicking multiple times
+                    if (e.isLongTap) {
+                        clickedElem.click();
+                        clickedElem.click();
+                        clickedElem.click();
+                    }
+                }
+                else {
+                    //Find the touched tileObject (it might be the touch.target or a parent, depending on where the touch happened)
+                    var tile = $(e.target).closest(".Tile");
+                    if (tile.length) {
+                        //Tapped a tile. Let's forward a click to it
+                        tile.click();
+                    }
+                }
+            }
         };
     }
 

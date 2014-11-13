@@ -78,10 +78,10 @@ Depends: core
 
         prototype: {
             refresh: function (flagAnimate) {
-                render(this);
-
                 if (flagAnimate)
                     ensureAnimation(this);
+                else
+                    render(this);
 
                 return this;
             },
@@ -543,32 +543,32 @@ Depends: core
                 if (info) {
                     //Ensure the starting tile is the touched one (change also the origin, so we move nothing)
                     if (tileObject !== W.startingTile()) {
-                        W.originX(info.x + info.tw / 2);
-                        W.originY(info.y + info.th / 2);
+                        var orX = info.x + info.tw / 2;
+                        var orY = info.y + info.th / 2;
+
+                        W.originX(orX);
+                        W.originY(orY);
+                        W.desiredOriginX(orX);
+                        W.desiredOriginY(orY);
                         W.startingTile(tileObject);
                     }
 
                     //Then have the desired origin follow dragX/dragY, so the touched tile follows the touch
-                    //We want no animation because the moving finger is already an animation, so we set the origin equal to the desired origin
-                    var orX = W.originX() + e.dragX;
-                    var orY = W.originY() + e.dragY;
-                    W.originX(orX);
-                    W.originY(orY);
+                    var orX = W.desiredOriginX() + e.dragX;
+                    var orY = W.desiredOriginY() + e.dragY;
                     W.desiredOriginX(orX);
                     W.desiredOriginY(orY);
 
-                    //No animation
-                    W.refresh(false);
+                    //Refresh with an animation
+                    W.refresh(true);
                 }
             }
             else if (e.isZoom) {
                 //Zoom as specified
                 zoom(W, e.zoomFactor);
-                W.tileWidth(W.desiredTileWidth());
-                W.tileHeight(W.desiredTileHeight());
 
-                //No animation
-                W.refresh(false);
+                //Refresh with an animation
+                W.refresh(true);
             }
             else if (e.isTap) {
                 //If the user taps a button in the .Buttons div, then let's forward a click to it

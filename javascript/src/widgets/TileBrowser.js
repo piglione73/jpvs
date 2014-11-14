@@ -8,6 +8,8 @@ Depends: core
 
     jpvs.TileBrowser = function (selector) {
         this.attach(selector);
+
+        this.tileClick = jpvs.event(this);
     };
 
     jpvs.makeWidget({
@@ -40,34 +42,35 @@ Depends: core
                 zIndex: 99999
             });
 
-            jpvs.writeTag(buttonContainer, "img").addClass("Up").click(onClick(W, "up")).attr("src", jpvs.Resources.images.up).css({
+            jpvs.writeTag(buttonContainer, "img").addClass("Up").click(onClickCommand(W, "up")).attr("src", jpvs.Resources.images.up).css({
                 position: "absolute",
                 right: "0px",
                 top: "0px",
                 width: "100%"
             });
 
-            jpvs.writeTag(buttonContainer, "img").addClass("Down").click(onClick(W, "down")).attr("src", jpvs.Resources.images.down).css({
+            jpvs.writeTag(buttonContainer, "img").addClass("Down").click(onClickCommand(W, "down")).attr("src", jpvs.Resources.images.down).css({
                 position: "absolute",
                 right: "0px",
                 bottom: "0px",
                 width: "100%"
             });
 
-            jpvs.writeTag(buttonContainer, "img").addClass("Plus").click(onClick(W, "plus")).attr("src", jpvs.Resources.images.plus).css({
+            jpvs.writeTag(buttonContainer, "img").addClass("Plus").click(onClickCommand(W, "plus")).attr("src", jpvs.Resources.images.plus).css({
                 position: "absolute",
                 right: "0px",
                 bottom: "50%",
                 width: "100%"
             });
 
-            jpvs.writeTag(buttonContainer, "img").addClass("Minus").click(onClick(W, "minus")).attr("src", jpvs.Resources.images.minus).css({
+            jpvs.writeTag(buttonContainer, "img").addClass("Minus").click(onClickCommand(W, "minus")).attr("src", jpvs.Resources.images.minus).css({
                 position: "absolute",
                 right: "0px",
                 top: "50%",
                 width: "100%"
             });
 
+            W.element.on("click", onClick(W));
             W.element.on("wheel", onWheel(W));
             jpvs.addGestureListener(W.element, null, onGesture(W));
         },
@@ -443,7 +446,7 @@ Depends: core
         }
     }
 
-    function onClick(W, command) {
+    function onClickCommand(W, command) {
         var zoomFactor = 1.1;
 
         return function () {
@@ -507,6 +510,15 @@ Depends: core
             W.desiredOriginY(closestTileY);
             W.startingTile(closestTile);
         }
+    }
+
+    function onClick(W) {
+        return function (e) {
+            var tile = $(e.target).closest(".Tile");
+            var tileObject = tile && tile.length && tile.data("tileObject");
+            if (tileObject)
+                return W.tileClick.fire(W, null, tileObject, e);
+        };
     }
 
     function onWheel(W) {
@@ -586,10 +598,9 @@ Depends: core
                 else {
                     //Find the touched tileObject (it might be the touch.target or a parent, depending on where the touch happened)
                     var tile = $(e.target).closest(".Tile");
-                    if (tile.length) {
-                        //Tapped a tile. Let's forward a click to it
-                        tile.click();
-                    }
+                    var tileObject = tile && tile.length && tile.data("tileObject");
+                    if (tileObject)
+                        return W.tileClick.fire(W, null, tileObject, null);     //We have no browser event to forward here
                 }
             }
         };

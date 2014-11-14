@@ -81,10 +81,10 @@ Depends: core
 
         prototype: {
             refresh: function (flagAnimate) {
+                render(this);
+
                 if (flagAnimate)
                     ensureAnimation(this);
-                else
-                    render(this);
 
                 return this;
             },
@@ -460,7 +460,7 @@ Depends: core
                 zoom(W, 1 / zoomFactor);
 
             //Refresh with an animation
-            W.refresh(true);
+            ensureAnimation(W);
         };
     }
 
@@ -537,7 +537,7 @@ Depends: core
             }
 
             //Refresh with an animation
-            W.refresh(true);
+            ensureAnimation(W);
 
             //Stop event propagation
             return false;
@@ -572,7 +572,7 @@ Depends: core
                     W.desiredOriginY(orY);
 
                     //Refresh with an animation
-                    W.refresh(true);
+                    ensureAnimation(W);
                 }
             }
             else if (e.isZoom) {
@@ -580,7 +580,7 @@ Depends: core
                 zoom(W, e.zoomFactor);
 
                 //Refresh with an animation
-                W.refresh(true);
+                ensureAnimation(W);
             }
             else if (e.isTap) {
                 //If the user taps a button in the .Buttons div, then let's forward a click to it

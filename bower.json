@@ -2,9 +2,7 @@
   "name": "jpvs",
   "version": "1.0.0",
   "homepage": "https://github.com/piglione73/jpvs",
-  "main": [
-    "build/jpvs-all.js",
-    "build/jpvs-doc.js"
+  "main": "build/jpvs-all.js"
   ],
   "authors": [
     "Roberto Rossi <roberto.rossi@paviasystem.com>"

@@ -1,9 +1,3 @@
-/* JPVS
-Module: utils
-Classes: 
-Depends: core
-*/
-
 (function () {
 
     var chars = "QWERTYUIOPLKJHGFDSAZXCVBNM1234567890";

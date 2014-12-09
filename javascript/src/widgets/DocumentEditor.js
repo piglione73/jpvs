@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: DocumentEditor
-Depends: core, parsers
-*/
-
 (function () {
 
     jpvs.DocumentEditor = function (selector) {

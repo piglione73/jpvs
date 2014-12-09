@@ -1,0 +1,25 @@
+{
+  "name": "jpvs",
+  "version": "1.0.0",
+  "homepage": "https://github.com/piglione73/jpvs",
+  "main": [ "build/jpvs-all.js", "build/jpvs-doc.js" ],
+  "authors": [
+    "Roberto Rossi <roberto.rossi@paviasystem.com>"
+  ],
+  "moduleType": [
+    "es6"
+  ],
+  "keywords": [
+    "html5",
+    "javascript",
+    "library"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

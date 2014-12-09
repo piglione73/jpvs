@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: Table
-Depends: core
-*/
-
 (function () {
 
     jpvs.Table = function (selector) {

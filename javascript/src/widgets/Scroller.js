@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: Scroller
-Depends: core
-*/
-
 (function () {
 
     jpvs.Scroller = function (selector) {

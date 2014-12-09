@@ -1,9 +1,3 @@
-/* JPVS
-Module: animations
-Classes: 
-Depends: core
-*/
-
 (function () {
 
     // shim layer with setTimeout fallback

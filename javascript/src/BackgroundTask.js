@@ -1,9 +1,3 @@
-/* JPVS
-Module: tasks
-Classes: 
-Depends: core
-*/
-
 (function () {
 
     //Default run settings

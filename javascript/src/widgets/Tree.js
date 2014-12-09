@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: Tree
-Depends: core
-*/
-
 (function () {
 
     jpvs.Tree = function (selector) {

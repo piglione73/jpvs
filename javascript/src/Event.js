@@ -1,9 +1,3 @@
-/* JPVS
-Module: core
-Classes: Event
-Depends:
-*/
-
 jpvs.Event = function (widget) {
     //The result of "new jpvs.Event(...)" is the object "obj", which has props "widgets" and "handlers" and can also be called as a function
     //(the "bind" function)

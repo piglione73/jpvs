@@ -1,11 +1,4 @@
-/* JPVS
-Module: core
-Classes: jpvs
-Depends: bootstrap
-*/
-
 (function () {
-
     //If X is a jpvs widget, get the jQuery object representing the main content element of X
     //Otherwise, return X
     function toElement(X) {

@@ -1,7 +1,3 @@
-/* JPVS
-Module: bootstrap
-*/
-
 var jpvs = (function () {
     function loadJS(url, callback) {
         var head = document.getElementsByTagName("head")[0] || document.documentElement;

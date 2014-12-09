@@ -1,9 +1,3 @@
-/* JPVS
-Module: utils
-Classes: 
-Depends: core
-*/
-
 /**
 * jQuery JSON Plugin
 * version: 2.3 (2011-09-17)
@@ -19,7 +13,6 @@ Depends: core
 * It is also influenced heavily by MochiKit's serializeJSON, which is
 * copyrighted 2005 by Bob Ippolito.
 */
-
 (function () {
 
     jpvs.parseJSON = function (x) {

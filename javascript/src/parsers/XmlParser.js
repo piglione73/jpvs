@@ -51,12 +51,6 @@ children: []
 }
 
 */
-
-/* JPVS
-Module: parsers
-Classes: XmlParser
-Depends: 
-*/
 var XmlParser = (function () {
 
     var OutOfTag = 0,

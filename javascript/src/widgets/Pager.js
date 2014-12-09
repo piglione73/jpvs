@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: Pager
-Depends: core, LinkButton
-*/
-
 (function () {
 
     jpvs.Pager = function (selector) {

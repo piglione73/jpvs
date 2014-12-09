@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: MultiSelectBox
-Depends: core
-*/
-
 (function () {
 
     jpvs.MultiSelectBox = function (selector) {

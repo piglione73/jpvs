@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: Button
-Depends: core
-*/
-
 jpvs.Button = function (selector) {
     this.attach(selector);
 

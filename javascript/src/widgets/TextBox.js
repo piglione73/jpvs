@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: TextBox
-Depends: core
-*/
-
 jpvs.TextBox = function (selector) {
     this.attach(selector);
 

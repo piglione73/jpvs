@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: Popup
-Depends: core, ImageButton
-*/
-
 (function () {
 
     //Keep track of all popups

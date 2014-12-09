@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: DataGrid
-Depends: core
-*/
-
 (function () {
 
     jpvs.DataGrid = function (selector) {

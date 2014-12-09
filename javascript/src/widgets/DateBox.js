@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: DateBox
-Depends: core
-*/
-
 /* Italian initialisation for the jQuery UI date picker plugin. */
 /* Written by Antonello Pasella (antonello.pasella@gmail.com). */
 jQuery(function ($) {

@@ -24,12 +24,6 @@ d1.removeItem(0);
 var first = d1.getItem(0);
 var N = d1.getCount();
 */
-
-/* JPVS
-Module: storage
-Classes: Storage
-Depends: core, utils
-*/
 (function () {
 
     var KEY_PREFIX = "jpvs.Storage.";

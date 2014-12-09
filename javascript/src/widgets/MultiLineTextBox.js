@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: MultiLineTextBox
-Depends: core
-*/
-
 jpvs.MultiLineTextBox = function (selector) {
     this.attach(selector);
 

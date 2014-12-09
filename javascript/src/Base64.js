@@ -1,9 +1,3 @@
-/* JPVS
-Module: utils
-Classes: 
-Depends: core
-*/
-
 (function () {
     /*
     Copyright (c) 2008 Fred Palmer fred.palmer_at_gmail.com

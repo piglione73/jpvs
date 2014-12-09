@@ -1,9 +1,3 @@
-/* JPVS
-Module: utils
-Classes: 
-Depends: core
-*/
-
 (function () {
 
     jpvs.equals = function (x, y) {

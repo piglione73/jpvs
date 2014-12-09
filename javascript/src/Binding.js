@@ -1,11 +1,4 @@
-/* JPVS
-Module: binding
-Classes: 
-Depends: core
-*/
-
 (function () {
-
     jpvs.resetAllBindings = function () {
         changeMonitorQueue.clearAll();
         disableChangeMonitor();

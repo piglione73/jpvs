@@ -1,10 +1,3 @@
-/* JPVS
-Module: parsers
-Classes: 
-Depends: core
-*/
-
-
 (function () {
     //We use "HTML Clean for jQuery" plugin but we don't want it to strip empty <p></p> paragraphs, so
     //we use a different definition of tagAllowEmpty

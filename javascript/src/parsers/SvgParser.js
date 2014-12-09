@@ -36,12 +36,6 @@ fill: { color: { r: 0, g: 128, b: 0, a: 1 } }
 };
 
 */
-
-/* JPVS
-Module: parsers
-Classes: SvgParser
-Depends:
-*/
 var SvgParser = (function () {
 
     var BLACK = { r: 0, g: 0, b: 0, a: 1 };

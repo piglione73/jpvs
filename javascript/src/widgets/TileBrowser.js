@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: TileBrowser
-Depends: core
-*/
-
 (function () {
 
     jpvs.TileBrowser = function (selector) {

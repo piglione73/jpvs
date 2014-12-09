@@ -1,4 +1,6 @@
-build
+build/*.min.js
+node_modules/
+bower_components/
 *.suo
 *.user
 

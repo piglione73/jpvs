@@ -1,9 +1,3 @@
-/* JPVS
-Module: utils
-Classes: 
-Depends: core
-*/
-
 (function () {
 
     jpvs.addGestureListener = function (element, params, onGesture) {

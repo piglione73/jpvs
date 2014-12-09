@@ -1,12 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: Menu
-Depends: core, Table
-*/
-
-/// <reference path="../../libs/jquery-1.7.2.js" />
-/// <reference path="../../docs/jpvs-doc.js" />
-
 (function () {
 
     //Keep track of all menus

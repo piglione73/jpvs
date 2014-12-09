@@ -1,9 +1,3 @@
-/* JPVS
-Module: widgets
-Classes: DropDownList
-Depends: core
-*/
-
 jpvs.DropDownList = function (selector) {
     this.attach(selector);
 

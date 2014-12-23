@@ -111,7 +111,8 @@
                         f[0].rotateTracker = rotateTracker;
                         f[1].rotateTracker = rotateTracker;
                     }
-                    else if (Math.abs(deltaLength) > params.tapMaxDistance) {
+
+                    if (Math.abs(deltaLength) > params.tapMaxDistance) {
                         //The two fingers are zooming (and will be until removed)
                         f[0].zooming = true;
                         f[1].zooming = true;
@@ -230,7 +231,8 @@
 
                             onGesture(evt);
                         }
-                        else if (finger.zooming) {
+
+                        if (finger.zooming) {
                             //End of zoom
                             var evt = {
                                 target1: finger.zoomTracker.target1,
@@ -246,7 +248,8 @@
 
                             onGesture(evt);
                         }
-                        else if (finger.dragging) {
+
+                        if (finger.dragging) {
                             //End of drag
                             var evt = {
                                 target: finger.start.target,
@@ -262,7 +265,8 @@
 
                             onGesture(evt);
                         }
-                        else {
+
+                        if (!finger.rotating && !finger.zooming && !finger.dragging) {
                             //Let's see if it was a tap (short/long)
                             if (te.touches.length == 0) {
                                 var dx = finger.current.clientX - finger.start.clientX;

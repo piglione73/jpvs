@@ -69,7 +69,21 @@
                             dragX: f[0].current.clientX - f[0].previous.clientX,
                             dragY: f[0].current.clientY - f[0].previous.clientY,
                             totalDragX: f[0].current.clientX - f[0].start.clientX,
-                            totalDragY: f[0].current.clientY - f[0].start.clientY
+                            totalDragY: f[0].current.clientY - f[0].start.clientY,
+
+                            current: {
+                                clientX: f[0].current.clientX,
+                                clientY: f[0].current.clientY,
+                                pageX: f[0].current.pageX,
+                                pageY: f[0].current.pageY
+                            },
+
+                            start: {
+                                clientX: f[0].start.clientX,
+                                clientY: f[0].start.clientY,
+                                pageX: f[0].start.pageX,
+                                pageY: f[0].start.pageY
+                            }
                         };
 
                         evt.toString = function () {
@@ -130,7 +144,35 @@
                             target2: f[1].start.target,
                             isRotate: true,
                             angle: segmentAngle - previousSegmentAngle,
-                            totalAngle: segmentAngle - initialSegmentAngle
+                            totalAngle: segmentAngle - initialSegmentAngle,
+
+                            current1: {
+                                clientX: f[0].current.clientX,
+                                clientY: f[0].current.clientY,
+                                pageX: f[0].current.pageX,
+                                pageY: f[0].current.pageY
+                            },
+
+                            start1: {
+                                clientX: f[0].start.clientX,
+                                clientY: f[0].start.clientY,
+                                pageX: f[0].start.pageX,
+                                pageY: f[0].start.pageY
+                            },
+
+                            current2: {
+                                clientX: f[1].current.clientX,
+                                clientY: f[1].current.clientY,
+                                pageX: f[1].current.pageX,
+                                pageY: f[1].current.pageY
+                            },
+
+                            start2: {
+                                clientX: f[1].start.clientX,
+                                clientY: f[1].start.clientY,
+                                pageX: f[1].start.pageX,
+                                pageY: f[1].start.pageY
+                            }
                         };
 
                         evt.toString = function () {
@@ -141,6 +183,10 @@
                         f[0].rotateTracker.totalAngle = evt.totalAngle;
                         f[0].rotateTracker.target1 = evt.target1;
                         f[0].rotateTracker.target2 = evt.target2;
+                        f[0].rotateTracker.start1 = evt.start1;
+                        f[0].rotateTracker.start2 = evt.start2;
+                        f[0].rotateTracker.current1 = evt.current1;
+                        f[0].rotateTracker.current2 = evt.current2;
 
                         onGesture(evt);
                     }
@@ -152,7 +198,35 @@
                             target2: f[1].start.target,
                             isZoom: true,
                             zoomFactor: segmentLength / previousSegmentLength,
-                            totalZoomFactor: segmentLength / initialSegmentLength
+                            totalZoomFactor: segmentLength / initialSegmentLength,
+
+                            current1: {
+                                clientX: f[0].current.clientX,
+                                clientY: f[0].current.clientY,
+                                pageX: f[0].current.pageX,
+                                pageY: f[0].current.pageY
+                            },
+
+                            start1: {
+                                clientX: f[0].start.clientX,
+                                clientY: f[0].start.clientY,
+                                pageX: f[0].start.pageX,
+                                pageY: f[0].start.pageY
+                            },
+
+                            current2: {
+                                clientX: f[1].current.clientX,
+                                clientY: f[1].current.clientY,
+                                pageX: f[1].current.pageX,
+                                pageY: f[1].current.pageY
+                            },
+
+                            start2: {
+                                clientX: f[1].start.clientX,
+                                clientY: f[1].start.clientY,
+                                pageX: f[1].start.pageX,
+                                pageY: f[1].start.pageY
+                            }
                         };
 
                         evt.toString = function () {
@@ -163,6 +237,10 @@
                         f[0].zoomTracker.totalZoomFactor = evt.totalZoomFactor;
                         f[0].zoomTracker.target1 = evt.target1;
                         f[0].zoomTracker.target2 = evt.target2;
+                        f[0].zoomTracker.start1 = evt.start1;
+                        f[0].zoomTracker.start2 = evt.start2;
+                        f[0].zoomTracker.current1 = evt.current1;
+                        f[0].zoomTracker.current2 = evt.current2;
 
                         onGesture(evt);
                     }
@@ -183,13 +261,17 @@
                                 target: touch.target,
                                 time: now,
                                 clientX: touch.clientX,
-                                clientY: touch.clientY
+                                clientY: touch.clientY,
+                                pageX: touch.pageX,
+                                pageY: touch.pageY
                             },
                             current: {
                                 target: touch.target,
                                 time: now,
                                 clientX: touch.clientX,
-                                clientY: touch.clientY
+                                clientY: touch.clientY,
+                                pageX: touch.pageX,
+                                pageY: touch.pageY
                             }
                         };
 
@@ -204,7 +286,9 @@
                         target: touch.target,
                         time: now,
                         clientX: touch.clientX,
-                        clientY: touch.clientY
+                        clientY: touch.clientY,
+                        pageX: touch.pageX,
+                        pageY: touch.pageY
                     };
                 }
 
@@ -222,7 +306,12 @@
                                 target2: finger.rotateTracker.target2,
                                 isRotate: false,
                                 isEndRotate: true,
-                                totalAngle: finger.rotateTracker.totalAngle
+                                totalAngle: finger.rotateTracker.totalAngle,
+
+                                start1: finger.rotateTracker.start1,
+                                start2: finger.rotateTracker.start2,
+                                current1: finger.rotateTracker.current1,
+                                current2: finger.rotateTracker.current2
                             };
 
                             evt.toString = function () {
@@ -239,7 +328,12 @@
                                 target2: finger.zoomTracker.target2,
                                 isZoom: false,
                                 isEndZoom: true,
-                                totalZoomFactor: finger.zoomTracker.totalZoomFactor
+                                totalZoomFactor: finger.zoomTracker.totalZoomFactor,
+
+                                start1: finger.zoomTracker.start1,
+                                start2: finger.zoomTracker.start2,
+                                current1: finger.zoomTracker.current1,
+                                current2: finger.zoomTracker.current2
                             };
 
                             evt.toString = function () {
@@ -256,7 +350,21 @@
                                 isDrag: false,
                                 isEndDrag: true,
                                 totalDragX: finger.current.clientX - finger.start.clientX,
-                                totalDragY: finger.current.clientY - finger.start.clientY
+                                totalDragY: finger.current.clientY - finger.start.clientY,
+
+                                current: {
+                                    clientX: finger.current.clientX,
+                                    clientY: finger.current.clientY,
+                                    pageX: finger.current.pageX,
+                                    pageY: finger.current.pageY
+                                },
+
+                                start: {
+                                    clientX: finger.start.clientX,
+                                    clientY: finger.start.clientY,
+                                    pageX: finger.start.pageX,
+                                    pageY: finger.start.pageY
+                                }
                             };
 
                             evt.toString = function () {
@@ -279,7 +387,12 @@
                                     var evt = {
                                         target: finger.start.target,
                                         isTap: true,
-                                        isLongTap: dt >= params.longTapThreshold
+                                        isLongTap: dt >= params.longTapThreshold,
+
+                                        clientX: finger.start.clientX,
+                                        clientY: finger.start.clientY,
+                                        pageX: finger.start.pageX,
+                                        pageY: finger.start.pageY
                                     };
 
                                     //Let's see if it's a double-tap

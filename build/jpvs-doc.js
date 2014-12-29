@@ -521,16 +521,16 @@ jpvs.addGestureListener = function (element, params, onGesture) {
     /// The event listener function. Signature: function onGesture(e) {}.
     /// The "e" argument is the gesture event object and carries information about the touch gesture.
     ///
-    /// Gesture: TAP; the event object is { isTap: true, isLongTap: true/false, isDoubleTap: true or missing, target: ... }
+    /// Gesture: TAP; the event object is { isTap: true, isLongTap: true/false, isDoubleTap: true or missing, target: ..., clientX: ..., clientY: ..., pageX: ..., pageY: ... }
     ///
-    /// Gesture: DRAG; the event object is { isDrag: true, dragX: ..., dragY: ..., totalDragX: ..., totalDragY: ..., target: ... }.
-    /// Gesture END of DRAG; the event object is { isDrag: false, isEndDrag: true, totalDragX: ..., totalDragY: ..., target: ... }.
+    /// Gesture: DRAG; the event object is { isDrag: true, dragX: ..., dragY: ..., totalDragX: ..., totalDragY: ..., target: ..., current: { clientX: ..., clientY: ..., pageX: ..., pageY: ... }, start: { clientX: ..., clientY: ..., pageX: ..., pageY: ... } }.
+    /// Gesture END of DRAG; the event object is { isDrag: false, isEndDrag: true, totalDragX: ..., totalDragY: ..., target: ..., current: { clientX: ..., clientY: ..., pageX: ..., pageY: ... }, start: { clientX: ..., clientY: ..., pageX: ..., pageY: ... } }.
     ///
-    /// Gesture: ROTATE; the event object is { isRotate: true, angle: ..., totalAngle: ..., target1: ..., target2: ... }.
-    /// Gesture: END of ROTATE; the event object is { isRotate: false, isEndRotate: true, totalAngle: ..., target1: ..., target2: ... }.
+    /// Gesture: ROTATE; the event object is { isRotate: true, angle: ..., totalAngle: ..., target1: ..., target2: ..., start1: {...}, start2: {...}, current1: {...}, current2: {...} }.
+    /// Gesture: END of ROTATE; the event object is { isRotate: false, isEndRotate: true, totalAngle: ..., target1: ..., target2: ..., start1: {...}, start2: {...}, current1: {...}, current2: {...} }.
     ///
-    /// Gesture: ZOOM; the event object is { isZoom: true, zoomFactor: ..., totalZoomFactor: ..., target1: ..., target2: ... }.
-    /// Gesture: END of ZOOM; the event object is { isZoom: false, isEndZoom: true, totalZoomFactor: ..., target1: ..., target2: ... }.
+    /// Gesture: ZOOM; the event object is { isZoom: true, zoomFactor: ..., totalZoomFactor: ..., target1: ..., target2: ..., start1: {...}, start2: {...}, current1: {...}, current2: {...} }.
+    /// Gesture: END of ZOOM; the event object is { isZoom: false, isEndZoom: true, totalZoomFactor: ..., target1: ..., target2: ..., start1: {...}, start2: {...}, current1: {...}, current2: {...} }.
     ///
     /// Values dragX and dragY contain the amount of drag since the last onGesture call. Values totalDragX and totalDragY contain the total
     /// amount of drag since the start of the current drag gesture.
@@ -539,6 +539,12 @@ jpvs.addGestureListener = function (element, params, onGesture) {
     ///
     /// The target field contains the DOM element where the gesture occurred/started.
     /// In case the gesture involves two touches, target1/target2 contain the DOM element(s) where the gesture started.
+    ///
+    /// Values in property "current" (clientX, clientY, pageX, pageY) contain the coordinates of the last occurred touch event. 
+    /// In case of drag, there is also a "start" property that contains the clientX, clientY, pageX, pageY values of the first event in the 
+    /// drag sequence.
+    ///
+    /// For zoom/rotate, we have current1/current2 and start1/start2.
     /// </param>
 };
 ;

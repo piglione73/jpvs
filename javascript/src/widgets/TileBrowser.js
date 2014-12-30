@@ -568,9 +568,6 @@
                     //Refresh with an animation
                     ensureAnimation(W);
                 }
-
-                //Stop propagation, because we are handling the touch drag here
-                return false;
             }
             else if (e.isZoom) {
                 //Zoom as specified
@@ -578,9 +575,6 @@
 
                 //Refresh with an animation
                 ensureAnimation(W);
-
-                //Stop propagation, because we are handling the touch zooming here
-                return false;
             }
             else if (e.isTap) {
                 //If the user taps a button in the .Buttons div, then let's forward a click to it
@@ -594,23 +588,14 @@
                         clickedElem.click();
                         clickedElem.click();
                     }
-
-                    //Stop propagation, because we are handling the tapping here
-                    return false;
                 }
                 else {
-                    //The tap might be on a tile, and we choose not to handle it here. We let it bubble up and be emulated by the browser 
-                    //as a mouse click, so it will already be handled in the onClick event
-                    //So, DON'T stop propagation. We are not interested in long/double taps though. We only suppress those.
-                    if (e.isLongTap || e.isDoubleTap)
-                        return false;
-                    else
-                        return true;
+                    //Find the touched tileObject (it might be the touch.target or a parent, depending on where the touch happened)
+                    var tile = $(e.target).closest(".Tile");
+                    var tileObject = tile && tile.length && tile.data("tileObject");
+                    if (tileObject)
+                        return W.tileClick.fire(W, null, tileObject, null);     //We have no browser event to forward here
                 }
-            }
-            else {
-                //On end drag/end zoom/rotate, we ignore the events and suppress propagation also
-                return false;
             }
         };
     }

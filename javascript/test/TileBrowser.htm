@@ -39,6 +39,7 @@
     <script type="text/javascript" src="../src/widgets/DataGrid.js"></script>
     <script type="text/javascript" src="../src/widgets/Menu.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DropDownList.js"></script>
     <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
     <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
     <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
@@ -81,6 +82,10 @@
                 alert("Tile from linkbutton " + dataItem.tileObject.N);
                 return false;
             });
+            jpvs.writeln(this);
+            jpvs.TextBox.create(this).text("Hello");
+            jpvs.writeln(this);
+            jpvs.DropDownList.create(this).addItems(["One", "Two", "Threee"]);
         };
 
         jpvs(function (w) {

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta name="viewport" content="width=device-width, height=device-height">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
     <title>TouchGestures</title>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
@@ -11,20 +11,28 @@
     <script type="text/javascript" src="../src/TouchGestures.js"></script>
     <script type="text/javascript">
         jpvs(function () {
+            $("#div1").click(function () {
+                write("Click!!!");
+            });
+
             jpvs.addGestureListener("#div1", null, onGesture1);
             jpvs.addGestureListener("#div2", null, onGesture2);
 
+            function write(msg) {
+                var x = document.getElementById("div1");
+                x.insertBefore(document.createElement("br"), x.childNodes[0]);
+                x.insertBefore(document.createTextNode(msg), x.childNodes[0]);
+            }
+
             function onGesture1(e) {
-                jpvs.writeln("#div1", e.toString());
+                write(e.toString());
+                return false;
             }
 
             function onGesture2(e) {
-                jpvs.writeln("#div1", e.toString());
+                write(e.toString());
 
-                if (e.isEndDrag) {
-                    alert("End of drag");
-                }
-                else if (e.isDrag) {
+                if (e.isDrag) {
                     var elem = $("#div2");
                     var coords = elem.offset();
                     coords.top += e.dragY;
@@ -34,9 +42,6 @@
                         top: coords.top + "px",
                         left: coords.left + "px"
                     });
-                }
-                else if (e.isEndZoom) {
-                    alert("End of zoom");
                 }
                 else if (e.isZoom) {
                     var elem = $("#div2");
@@ -58,9 +63,6 @@
                         backgroundColor: "#ff0"
                     });
                 }
-                else if (e.isEndRotate) {
-                    alert("End of rotation");
-                }
                 else if (e.isRotate) {
                     var elem = $("#div2");
                     var angle = elem.data("angle") || 0;
@@ -71,6 +73,8 @@
                         transform: "rotate(" + angle + "rad)"
                     });
                 }
+
+                return false;
             }
         });
     </script>

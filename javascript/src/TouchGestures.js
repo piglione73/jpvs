@@ -30,29 +30,21 @@
             //Get the touch event from the jQuery event
             var te = e.originalEvent;
 
-            //Variable for tracking whether the onGesture function wants to block propagation/default behavior
-            var blockPropagation = false;
-
             //Let's track fingers
             trackFingers();
 
             //Now that we have the up-to-date finger situation, let's try to identify gestures
             identifyGestures();
 
-            //Block propagation/default behavior if the onGesture function returned false
-            if (blockPropagation) {
-                e.stopPropagation();
-                e.preventDefault();
-                return false;
-            }
+            //Block propagation/default behavior
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
 
             //Utilities
             function callOnGesture(evt) {
-                if (onGesture) {
-                    //If onGesture returns exactly "false", then we wish to block propagation/prevent default behavior
-                    if (onGesture(evt) === false)
-                        blockPropagation = true;
-                }
+                if (onGesture)
+                    onGesture(evt);
             }
 
             function identifyGestures() {

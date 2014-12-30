@@ -30,18 +30,31 @@
             //Get the touch event from the jQuery event
             var te = e.originalEvent;
 
+            //Variable for tracking whether the onGesture function wants to block propagation/default behavior
+            var blockPropagation = false;
+
             //Let's track fingers
             trackFingers();
 
             //Now that we have the up-to-date finger situation, let's try to identify gestures
             identifyGestures();
 
-            //We are handling touch, so we don't want the default behavior
-            e.stopPropagation();
-            e.preventDefault();
-            return false;
+            //Block propagation/default behavior if the onGesture function returned false
+            if (blockPropagation) {
+                e.stopPropagation();
+                e.preventDefault();
+                return false;
+            }
 
             //Utilities
+            function callOnGesture(evt) {
+                if (onGesture) {
+                    //If onGesture returns exactly "false", then we wish to block propagation/prevent default behavior
+                    if (onGesture(evt) === false)
+                        blockPropagation = true;
+                }
+            }
+
             function identifyGestures() {
                 //Convert fingers to array
                 var f = [];
@@ -90,7 +103,7 @@
                             return "Drag: " + this.dragX + "; " + this.dragY + " - Total drag: " + this.totalDragX + "; " + this.totalDragY;
                         };
 
-                        onGesture(evt);
+                        callOnGesture(evt);
                     }
                 }
                 else if (f.length == 2) {
@@ -188,7 +201,7 @@
                         f[0].rotateTracker.current1 = evt.current1;
                         f[0].rotateTracker.current2 = evt.current2;
 
-                        onGesture(evt);
+                        callOnGesture(evt);
                     }
 
                     //If zooming, then fire event
@@ -242,7 +255,7 @@
                         f[0].zoomTracker.current1 = evt.current1;
                         f[0].zoomTracker.current2 = evt.current2;
 
-                        onGesture(evt);
+                        callOnGesture(evt);
                     }
                 }
             }
@@ -318,7 +331,7 @@
                                 return "End of rotation: total angle " + this.totalAngle;
                             };
 
-                            onGesture(evt);
+                            callOnGesture(evt);
                         }
 
                         if (finger.zooming) {
@@ -340,7 +353,7 @@
                                 return "End of zoom: total factor " + this.totalZoomFactor;
                             };
 
-                            onGesture(evt);
+                            callOnGesture(evt);
                         }
 
                         if (finger.dragging) {
@@ -371,7 +384,7 @@
                                 return "End of drag";
                             };
 
-                            onGesture(evt);
+                            callOnGesture(evt);
                         }
 
                         if (!finger.rotating && !finger.zooming && !finger.dragging) {
@@ -432,7 +445,7 @@
                                         return "Tap: " + (this.isLongTap ? "long" : "short") + " - " + (this.isDoubleTap ? "double" : "simple");
                                     };
 
-                                    onGesture(evt);
+                                    callOnGesture(evt);
                                 }
                             }
                         }

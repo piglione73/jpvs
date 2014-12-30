@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">    
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
     <title>TileBrowser</title>
     <style type="text/css">
         body
@@ -42,6 +42,7 @@
     <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
     <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
     <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript" src="../src/widgets/TileBrowser.js"></script>
     <script type="text/javascript">
@@ -74,6 +75,11 @@
         MyTile.prototype.template = function (dataItem) {
             jpvs.writeTag(this, "span", dataItem.tileObject.N.toString()).css({
                 "font-size": (dataItem.tileBrowser.tileWidth() / 2) + "px"
+            });
+            jpvs.writeln(this);
+            jpvs.LinkButton.create(this).text("Click me").click(function () {
+                alert("Tile from linkbutton " + dataItem.tileObject.N);
+                return false;
             });
         };
 

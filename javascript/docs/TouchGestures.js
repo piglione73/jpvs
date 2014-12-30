@@ -18,6 +18,8 @@ jpvs.addGestureListener = function (element, params, onGesture) {
     /// <param name="onGesture" type="Function">
     /// The event listener function. Signature: function onGesture(e) {}.
     /// The "e" argument is the gesture event object and carries information about the touch gesture.
+    /// If the function returns false, then event propagation is suppressed. For any other return value (or for no return value at all), event
+    /// propagation is not suppressed.
     ///
     /// Gesture: TAP; the event object is { isTap: true, isLongTap: true/false, isDoubleTap: true or missing, target: ..., clientX: ..., clientY: ..., pageX: ..., pageY: ... }
     ///

@@ -2296,18 +2296,31 @@ jpvs.Resources = {
             //Get the touch event from the jQuery event
             var te = e.originalEvent;
 
+            //Variable for tracking whether the onGesture function wants to block propagation/default behavior
+            var blockPropagation = false;
+
             //Let's track fingers
             trackFingers();
 
             //Now that we have the up-to-date finger situation, let's try to identify gestures
             identifyGestures();
 
-            //We are handling touch, so we don't want the default behavior
-            e.stopPropagation();
-            e.preventDefault();
-            return false;
+            //Block propagation/default behavior if the onGesture function returned false
+            if (blockPropagation) {
+                e.stopPropagation();
+                e.preventDefault();
+                return false;
+            }
 
             //Utilities
+            function callOnGesture(evt) {
+                if (onGesture) {
+                    //If onGesture returns exactly "false", then we wish to block propagation/prevent default behavior
+                    if (onGesture(evt) === false)
+                        blockPropagation = true;
+                }
+            }
+
             function identifyGestures() {
                 //Convert fingers to array
                 var f = [];
@@ -2356,7 +2369,7 @@ jpvs.Resources = {
                             return "Drag: " + this.dragX + "; " + this.dragY + " - Total drag: " + this.totalDragX + "; " + this.totalDragY;
                         };
 
-                        onGesture(evt);
+                        callOnGesture(evt);
                     }
                 }
                 else if (f.length == 2) {
@@ -2454,7 +2467,7 @@ jpvs.Resources = {
                         f[0].rotateTracker.current1 = evt.current1;
                         f[0].rotateTracker.current2 = evt.current2;
 
-                        onGesture(evt);
+                        callOnGesture(evt);
                     }
 
                     //If zooming, then fire event
@@ -2508,7 +2521,7 @@ jpvs.Resources = {
                         f[0].zoomTracker.current1 = evt.current1;
                         f[0].zoomTracker.current2 = evt.current2;
 
-                        onGesture(evt);
+                        callOnGesture(evt);
                     }
                 }
             }
@@ -2584,7 +2597,7 @@ jpvs.Resources = {
                                 return "End of rotation: total angle " + this.totalAngle;
                             };
 
-                            onGesture(evt);
+                            callOnGesture(evt);
                         }
 
                         if (finger.zooming) {
@@ -2606,7 +2619,7 @@ jpvs.Resources = {
                                 return "End of zoom: total factor " + this.totalZoomFactor;
                             };
 
-                            onGesture(evt);
+                            callOnGesture(evt);
                         }
 
                         if (finger.dragging) {
@@ -2637,7 +2650,7 @@ jpvs.Resources = {
                                 return "End of drag";
                             };
 
-                            onGesture(evt);
+                            callOnGesture(evt);
                         }
 
                         if (!finger.rotating && !finger.zooming && !finger.dragging) {
@@ -2698,7 +2711,7 @@ jpvs.Resources = {
                                         return "Tap: " + (this.isLongTap ? "long" : "short") + " - " + (this.isDoubleTap ? "double" : "simple");
                                     };
 
-                                    onGesture(evt);
+                                    callOnGesture(evt);
                                 }
                             }
                         }
@@ -9888,6 +9901,9 @@ jpvs.makeWidget({
                     //Refresh with an animation
                     ensureAnimation(W);
                 }
+
+                //Stop propagation, because we are handling the touch drag here
+                return false;
             }
             else if (e.isZoom) {
                 //Zoom as specified
@@ -9895,6 +9911,9 @@ jpvs.makeWidget({
 
                 //Refresh with an animation
                 ensureAnimation(W);
+
+                //Stop propagation, because we are handling the touch zooming here
+                return false;
             }
             else if (e.isTap) {
                 //If the user taps a button in the .Buttons div, then let's forward a click to it
@@ -9908,13 +9927,18 @@ jpvs.makeWidget({
                         clickedElem.click();
                         clickedElem.click();
                     }
+
+                    //Stop propagation, because we are handling the tapping here
+                    return false;
                 }
                 else {
-                    //Find the touched tileObject (it might be the touch.target or a parent, depending on where the touch happened)
-                    var tile = $(e.target).closest(".Tile");
-                    var tileObject = tile && tile.length && tile.data("tileObject");
-                    if (tileObject)
-                        return W.tileClick.fire(W, null, tileObject, null);     //We have no browser event to forward here
+                    //The tap might be on a tile, and we choose not to handle it here. We let it bubble up and be emulated by the browser 
+                    //as a mouse click, so it will already be handled in the onClick event
+                    //So, DON'T stop propagation. We are not interested in long/double taps though. We only suppress those.
+                    if (e.isLongTap || e.isDoubleTap)
+                        return false;
+                    else
+                        return true;
                 }
             }
         };

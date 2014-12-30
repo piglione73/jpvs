@@ -23,7 +23,7 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "~2.1.1",
-    "jqueryui": "~1.11.2"
+    "jquery": "*",
+    "jqueryui": "*"
   }
 }

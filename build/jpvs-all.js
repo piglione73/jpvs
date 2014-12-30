@@ -9941,6 +9941,10 @@ jpvs.makeWidget({
                         return true;
                 }
             }
+            else {
+                //On end drag/end zoom/rotate, we ignore the events and suppress propagation also
+                return false;
+            }
         };
     }
 

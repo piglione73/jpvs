@@ -2274,6 +2274,11 @@ jpvs.Resources = {
         params.doubleTapThreshold = params.doubleTapThreshold || 250;
         params.rotationThreshold = params.rotationThreshold || (10 * Math.PI / 180);     //10deg
 
+        params.allowedEventTargets = params.allowedEventTargets || function (target) {
+            var tagName = target.nodeName.toLowerCase();
+            return tagName != "a" && tagName != "select" && tagName != "input" && tagName != "button";
+        };
+
         //This line allows us to accept DOM elements, jQuery objects AND jpvs widgets
         element = jpvs.getElementIfWidget(element);
 
@@ -2291,13 +2296,15 @@ jpvs.Resources = {
 
 
         function onTouch(e) {
-            var now = new Date().getTime();
-
             //Get the touch event from the jQuery event
             var te = e.originalEvent;
 
-            //Variable for tracking whether the onGesture function wants to block propagation/default behavior
-            var blockPropagation = false;
+            //We want to work on allowed target only. On not allowed targets we simply ignore the event, as if we didn't even attach an event handler
+            if (!params.allowedEventTargets(te.target))
+                return;
+
+            //Event timestamp
+            var now = new Date().getTime();
 
             //Let's track fingers
             trackFingers();
@@ -2305,20 +2312,15 @@ jpvs.Resources = {
             //Now that we have the up-to-date finger situation, let's try to identify gestures
             identifyGestures();
 
-            //Block propagation/default behavior if the onGesture function returned false
-            if (blockPropagation) {
-                e.stopPropagation();
-                e.preventDefault();
-                return false;
-            }
+            //Block propagation/default behavior
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
 
             //Utilities
             function callOnGesture(evt) {
-                if (onGesture) {
-                    //If onGesture returns exactly "false", then we wish to block propagation/prevent default behavior
-                    if (onGesture(evt) === false)
-                        blockPropagation = true;
-                }
+                if (onGesture)
+                    onGesture(evt);
             }
 
             function identifyGestures() {
@@ -9901,9 +9903,6 @@ jpvs.makeWidget({
                     //Refresh with an animation
                     ensureAnimation(W);
                 }
-
-                //Stop propagation, because we are handling the touch drag here
-                return false;
             }
             else if (e.isZoom) {
                 //Zoom as specified
@@ -9911,9 +9910,6 @@ jpvs.makeWidget({
 
                 //Refresh with an animation
                 ensureAnimation(W);
-
-                //Stop propagation, because we are handling the touch zooming here
-                return false;
             }
             else if (e.isTap) {
                 //If the user taps a button in the .Buttons div, then let's forward a click to it
@@ -9927,23 +9923,14 @@ jpvs.makeWidget({
                         clickedElem.click();
                         clickedElem.click();
                     }
-
-                    //Stop propagation, because we are handling the tapping here
-                    return false;
                 }
                 else {
-                    //The tap might be on a tile, and we choose not to handle it here. We let it bubble up and be emulated by the browser 
-                    //as a mouse click, so it will already be handled in the onClick event
-                    //So, DON'T stop propagation. We are not interested in long/double taps though. We only suppress those.
-                    if (e.isLongTap || e.isDoubleTap)
-                        return false;
-                    else
-                        return true;
+                    //Find the touched tileObject (it might be the touch.target or a parent, depending on where the touch happened)
+                    var tile = $(e.target).closest(".Tile");
+                    var tileObject = tile && tile.length && tile.data("tileObject");
+                    if (tileObject)
+                        return W.tileClick.fire(W, null, tileObject, null);     //We have no browser event to forward here
                 }
-            }
-            else {
-                //On end drag/end zoom/rotate, we ignore the events and suppress propagation also
-                return false;
             }
         };
     }

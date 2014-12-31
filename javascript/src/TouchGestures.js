@@ -8,6 +8,11 @@
         params.doubleTapThreshold = params.doubleTapThreshold || 250;
         params.rotationThreshold = params.rotationThreshold || (10 * Math.PI / 180);     //10deg
 
+        params.allowedEventTargets = params.allowedEventTargets || function (target) {
+            var tagName = target.nodeName.toLowerCase();
+            return tagName != "a" && tagName != "select" && tagName != "input" && tagName != "button";
+        };
+
         //This line allows us to accept DOM elements, jQuery objects AND jpvs widgets
         element = jpvs.getElementIfWidget(element);
 
@@ -25,10 +30,15 @@
 
 
         function onTouch(e) {
-            var now = new Date().getTime();
-
             //Get the touch event from the jQuery event
             var te = e.originalEvent;
+
+            //We want to work on allowed target only. On not allowed targets we simply ignore the event, as if we didn't even attach an event handler
+            if (!params.allowedEventTargets(te.target))
+                return;
+
+            //Event timestamp
+            var now = new Date().getTime();
 
             //Let's track fingers
             trackFingers();

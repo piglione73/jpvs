@@ -79,13 +79,29 @@
             });
             jpvs.writeln(this);
             jpvs.LinkButton.create(this).text("Click me").click(function () {
-                alert("Tile from linkbutton " + dataItem.tileObject.N);
+                dataItem.tileObject.showAlert("Tile from linkbutton " + dataItem.tileObject.N);
                 return false;
             });
             jpvs.writeln(this);
             jpvs.TextBox.create(this).text("Hello");
             jpvs.writeln(this);
-            jpvs.DropDownList.create(this).addItems(["One", "Two", "Threee"]);
+            jpvs.DropDownList.create(this).addItems(["One", "Two", "Three"]);
+        };
+
+        MyTile.prototype.showAlert = function (msg) {
+            var tile = this.jpvsTileBrowserInfo.tile;
+            var div = jpvs.writeTag(tile, "div", msg).css({
+                position: "absolute",
+                top: "3pt",
+                left: "3pt",
+                right: "3pt",
+                "text-align": "center",
+                color: "red",
+                "background-color": "rgba(0,0,0,0.3)",
+                border: "1px solid #000"
+            });
+
+            setTimeout(function () { div.remove(); }, 1000);
         };
 
         jpvs(function (w) {
@@ -94,7 +110,7 @@
             w.tb.startingTile(tileZero);
             w.tb.refresh(true);
             w.tb.tileClick(function (tileObject) {
-                alert("Clicked tile: " + tileObject.N);
+                tileObject.showAlert("Clicked tile: " + tileObject.N);
             });
         });
     </script>

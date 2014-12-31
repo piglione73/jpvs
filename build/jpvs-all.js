@@ -2275,8 +2275,10 @@ jpvs.Resources = {
         params.rotationThreshold = params.rotationThreshold || (10 * Math.PI / 180);     //10deg
 
         params.allowedEventTargets = params.allowedEventTargets || function (target) {
-            var tagName = target.nodeName.toLowerCase();
-            return tagName != "a" && tagName != "select" && tagName != "input" && tagName != "button";
+            //Elements A, INPUT, SELECT, BUTTON are not allowed
+            //Elements decorated with class "jpvs-Ignore-Touch" are not allowed
+            //Also, any descendant of any of the above is not allowed
+            return !$(target).is("a, a *, select, select *, input, input *, button, button *, .jpvs-Ignore-Touch, .jpvs-Ignore-Touch *");
         };
 
         //This line allows us to accept DOM elements, jQuery objects AND jpvs widgets

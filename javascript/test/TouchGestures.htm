@@ -11,8 +11,8 @@
     <script type="text/javascript" src="../src/TouchGestures.js"></script>
     <script type="text/javascript">
         jpvs(function () {
-            $("#div1").click(function () {
-                write("Click!!!");
+            $("body").click(function (e) {
+                write("Click!!!" + e.target.innerText);
             });
 
             jpvs.addGestureListener("#div1", null, onGesture1);
@@ -85,6 +85,12 @@
     </div>
     <div id="div2" style="position: fixed; top: 200px; left: 200px; width: 200px; height: 200px;
         border: 1px solid black">
+        <div class="jpvs-Ignore-Touch" style="border:1px solid #000; margin:5pt; padding:5pt">
+            XXXXXXXXX
+            <div style="border:1px solid #000; margin:5pt; padding:5pt">
+                YYYYYYY
+            </div>
+        </div>
     </div>
 </body>
 </html>

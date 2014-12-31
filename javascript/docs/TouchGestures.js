@@ -14,7 +14,7 @@ jpvs.addGestureListener = function (element, params, onGesture) {
     /// longTapThreshold (minimum duration of a long tap; default: 500; unit: milliseconds),
     /// doubleTapThreshold (if a short tap is closer than this to the previous tap, then it is considered a double tap; default: 250; unit: milliseconds),
     /// rotationThreshold (when rotating two fingers, angle over which the gesture is considered a rotation; default: 10*PI/180 (equivalent to 10 degrees); unit: radians),
-    /// allowedEventTargets (function(eventTarget) { return true/false; }; when the function returns true, the touch event is handled and its propagation is stopped; when false, the touch event is ignored and is allowed to propagate up the DOM tree; default: a function that returns true on all elements whose tag name is not A, SELECT, INPUT, BUTTON)
+    /// allowedEventTargets (function(eventTarget) { return true/false; }; when the function returns true, the touch event is handled and its propagation is stopped; when false, the touch event is ignored and is allowed to propagate up the DOM tree; default: a function that returns true out of A, SELECT, INPUT, BUTTON and elements decorated with class "jpvs-Ignore-Touch")
     /// </param>
     /// <param name="onGesture" type="Function">
     /// The event listener function. Signature: function onGesture(e) {}.

@@ -1,17 +1,17 @@
-jpvs.TextBox = function (selector) {
+jpvs.PasswordBox = function (selector) {
     this.attach(selector);
 
     this.change = jpvs.event(this);
 };
 
 jpvs.makeWidget({
-    widget: jpvs.TextBox,
-    type: "TextBox",
-    cssClass: "TextBox",
+    widget: jpvs.PasswordBox,
+    type: "PasswordBox",
+    cssClass: "PasswordBox",
 
     create: function (container) {
         var obj = document.createElement("input");
-        $(obj).attr("type", "text");
+        $(obj).attr("type", "password");
         $(container).append(obj);
         return obj;
     },
@@ -23,7 +23,7 @@ jpvs.makeWidget({
     },
 
     canAttachTo: function (obj) {
-        return $(obj).is("input[type=\"text\"]");
+        return $(obj).is("input[type=\"password\"]");
     },
 
     prototype: {

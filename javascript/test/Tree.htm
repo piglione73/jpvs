@@ -127,6 +127,10 @@
 
                     nodeElement.setMarkerIcon(nodeElement.node.marker);
                 }
+
+                //Change text
+                nodeElement.node.firstName += " - Changed";
+                nodeElement.refreshNode();
             }
 
             function onNodeRendered(nodeElement) {

@@ -16,7 +16,7 @@
             element.addClass("Node");
 
             //NodeElement object, carrying all the information
-            var nodeElement = new jpvs.Tree.NodeElement(node, element, refreshNodeState, selectNode);
+            var nodeElement = new jpvs.Tree.NodeElement(node, element, refreshNodeState, selectNode, refreshNodeInfo);
 
             //Image button with the state (open/closed/not-openable)
             jpvs.ImageButton.create(element).click(function () {
@@ -127,6 +127,18 @@
                 //Select this
                 this.element.find(".Text").addClass("Selected");
             }
+
+            //Function for refreshing the node (icon, text, ...)
+            //This function will run with this set to the current NodeElement
+            function refreshNodeInfo() {
+                var node = this.node;
+                var icon = this.element.find("img.Icon");
+                var text = this.element.find("span.Text");
+
+                icon.attr("src", node.icon);
+                text.text(node.toString());
+            }
+
         },
 
         StandardChildrenContainer: function (node) {
@@ -140,10 +152,11 @@
     };
 
 
-    jpvs.Tree.NodeElement = function (node, element, refreshStateFunc, selectNodeFunc) {
+    jpvs.Tree.NodeElement = function (node, element, refreshStateFunc, selectNodeFunc, refreshNodeFunc) {
         this.node = node;
         this.element = element;
         this.refreshState = refreshStateFunc;
+        this.refreshNode = refreshNodeFunc;
         this.select = selectNodeFunc;
 
         this.parentNodeElement = null;              //Attached during rendering
@@ -261,6 +274,11 @@
                 return this;
             },
 
+            refreshNode: function (nodeElement) {
+                refreshNode(this, nodeElement);
+                return this;
+            },
+
             refreshChildren: function (nodeElement, callback) {
                 refreshChildren(this, nodeElement, callback);
                 return this;
@@ -343,6 +361,11 @@
 
         //Return the nodeElement
         return nodeElement;
+    }
+
+    function refreshNode(W, nodeElement) {
+        nodeElement.refreshState();
+        nodeElement.refreshNode();
     }
 
     function refreshChildren(W, nodeElement, callback) {

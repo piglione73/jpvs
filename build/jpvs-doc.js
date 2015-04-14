@@ -1648,16 +1648,19 @@ jpvs.Tree.Templates = {
 };
 
 
-jpvs.Tree.NodeElement = function (node, element, refreshStateFunc, selectNodeFunc) {
+jpvs.Tree.NodeElement = function (node, element, refreshStateFunc, selectNodeFunc, refreshNodeFunc) {
     /// <summary>The node template returns an object of this type.</summary>
     /// <param name="node" type="Object">The node data item.</param>
     /// <param name="element" type="Object">The DOM element created by the node template.</param>
-    /// <param name="refreshStateFunc" type="Function">Function that refreshes the state of the element (icons, etc.) based on whether the node has children and/or is open/close. The function will receive "this" set to the current node element.</param>
+    /// <param name="refreshStateFunc" type="Function">Function that refreshes the state of the element (open/closed state and state icon) 
+    /// based on whether the node has children and/or is open/close. The function will receive "this" set to the current node element.</param>
     /// <param name="selectNodeFunc" type="Function">Function that selects the current node. The function will receive "this" set to the current node element.</param>
+    /// <param name="refreshNodeFunc" type="Function">Function that refreshes the current node. The function will receive "this" set to the current node element.</param>
     this.node = {};
     this.element = $();
     this.refreshState = function () { };
     this.select = function () { };
+    this.refreshNode = function () { };
 
     this.parentNodeElement = new jpvs.Tree.NodeElement();
     this.childrenContainerElement = new jpvs.Tree.ChildrenContainerElement();
@@ -1739,6 +1742,12 @@ jpvs.makeWidget({
             ///synchronous or asynchronous.</summary>
             ///<param name="data" type="Object">The datasource. It can be an array of nodes or a function. 
             ///See jpvs.readDataSource for details on how a datasource is expected to work.</param>
+        },
+
+        refreshNode: function (nodeElement) {
+            ///<summary>Refreshes a given NodeElement. Only the node is affected, not its children. Use this function after changing the text or
+            ///the icon. Use the refreshChildren function when you need to refresh the children nodes.</summary>
+            ///<param name="nodeElement" type="jpvs.Tree.NodeElement">Node element to be refreshed.</param>
         },
 
         refreshChildren: function (nodeElement, callback) {

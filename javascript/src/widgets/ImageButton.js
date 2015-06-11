@@ -11,6 +11,7 @@ jpvs.makeWidget({
 
     create: function (container) {
         var obj = document.createElement("img");
+		$(obj).attr("src", jpvs.Resources.images.empty16x16);		//IE8 bug: empty "src" triggers pointless request to server
         $(container).append(obj);
         return obj;
     },

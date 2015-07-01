@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>TextBox</title>
+    <link type="text/css" rel="Stylesheet" href="style/sunny/jquery-ui.css" />
+    <link type="text/css" rel="Stylesheet" href="style/sunny/jquery-ui-theme.css" />
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+            setTimeout(function () {
+                $("#pnlInvisibleTest").show();
+            }, 5000);
+        });
+    </script>
+</head>
+<body>
+    <input type="text" id="Text1" value="Normal textbox"/>
+    <input type="text" id="txtDate1" data-jpvs-type="DateBox" />
+    <div id="pnlInvisibleTest" style="display:none">
+        <input type="text" id="txtDate2" data-jpvs-type="DateBox" />
+    </div>
+</body>
+</html>

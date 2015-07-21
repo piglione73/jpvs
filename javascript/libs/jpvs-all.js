@@ -9413,12 +9413,15 @@ jpvs.makeWidget({
         if (this.persistColumnSizes())
             loadColSizesFromStorage(this.tableElement);
 
-        if (this.resizableColumns()) {
+        if (this.resizableColumns() && !this.eventsBound) {
             //Activate resizable visual cues on vertical grid lines
             activateResizeCursorOnVerticalLines(this.tableElement);
 
             //Handle cell border dragging
             handleCellBorderDragging(this);
+
+            //Mark events as bound, so a subsequent call of this method does not bind events again
+            this.eventsBound = true;
         }
     };
 

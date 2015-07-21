@@ -30,7 +30,8 @@ window.jpvs = window.jpvs || {};
     Extender.prototype.apply = function () {
         /// <summary>Activates this TableExtender. First, you must create the extender via the "create" function. Then,
         /// you must configure it through its properties (e.g.: resizableColumns, persistColumnSizes, ...). Finally,
-        /// you activate it by calling "apply".</summary>
+        /// you activate it by calling "apply". After modifying the set of columns, it is possible to call this method again
+        /// in order to reapply the extender to the table.</summary>
     };
 
 })();

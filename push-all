@@ -1,6 +1,0 @@
-git add .
-git commit -m "Misc"
-git pull
-git push
-git status
-

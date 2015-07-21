@@ -9391,6 +9391,8 @@ jpvs.makeWidget({
 
     function Extender(tableElement) {
         this.tableElement = tableElement;
+
+        this.afterResize = new jpvs.Event();
     }
 
     Extender.prototype.resizableColumns = jpvs.property({
@@ -9416,7 +9418,7 @@ jpvs.makeWidget({
             activateResizeCursorOnVerticalLines(this.tableElement);
 
             //Handle cell border dragging
-            handleCellBorderDragging(this.tableElement, this.persistColumnSizes());
+            handleCellBorderDragging(this);
         }
     };
 
@@ -9450,6 +9452,28 @@ jpvs.makeWidget({
         return tbl.find("col").filter(function () {
             return $(this).parent()[0] === tbl[0] || $(this).parent().parent()[0] === tbl[0];
         });
+    }
+
+    function getScrollingContainer(tbl) {
+        //Let's find the element's scrolling container (the first ancestor that has overflow: auto/scroll/hidden)
+        var scrollingContainer = tbl;
+        while (true) {
+            scrollingContainer = scrollingContainer.parent();
+            var test = scrollingContainer[0].nodeName;
+            if (!scrollingContainer || scrollingContainer.length == 0 || scrollingContainer[0].nodeName.toLowerCase() == "body") {
+                //We have just climbed up to the body, so we have no scrolling container (we scroll the window)
+                scrollingContainer = null;
+                break;
+            } else {
+                var overflow = scrollingContainer.css("overflow");
+                if (overflow == "auto" || overflow == "scroll" || overflow == "hidden") {
+                    //We have found it
+                    break;
+                }
+            }
+        }
+
+        return scrollingContainer || $(window);
     }
 
     function activateResizeCursorOnVerticalLines(tbl) {
@@ -9511,12 +9535,16 @@ jpvs.makeWidget({
         tbl.find(allCellsSelector).css("overflow", "hidden");
     }
 
-    function handleCellBorderDragging(tbl, persistColumnSizes) {
+    function handleCellBorderDragging(extender) {
         var draggingCol;
         var draggingColIndex;
         var originalTableX;
         var originalColWidth;
         var originalSumOfAllColWidths;
+
+        var tbl = extender.tableElement;
+        var scrollingContainer = getScrollingContainer(tbl);
+        var lastEventParams;
 
         tbl.on("mousedown", allCellsSelector, function (e) {
             var cell = $(e.target);
@@ -9532,10 +9560,16 @@ jpvs.makeWidget({
             if (isResizingLeftBorder(cell, relX)) {
                 //The cell we are resizing is the previous one
                 startResizing(cell.prev(), tableX);
+
+                //Stop propagation: this event has been fully handled now
+                return false;
             }
             else if (isResizingRightBorder(cell, relX)) {
                 //This is the cell we are resizing
                 startResizing(cell, tableX);
+
+                //Stop propagation: this event has been fully handled now
+                return false;
             }
         });
 
@@ -9551,20 +9585,36 @@ jpvs.makeWidget({
 
                 newColWidth = Math.max(newColWidth, 2 * handleToleranceX);
 
-                draggingCol.css("width", newColWidth + "px");
-
                 //Resize the table
                 var newTblWidth = originalSumOfAllColWidths - originalColWidth + newColWidth;
+
                 tbl.css("width", newTblWidth + "px");
+                draggingCol.css("width", newColWidth + "px");
 
                 //If required, persist column sizes
-                if (persistColumnSizes)
+                if (extender.persistColumnSizes())
                     saveColSizesIntoStorage(tbl, draggingCol, draggingColIndex, newColWidth);
+
+                //Fire event
+                lastEventParams = {
+                    newTableWidth: newTblWidth,
+                    columnIndex: draggingColIndex,
+                    newColumnWidth: newColWidth,
+                    resizing: true
+                };
+
+                extender.afterResize.fire(extender, null, lastEventParams);
             }
         });
 
         $(window).on("mouseup", function (e) {
             //End dragging, if active
+            if (draggingCol && lastEventParams) {
+                //Fire one last event
+                lastEventParams.resizing = false;
+                extender.afterResize.fire(extender, null, lastEventParams);
+            }
+
             draggingCol = null;
         });
 
@@ -9584,6 +9634,8 @@ jpvs.makeWidget({
                 var col = $(this);
                 originalSumOfAllColWidths += col.width();
             });
+
+            lastEventParams = null;
         }
     }
 

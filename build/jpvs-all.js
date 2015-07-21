@@ -9613,9 +9613,11 @@ jpvs.makeWidget({
                 //Fire one last event
                 lastEventParams.resizing = false;
                 extender.afterResize.fire(extender, null, lastEventParams);
-            }
+                draggingCol = null;
 
-            draggingCol = null;
+                //Stop propagation: this event has been fully handled now
+                return false;
+            }
         });
 
         function startResizing(cell, tableX) {

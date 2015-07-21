@@ -35,14 +35,26 @@ module.exports = function (grunt) {
                 src: 'build/jpvs-all.js',
                 dest: 'build/jpvs-all.min.js'
             }
-        }
+        },
+		
+		copy: {
+			outputsIntoLibFolder : {
+				files : [ {
+					expand : true,
+					cwd : 'build',
+					src : '*.js',
+					dest : 'javascript/libs/'
+				} ]
+			}
+		}
 
     });
 
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-contrib-copy');
 
-    grunt.registerTask('default', ['clean', 'concat', 'uglify']);
+    grunt.registerTask('default', ['clean', 'concat', 'uglify', 'copy']);
 
 };

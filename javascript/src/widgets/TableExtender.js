@@ -105,7 +105,7 @@
 
     function activateResizeCursorOnVerticalLines(tbl) {
         tbl.on("mousemove", allCellsSelector, function (e) {
-            var cell = $(e.target);
+            var cell = $(e.currentTarget);
             var cellOffset = cell.offset();
             var relX = e.pageX - cellOffset.left;
 
@@ -116,7 +116,7 @@
         });
 
         tbl.on("mouseleave", allCellsSelector, function (e) {
-            var cell = $(e.target);
+            var cell = $(e.currentTarget);
             cell.css("cursor", "auto");
         });
     }
@@ -174,7 +174,7 @@
         var lastEventParams;
 
         tbl.on("mousedown", allCellsSelector, function (e) {
-            var cell = $(e.target);
+            var cell = $(e.currentTarget);
 
             //Coordinates, relative to the table
             var tblOffset = tbl.offset();

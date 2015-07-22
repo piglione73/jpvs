@@ -9376,7 +9376,7 @@ jpvs.makeWidget({
 
 (function () {
 
-    var allCellsSelector = "thead > tr > td, thead > tr > th, tbody > tr > th, tbody > tr > td";
+    var uniqueNameCounter = 1;
     var handleToleranceX = 5;
 
     jpvs.TableExtender = {
@@ -9392,6 +9392,11 @@ jpvs.makeWidget({
     function Extender(tableElement) {
         this.tableElement = tableElement;
 
+        //The unique name is applied as a CSS class name on THEAD and TBODY in order to uniquely identify cells affected by this extender (i.e.:
+        //cells in subtables of tableElement must not be affected by this extender). This allows the allCellsSelector to work.
+        this.uniqueName = "TableExtender" + (uniqueNameCounter++);
+        this.allCellsSelector = ".NAME>tr>th, .NAME>tr>td".replace(/NAME/g, this.uniqueName);
+
         this.afterResize = new jpvs.Event();
     }
 
@@ -9406,16 +9411,19 @@ jpvs.makeWidget({
     });
 
     Extender.prototype.apply = function () {
+        //Aply the CSS class "uniqueName" to THEAD and TBODY, so the allCellsSelector can distinguish cells of this table from cells of subtables
+        applyUniqueName(this);
+
         //We need table layout fixed, so we can precisely do the layout manually
-        setTableLayoutFixed(this.tableElement);
+        setTableLayoutFixed(this);
 
         //Column sizes are persisted?
         if (this.persistColumnSizes())
-            loadColSizesFromStorage(this.tableElement);
+            loadColSizesFromStorage(this);
 
         if (this.resizableColumns() && !this.eventsBound) {
             //Activate resizable visual cues on vertical grid lines
-            activateResizeCursorOnVerticalLines(this.tableElement);
+            activateResizeCursorOnVerticalLines(this);
 
             //Handle cell border dragging
             handleCellBorderDragging(this);
@@ -9479,7 +9487,14 @@ jpvs.makeWidget({
         return scrollingContainer || $(window);
     }
 
-    function activateResizeCursorOnVerticalLines(tbl) {
+    function applyUniqueName(extender) {
+        extender.tableElement.children("thead,tbody,tfoot").addClass(extender.uniqueName);
+    }
+
+    function activateResizeCursorOnVerticalLines(extender) {
+        var tbl = extender.tableElement;
+        var allCellsSelector = extender.allCellsSelector;
+
         tbl.on("mousemove", allCellsSelector, function (e) {
             var cell = $(e.currentTarget);
             var cellOffset = cell.offset();
@@ -9497,7 +9512,10 @@ jpvs.makeWidget({
         });
     }
 
-    function setTableLayoutFixed(tbl) {
+    function setTableLayoutFixed(extender) {
+        var tbl = extender.tableElement;
+        var allCellsSelector = extender.allCellsSelector;
+
         //Measure all columns that have colspan = 1
         var colWidths = [];
         tbl.find(allCellsSelector).each(function () {
@@ -9546,6 +9564,7 @@ jpvs.makeWidget({
         var originalSumOfAllColWidths;
 
         var tbl = extender.tableElement;
+        var allCellsSelector = extender.allCellsSelector;
         var scrollingContainer = getScrollingContainer(tbl);
         var lastEventParams;
 
@@ -9596,7 +9615,7 @@ jpvs.makeWidget({
 
                 //If required, persist column sizes
                 if (extender.persistColumnSizes())
-                    saveColSizesIntoStorage(tbl, draggingCol, draggingColIndex, newColWidth);
+                    saveColSizesIntoStorage(extender, draggingCol, draggingColIndex, newColWidth);
 
                 //Fire event
                 lastEventParams = {
@@ -9657,7 +9676,10 @@ jpvs.makeWidget({
             return {};
     }
 
-    function loadColSizesFromStorage(tbl) {
+    function loadColSizesFromStorage(extender) {
+        var tbl = extender.tableElement;
+        var allCellsSelector = extender.allCellsSelector;
+
         if (window.localStorage) {
             //Load from localstorage
             var savedObject = loadSavedSizesFromStorage(tbl);
@@ -9679,7 +9701,10 @@ jpvs.makeWidget({
         }
     }
 
-    function saveColSizesIntoStorage(tbl, col, colIndex, width) {
+    function saveColSizesIntoStorage(extender, col, colIndex, width) {
+        var tbl = extender.tableElement;
+        var allCellsSelector = extender.allCellsSelector;
+
         if (window.localStorage) {
             var cols = getColElements(tbl);
 

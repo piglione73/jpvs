@@ -219,7 +219,7 @@
             }
         });
 
-        $(window).on("mousemove", function (e) {
+        $(document).on("mousemove", function (e) {
             if (draggingCol) {
                 //Coordinates, relative to the table
                 var tblOffset = tbl.offset();
@@ -253,7 +253,7 @@
             }
         });
 
-        $(window).on("mouseup", function (e) {
+        $(document).on("mouseup", function (e) {
             //End dragging, if active
             if (draggingCol && lastEventParams) {
                 //Fire one last event

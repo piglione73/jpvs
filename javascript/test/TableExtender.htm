@@ -11,12 +11,67 @@
             padding: 3pt;
             margin: 3pt;
         }
+        
+        .SortOrFilter 
+        {
+            background-color: #abcdef;
+            cursor:pointer;
+        }
+        .ColumnResize
+        {
+            background-color: #fedcba;
+            cursor:col-resize;
+        }
+        .Popup .DimScreen
+        {
+            background-color: rgba(255,0,0,0.2);
+        }
+        .Popup .Contents
+        {
+            background-color: #fff;
+            border: 1px solid black;
+            border-top-left-radius: 6pt;
+            border-top-right-radius: 6pt;
+        }
+        .Popup .Title
+        {
+            border-top-left-radius: 5pt;
+            border-top-right-radius: 5pt;
+            background-color: #77F;
+            padding: 3pt;
+        }
+        .Popup .Title H1
+        {
+            cursor: move;
+            margin: 0px;
+            padding: 0px;
+            font-size: 14pt;
+            color: #FFF;
+        }
+        .Popup .Body
+        {
+            padding: 3pt;
+        }
+        .Popup .Title .ImageButton
+        {
+            float: right;
+        }
     </style>
-    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.11.1.min.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/JSON.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/widgets/CheckBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DropDownList.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/DataGrid.js"></script>
     <script type="text/javascript" src="../src/widgets/Table.js"></script>
     <script type="text/javascript" src="../src/widgets/TableExtender.js"></script>
     <script type="text/javascript">
@@ -34,7 +89,7 @@
                 }
             });
 
-            tblExt.resizableColumns(true).persistColumnSizes(true).apply();
+            tblExt.resizableColumns(true).persistColumnSizes(true).enableSorting(true).enableFiltering(true).apply();
         });
     </script>
 </head>
@@ -43,8 +98,8 @@
     <div id="pnl">
         <table id="tbl1" data-table-name="TestTable1">
             <colgroup>
-                <col data-col-name="Test1" style="background-color: #ffa" />
-                <col data-col-name="Test2" style="width: 15em" />
+                <col data-col-name="Test1" data-col-header="Test column 1" style="background-color: #ffa" />
+                <col data-col-name="Test2" data-col-header="Test column 2" data-col-filter="false" data-col-sort="false" style="width: 15em" />
             </colgroup>
             <thead>
                 <tr>

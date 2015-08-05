@@ -20,8 +20,10 @@
         //cells in subtables of tableElement must not be affected by this extender). This allows the allCellsSelector to work.
         this.uniqueName = "TableExtender" + (uniqueNameCounter++);
         this.allCellsSelector = ".NAME>tr>th, .NAME>tr>td".replace(/NAME/g, this.uniqueName);
+        this.allHeaderCellsSelector = ".NAME>tr>th".replace(/NAME/g, this.uniqueName);
 
         this.afterResize = new jpvs.Event();
+        this.changeFilterSort = new jpvs.Event();
     }
 
     Extender.prototype.resizableColumns = jpvs.property({
@@ -34,8 +36,21 @@
         set: function (value) { this._persistColumnSizes = !!value; }
     });
 
+    Extender.prototype.enableSorting = jpvs.property({
+        get: function () { return !!this._enableSorting; },
+        set: function (value) { this._enableSorting = !!value; }
+    });
+
+    Extender.prototype.enableFiltering = jpvs.property({
+        get: function () { return !!this._enableFiltering; },
+        set: function (value) { this._enableFiltering = !!value; }
+    });
+
     Extender.prototype.apply = function () {
-        //Aply the CSS class "uniqueName" to THEAD and TBODY, so the allCellsSelector can distinguish cells of this table from cells of subtables
+        //We need some DataGrid's strings. Let's ensure they are properly initialized based on the current locale
+        jpvs.DataGrid.strings = jpvs.DataGrid.allStrings[jpvs.currentLocale()];
+
+        //Apply the CSS class "uniqueName" to THEAD and TBODY, so the allCellsSelector can distinguish cells of this table from cells of subtables
         applyUniqueName(this);
 
         //We need table layout fixed, so we can precisely do the layout manually
@@ -45,15 +60,25 @@
         if (this.persistColumnSizes())
             loadColSizesFromStorage(this);
 
-        if (this.resizableColumns() && !this.eventsBound) {
+        if (this.resizableColumns() && !this.eventsBound_Resizing) {
             //Activate resizable visual cues on vertical grid lines
             activateResizeCursorOnVerticalLines(this);
 
             //Handle cell border dragging
             handleCellBorderDragging(this);
 
-            //Mark events as bound, so a subsequent call of this method does not bind events again
-            this.eventsBound = true;
+            //Mark events as bound, so a subsequent call to this method does not bind events again
+            this.eventsBound_Resizing = true;
+        }
+
+        //Let's activate sorting/filtering, if required
+        var sortingOrFiltering = this.enableFiltering() || this.enableSorting();
+        if (sortingOrFiltering && !this.eventsBound_FilterSort) {
+            //Activate filtering/sorting on TH elements
+            activateFilterSort(this);
+
+            //Mark events as bound, so a subsequent call to this method does not bind events again
+            this.eventsBound_FilterSort = true;
         }
     };
 
@@ -125,14 +150,14 @@
             var relX = e.pageX - cellOffset.left;
 
             if (isResizingLeftBorder(cell, relX) || isResizingRightBorder(cell, relX))
-                cell.css("cursor", "col-resize");
+                cell.addClass("ColumnResize");
             else
-                cell.css("cursor", "auto");
+                cell.removeClass("ColumnResize");
         });
 
         tbl.on("mouseleave", allCellsSelector, function (e) {
             var cell = $(e.currentTarget);
-            cell.css("cursor", "auto");
+            cell.removeClass("ColumnResize");
         });
     }
 
@@ -343,6 +368,230 @@
             var tableName = tbl.data("tableName") || "__GenericTable__";
             localStorage["jpvs.TableExtenders.Sizes." + tableName] = savedObjectAsString;
         }
+    }
+
+    function activateFilterSort(extender) {
+        var tbl = extender.tableElement;
+        var allHeaderCellsSelector = extender.allHeaderCellsSelector;
+
+        //Handle sorting filtering visual cues
+        tbl.on("mousemove", allHeaderCellsSelector, function (e) {
+            var cell = $(e.currentTarget);
+
+            if (isFilteringAndOrSorting(extender, cell, e))
+                cell.addClass("SortOrFilter");
+            else
+                cell.removeClass("SortOrFilter");
+        });
+
+        tbl.on("mouseleave", allHeaderCellsSelector, function (e) {
+            var cell = $(e.currentTarget);
+            cell.removeClass("SortOrFilter");
+        });
+
+        //Handle sorting/filtering requests
+        tbl.on("mousedown", allHeaderCellsSelector, function (e) {
+            var cell = $(e.currentTarget);
+
+            if (isFilteringAndOrSorting(extender, cell, e)) {
+                openFilterSortPopup(extender, cell);
+
+                //Stop propagation: this event has been fully handled now
+                return false;
+            }
+        });
+    }
+
+    function isFilteringAndOrSorting(extender, cell, e) {
+        var tbl = extender.tableElement;
+
+        //Coordinates, relative to the cell
+        var cellOffset = cell.offset();
+        var relX = e.pageX - cellOffset.left;
+
+        //What COL are we filtering/sorting?
+        var leftBorderIndex = getLeftBorderIndex(cell);
+        var cols = getColElements(tbl);
+        var colElement = cols.eq(leftBorderIndex);
+
+        //It's a sorting/filtering only if sorting/filter is enabled AND, based on pointer position, this is not a resize
+        //Keep into account whether or not sorting/filtering is disabled for this particular cell
+        var isSorting = extender.enableSorting() && isTrueFilterSort(colElement, "colSort");
+        var isFiltering = extender.enableFiltering() && isTrueFilterSort(colElement, "colFilter");
+        var sortingOrFiltering = isSorting || isFiltering;
+
+        var isNotResizing = !isResizingLeftBorder(cell, relX) && !isResizingRightBorder(cell, relX);
+        return sortingOrFiltering && isNotResizing;
+    }
+
+    function isTrueFilterSort(colElement, dataAttrName) {
+        var dataAttr = colElement.data(dataAttrName);
+
+        //If missing, we assume a default value of true
+        if (dataAttr == null)
+            return true;
+        else if (dataAttr == "true" || dataAttr == true)
+            return true;
+        else if (dataAttr == "false" || dataAttr == false)
+            return false;
+        else
+            return true;
+    }
+
+    function openFilterSortPopup(extender, cell) {
+        var tbl = extender.tableElement;
+
+        extender.sortSettings = extender.sortSettings || [];
+        extender.filterSettings = extender.filterSettings || [];
+
+        //What COL are we filtering/sorting?
+        var leftBorderIndex = getLeftBorderIndex(cell);
+        var cols = getColElements(tbl);
+        var colElement = cols.eq(leftBorderIndex);
+
+        var isSorting = extender.enableSorting() && isTrueFilterSort(colElement, "colSort");
+        var isFiltering = extender.enableFiltering() && isTrueFilterSort(colElement, "colFilter");
+
+        var colName = colElement.data("colName") || leftBorderIndex.toString();
+        var colHeader = colElement.data("colHeader") || colName;
+
+        //Open the popup
+        var popTitle = "???";
+        if (extender.enableSorting() && extender.enableFiltering())
+            popTitle = jpvs.DataGrid.strings.titleSortAndFilter;
+        else if (extender.enableSorting())
+            popTitle = jpvs.DataGrid.strings.titleSort;
+        else if (extender.enableFiltering())
+            popTitle = jpvs.DataGrid.strings.titleFilter;
+
+        var pop = jpvs.Popup.create().title(popTitle);
+
+        //Section with filtering info
+        var tblFilter;
+        if (isFiltering) {
+            tblFilter = jpvs.Table.create(pop);
+            writeFilterSettings();
+            jpvs.writeTag(pop, "hr");
+        }
+
+        //Section with sorting info
+        var tblSort;
+        if (isSorting) {
+            tblSort = jpvs.Table.create(pop);
+            writeSortSettings();
+            jpvs.writeTag(pop, "hr");
+        }
+
+        //Section with column details
+        jpvs.write(pop, jpvs.DataGrid.strings.column + ": ");
+        jpvs.writeTag(pop, "strong", colHeader);
+        jpvs.write(pop, "\u00a0\u00a0\u00a0");
+
+        if (isFiltering)
+            jpvs.LinkButton.create(pop).text(jpvs.DataGrid.strings.addFilter).click(onAddFilter);
+
+        jpvs.write(pop, "\u00a0\u00a0\u00a0");
+
+        if (isSorting)
+            jpvs.LinkButton.create(pop).text(jpvs.DataGrid.strings.addSort).click(onAddSort);
+
+        jpvs.writeln(pop);
+
+        //Finally, show the popup
+        pop.show();
+
+        function onAddFilter() {
+            extender.filterSettings.push({
+                colName: colName,
+                operand: "EQ",
+                value: ""
+            });
+
+            //Refresh
+            writeFilterSettings();
+        }
+
+        function onAddSort() {
+            extender.sortSettings.push({
+                colName: colName,
+                descending: false
+            });
+
+            //Refresh
+            writeSortSettings();
+        }
+
+        function writeFilterSettings() {
+            //Clear and rewrite
+            tblFilter.clear();
+
+            if (extender.filterSettings.length) {
+                for (var i = 0; i < extender.filterSettings.length; i++) {
+                    var item = extender.filterSettings[i];
+                    writeFilterSettingsRow(item, i);
+                }
+            }
+            else {
+                var row = tblFilter.writeRow();
+                jpvs.write(row.writeCell(), jpvs.DataGrid.strings.noFilterSpecified);
+            }
+        }
+
+        function writeFilterSettingsRow(item, itemIndex) {
+            //(field name) COMBO (operand), TEXTBOX (value), Remove button
+            var row = tblFilter.writeRow();
+
+            jpvs.write(row.writeCell(), jpvs.DataGrid.strings.condition + ": ");
+            jpvs.writeTag(row.writeCell(), "strong", item.colName);
+
+            var cmbOp = jpvs.DropDownList.create(row.writeCell());
+            cmbOp.addItem("");
+            cmbOp.addItems(jpvs.DataGrid.getFilteringOperands());
+            cmbOp.selectedValue(item.operand).change(function () { item.operand = this.selectedValue(); });
+
+            var txtValue = jpvs.TextBox.create(row.writeCell());
+            txtValue.text(item.value).change(function () { item.value = this.text(); });
+
+            jpvs.LinkButton.create(row.writeCell()).text(jpvs.DataGrid.strings.remove).click(function () {
+                //Remove and refresh
+                extender.filterSettings.splice(itemIndex, 1);
+                writeFilterSettings();
+            });
+        }
+
+        function writeSortSettings() {
+            //Clear and rewrite
+            tblSort.clear();
+
+            if (extender.sortSettings.length) {
+                for (var i = 0; i < extender.sortSettings.length; i++) {
+                    var item = extender.sortSettings[i];
+                    writeSortSettingsRow(item, i);
+                }
+            }
+            else {
+                var row = tblSort.writeRow();
+                jpvs.write(row.writeCell(), jpvs.DataGrid.strings.noSortSpecified);
+            }
+        }
+
+        function writeSortSettingsRow(item, itemIndex) {
+            //MOVE ICON Order by: (field name) CHECKBOX (descending), Remove button
+            var row = tblSort.writeRow();
+            row.element.data("item", item);
+
+            jpvs.writeTag(row.writeCell(), "img").attr("src", jpvs.Resources.images.moveButton);
+            jpvs.write(row.writeCell(), (itemIndex == 0 ? jpvs.DataGrid.strings.orderBy : jpvs.DataGrid.strings.thenBy) + ": ");
+            jpvs.writeTag(row.writeCell(), "strong", item.colName);
+            jpvs.CheckBox.create(row.writeCell()).text(jpvs.DataGrid.strings.descending).checked(item.descending).change(function () { item.descending = this.checked(); });
+
+            jpvs.LinkButton.create(row.writeCell()).text(jpvs.DataGrid.strings.remove).click(function () {
+                //Remove and refresh
+                extender.sortSettings.splice(itemIndex, 1);
+                writeSortSettings();
+            });
+        }
+
     }
 
 })();

@@ -13,6 +13,7 @@ window.jpvs = window.jpvs || {};
 
     function Extender(tableElement) {
         this.afterResize = new jpvs.Event();
+        this.changeFilterSort = new jpvs.Event();
     }
 
     Extender.prototype.resizableColumns = function (value) {
@@ -24,6 +25,20 @@ window.jpvs = window.jpvs || {};
         /// <summary>Property: true/false. Specifies whether the column sizes after a resize must be persisted on localStorage.
         /// Two custom attributes should be used in order to identify the table and its columns. The first one is "data-table-name" and
         /// must be applied to the table element. Then, on each COL element, a "data-col-name" should be used.</summary>
+        return this;
+    };
+
+    Extender.prototype.enableFiltering = function (value) {
+        /// <summary>Property: true/false. Specifies whether row filtering has to be enabled. Column names must be identified by the
+        /// "data-col-name" attribute on each COL element. Column friendly names (displayed in the filtering popup) are taken
+        /// from the "data-col-header" attribute. Set the "data-col-filter" attribute to "false" to disable filtering on single columns.</summary>
+        return this;
+    };
+
+    Extender.prototype.enableSorting = function (value) {
+        /// <summary>Property: true/false. Specifies whether row sorting has to be enabled. Column names must be identified by the
+        /// "data-col-name" attribute on each COL element. Column friendly names (displayed in the sorting popup) are taken
+        /// from the "data-col-header" attribute. Set the "data-col-sort" attribute to "false" to disable filtering on single columns.</summary>
         return this;
     };
 

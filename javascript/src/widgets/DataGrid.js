@@ -7,8 +7,13 @@
         this.changedSortFilter = jpvs.event(this);
     };
 
+    //NOTE: the following strings are also used in the TableExtender
     jpvs.DataGrid.allStrings = {
         en: {
+            column: "Column",
+            addFilter: "Add filter",
+            addSort: "Add sort",
+
             clickToSortAndFilter: "Click here for sorting/filtering options",
             clickToSort: "Click here for sorting options",
             clickToFilter: "Click here for filtering options",
@@ -17,9 +22,14 @@
             titleSort: "Sorting options",
             titleFilter: "Filtering options",
 
+            noFilterSpecified: "No filtering criteria specified",
+            noSortSpecified: "No sorting specified",
+
             ok: "OK",
             cancel: "Cancel",
+            remove: "Remove",
 
+            condition: "Condition",
             orderBy: "Order by",
             thenBy: "Then by",
             descending: "Descending",
@@ -37,6 +47,10 @@
         },
 
         it: {
+            column: "Colonna",
+            addFilter: "Aggiungi filtro",
+            addSort: "Aggiungi ordinamento",
+
             clickToSortAndFilter: "Clicca qui per ordinare/filtrare i dati",
             clickToSort: "Clicca qui per ordinare i dati",
             clickToFilter: "Clicca qui per filtrare i dati",
@@ -45,9 +59,14 @@
             titleSort: "Ordinamento",
             titleFilter: "Filtro",
 
+            noFilterSpecified: "Nessun criterio di filtro specificato",
+            noSortSpecified: "Nessun ordinamento specificato",
+
             ok: "OK",
             cancel: "Annulla",
+            remove: "Rimuovi",
 
+            condition: "Condizione",
             orderBy: "Ordina per",
             thenBy: "Poi per",
             descending: "Ordine inverso",

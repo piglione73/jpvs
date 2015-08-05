@@ -1,0 +1,112 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <script type="text/javascript" src="../../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../../libs/qunit.js"></script>
+    <link rel="stylesheet" href="../../libs/qunit.css" type="text/css" />
+    <title>Filtering</title>
+    <!--
+    *********************************************************
+    Test code
+    *********************************************************
+    -->
+    <script type="text/javascript" src="../../src/jpvs.js"></script>
+    <script type="text/javascript" src="../../src/Core.js"></script>
+    <script type="text/javascript" src="../../src/utils/Filtering.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            test("Filtering", function () {
+                var filteringRules = [
+                    { selector: function (x) { return x.a; }, operand: "EQ", value: "aaa" },
+                    { selector: function (x) { return x.b; }, operand: "EQ", value: "bbb" }
+                ];
+
+                deepEqual(
+                    jpvs.filter([
+                            { a: "123", b: "ccc" },
+                            { a: "aaa", b: "ccc" },
+                            { a: "123", b: "bbb" },
+                            { a: "aaa", b: "bbb" },
+                            { a: "fff", b: "bbb" }
+                        ],
+                        filteringRules,
+                        "Filtering with selector"
+                    ),
+                    [
+                        { a: "aaa", b: "bbb" }
+                    ]
+                );
+
+                filteringRules = [
+                    { selector: function (x) { return x.a; }, operand: "NEQ", value: "aaa" },
+                    { selector: function (x) { return x.b; }, operand: "NEQ", value: "bbb" }
+                ];
+
+                deepEqual(
+                    jpvs.filter([
+                            { a: "123", b: "ccc" },
+                            { a: "aaa", b: "ccc" },
+                            { a: "123", b: "bbb" },
+                            { a: "aaa", b: "bbb" },
+                            { a: "fff", b: "bbb" }
+                        ],
+                        filteringRules,
+                        "Filtering with selector"
+                    ),
+                    [
+                        { a: "123", b: "ccc" }
+                    ]
+                );
+            });
+
+            test("Rules", function () {
+                var identity = function (x) { return x; };
+
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "EQ", value: "abcde"}]), ["abcde"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "NEQ", value: "abcde"}]), ["efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "CONTAINS", value: "cd"}]), ["abcde"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "NCONTAINS", value: "cd"}]), ["efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "STARTS", value: "ab"}]), ["abcde"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "NSTARTS", value: "ab"}]), ["efghi"]);
+
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LT", value: "abcde"}]), []);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LT", value: "BB"}]), ["abcde"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LT", value: "efghi"}]), ["abcde"]);
+
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LTE", value: "abcde"}]), ["abcde"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LTE", value: "BB"}]), ["abcde"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LTE", value: "efghi"}]), ["abcde", "efghi"]);
+
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GT", value: "abcde"}]), ["efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GT", value: "BB"}]), ["efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GT", value: "efghi"}]), []);
+
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GTE", value: "abcde"}]), ["abcde", "efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GTE", value: "BB"}]), ["efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GTE", value: "efghi"}]), ["efghi"]);
+
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "WRONGRULE", value: "abcde"}]), []);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "WRONGRULE", value: "BB"}]), []);
+                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "WRONGRULE", value: "efghi"}]), []);
+            });
+
+        });
+    </script>
+</head>
+<body>
+    <h1 id="qunit-header">
+        Test</h1>
+    <h2 id="qunit-banner">
+    </h2>
+    <div id="qunit-testrunner-toolbar">
+    </div>
+    <h2 id="qunit-userAgent">
+    </h2>
+    <ol id="qunit-tests">
+    </ol>
+    <div id="qunit-fixture">
+        test markup, will be hidden</div>
+</body>
+</html>

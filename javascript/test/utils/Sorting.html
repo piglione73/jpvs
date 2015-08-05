@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <script type="text/javascript" src="../../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../../libs/qunit.js"></script>
+    <link rel="stylesheet" href="../../libs/qunit.css" type="text/css" />
+    <title>Sorting</title>
+    <!--
+    *********************************************************
+    Test code
+    *********************************************************
+    -->
+    <script type="text/javascript" src="../../src/jpvs.js"></script>
+    <script type="text/javascript" src="../../src/Core.js"></script>
+    <script type="text/javascript" src="../../src/utils/Sorting.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            test("Simple compares", function () {
+                equal(jpvs.compare(undefined, undefined), 0, "undefined = undefined");
+                equal(jpvs.compare(undefined, null), -1, "undefined < null");
+                equal(jpvs.compare(undefined, 5), -1, "undefined < 5");
+                equal(jpvs.compare(undefined, "Hello"), -1, "undefined < 'Hello'");
+
+                equal(jpvs.compare(null, undefined), +1, "null > undefined");
+                equal(jpvs.compare(null, null), 0, "null = null");
+                equal(jpvs.compare(null, 5), -1, "null < 5");
+                equal(jpvs.compare(null, "Hello"), -1, "null < 'Hello'");
+
+                equal(jpvs.compare(4, undefined), +1, "4 > undefined");
+                equal(jpvs.compare(4, null), +1, "4 > null");
+                equal(jpvs.compare(4, 5), -1, "4 < 5");
+                equal(jpvs.compare(4, "Hello"), -1, "4 < 'Hello'");
+
+                equal(jpvs.compare(5, undefined), +1, "5 > undefined");
+                equal(jpvs.compare(5, null), +1, "5 > null");
+                equal(jpvs.compare(5, 5), 0, "5 = 5");
+                equal(jpvs.compare(5, "Hello"), -1, "5 < 'Hello'");
+
+                equal(jpvs.compare(6, undefined), +1, "6 > undefined");
+                equal(jpvs.compare(6, null), +1, "6 > null");
+                equal(jpvs.compare(6, 5), +1, "6 = 5");
+                equal(jpvs.compare(6, "Hello"), -1, "6 < 'Hello'");
+
+                equal(jpvs.compare("aaa", undefined), +1, "'aaa' > undefined");
+                equal(jpvs.compare("aaa", null), +1, "'aaa' > null");
+                equal(jpvs.compare("aaa", 5), +1, "'aaa' > 5");
+                equal(jpvs.compare("aaa", "Hello"), -1, "'aaa' < 'Hello'");
+
+                equal(jpvs.compare("Hello", undefined), +1, "'Hello' > undefined");
+                equal(jpvs.compare("Hello", null), +1, "'Hello' > null");
+                equal(jpvs.compare("Hello", 5), +1, "'Hello' > 5");
+                equal(jpvs.compare("Hello", "Hello"), 0, "'Hello' = 'Hello'");
+
+                equal(jpvs.compare("zzz", undefined), +1, "'zzz' > undefined");
+                equal(jpvs.compare("zzz", null), +1, "'zzz' > null");
+                equal(jpvs.compare("zzz", 5), +1, "'zzz' > 5");
+                equal(jpvs.compare("zzz", "Hello"), +1, "'zzz' > 'Hello'");
+
+                equal(jpvs.compare("4", 4), +1, "'4' > 4");
+                equal(jpvs.compare(4, "4"), -1, "4 < '4'");
+
+            });
+
+            test("Array sorting", function () {
+                var sortingRules = [{ selector: function (x) { return x; } }];
+
+                deepEqual(
+                    jpvs.sort(
+                        ["fff", "DDD", "ccc", "2", "1", "10", null, 2, null, 1, 10],
+                        sortingRules
+                    ),
+                    [null, null, 1, 2, 10, "1", "10", "2", "ccc", "DDD", "fff"],
+                    "Array sorting"
+                );
+
+                sortingRules = [{ selector: function (x) { return x!==null && x!==undefined? x.toString() : x; } }];
+
+                deepEqual(
+                    jpvs.sort(
+                        ["fff", "DDD", "ccc", "2", "1", "10", null, 2, null, 1, 10],
+                        sortingRules
+                    ),
+                    [null, null, "1", 1, "10", 10, "2", 2, "ccc", "DDD", "fff"],
+                    "Array sorting"
+                );
+
+                sortingRules = [{ selector: function (x) { return x.a; } }, { selector: function (x) { return x.b; }, descending: true }];
+
+                deepEqual(
+                    jpvs.sort(
+                        [{ a: 3, b: 2 }, { a: 4, b: 1 }, { a: 5, b: 1 }, { a: 0, b: 1}],
+                        sortingRules
+                    ),
+                    [ { a: 0, b: 1}, { a: 3, b: 2 }, { a: 4, b: 1 }, { a: 5, b: 1 }],
+                    "Array sorting"
+                );
+
+                sortingRules = [{ selector: function (x) { return x.b; } }, { selector: function (x) { return x.a; }, descending: true}];
+
+                deepEqual(
+                    jpvs.sort(
+                        [{ a: 3, b: 2 }, { a: 4, b: 1 }, { a: 5, b: 1 }, { a: 0, b: 1}],
+                        sortingRules
+                    ),
+                    [{ a: 5, b: 1}, { a: 4, b: 1 }, { a: 0, b: 1 }, { a: 3, b: 2 } ],
+                    "Array sorting"
+                );
+
+            });
+
+        });
+    </script>
+</head>
+<body>
+    <h1 id="qunit-header">
+        Test</h1>
+    <h2 id="qunit-banner">
+    </h2>
+    <div id="qunit-testrunner-toolbar">
+    </div>
+    <h2 id="qunit-userAgent">
+    </h2>
+    <ol id="qunit-tests">
+    </ol>
+    <div id="qunit-fixture">
+        test markup, will be hidden</div>
+</body>
+</html>

@@ -667,6 +667,52 @@ jpvs.equals = function (x,y) {
 
 window.jpvs = window.jpvs || {};
 
+jpvs.filter = function (array, filteringRules) {
+    /// <summary>Returns a filtered copy of the array. The original array is left untouched.</summary>
+    /// <param name="array" type="Array">The array to be filtered. This array will not be touched.</param>
+    /// <param name="filteringRules" type="Array">Array of filtering rules. Each filtering rule has the form:
+    /// { 
+    ///     selector: function(item) {}, 
+    ///     operand: <"EQ" | "NEQ" | "CONTAINS" | "NCONTAINS" | "STARTS" | "NSTARTS" | "LT" | "LTE" | "GT" | "GTE">, 
+    ///     value: <string> 
+    /// }.
+    /// The "selector" is a function that is used to extract (from each item) the string value to compare with the provided "value".
+    /// Comparisons are all case-insensitive.
+    /// </param>
+    /// <returns type="Array">A filtered copy of the array. Every item satisfies ALL the filtering rules.</returns>
+};
+
+;
+
+
+window.jpvs = window.jpvs || {};
+
+jpvs.compare = function (a, b) {
+    /// <summary>Compares strings/numbers. If both a and b are numbers, they are compared numerically. Otherwise, a and b are converted
+    /// to strings (through the toString method) and compared as strings in a case-insensitive way).
+    /// Rule applied: undefined < null < numbers (compared numerically) < strings (compared alphabetically).</summary>
+    /// <param name="x" type="Object">The first number/string.</param>
+    /// <param name="y" type="Object">The second number/string.</param>
+    /// <returns type="Number">The result of the comparison: +1 if a > b; 0 if a equals b; -1 if a < b.</returns>
+};
+
+jpvs.sort = function (array, sortingRules) {
+    /// <summary>Sorts an array and returns a sorted copy of the array. The original array is left untouched.</summary>
+    /// <param name="array" type="Array">The array to be sorted. This array will not be touched.</param>
+    /// <param name="sortingRules" type="Array">Array of sorting rules, applied in order. Each sorting rule has the form:
+    /// { selector: function(item) {}, descending: true/false }.
+    /// The "selector" is a function that is used to extract the sort key from each item.
+    /// For example: jpvs.sort(array, [ { selector: function(x) { return x.firstName; }, descending: false }, 
+    /// { selector: function(x) { return x.lastName; }, descending: true } } will return a copy of "array" sorted by firstName (ascending) and 
+    /// then by lastName (descending).</param>
+    /// <returns type="Array">A sorted copy of the array.</returns>
+};
+
+;
+
+
+window.jpvs = window.jpvs || {};
+
 jpvs.Button = function (selector) {
     /// <summary>Attaches the widget to an existing element.</summary>
     /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
@@ -1545,6 +1591,7 @@ window.jpvs = window.jpvs || {};
 
     function Extender(tableElement) {
         this.afterResize = new jpvs.Event();
+        this.changeFilterSort = new jpvs.Event();
     }
 
     Extender.prototype.resizableColumns = function (value) {
@@ -1557,6 +1604,32 @@ window.jpvs = window.jpvs || {};
         /// Two custom attributes should be used in order to identify the table and its columns. The first one is "data-table-name" and
         /// must be applied to the table element. Then, on each COL element, a "data-col-name" should be used.</summary>
         return this;
+    };
+
+    Extender.prototype.enableFiltering = function (value) {
+        /// <summary>Property: true/false. Specifies whether row filtering has to be enabled. Column names must be identified by the
+        /// "data-col-name" attribute on each COL element. Column friendly names (displayed in the filtering popup) are taken
+        /// from the "data-col-header" attribute. Set the "data-col-filter" attribute to "false" to disable filtering on single columns.</summary>
+        return this;
+    };
+
+    Extender.prototype.enableSorting = function (value) {
+        /// <summary>Property: true/false. Specifies whether row sorting has to be enabled. Column names must be identified by the
+        /// "data-col-name" attribute on each COL element. Column friendly names (displayed in the sorting popup) are taken
+        /// from the "data-col-header" attribute. Set the "data-col-sort" attribute to "false" to disable filtering on single columns.</summary>
+        return this;
+    };
+
+    Extender.prototype.getSortAndFilterSettings = function () {
+        /// <summary>Gets sorting and filtering settings. Returns an object of type { sort: [], filter: [] }.
+        /// The "sort" field is an array of sorting rules. Each sorting rule has this form: { colName: <value of the COL's "data-col-name" attribute>,
+        /// descending: <true/false> }.
+        /// The "filter" field is an array of filtering rules. Each filtering rule has this form:
+        /// { 
+        ///     colName: <value of the COL's "data-col-name" attribute>, 
+        ///     operand: <"EQ" | "NEQ" | "CONTAINS" | "NCONTAINS" | "STARTS" | "NSTARTS" | "LT" | "LTE" | "GT" | "GTE">, 
+        ///     value: <value set by the user>
+        /// }
     };
 
     Extender.prototype.apply = function () {

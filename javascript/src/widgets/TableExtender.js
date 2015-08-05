@@ -53,6 +53,12 @@
         };
     };
 
+    Extender.prototype.clearSortAndFilterSettings = function () {
+        //Reset filter/sort settings
+        this.sortSettings = [];
+        this.filterSettings = [];
+    };
+
     Extender.prototype.apply = function () {
         //We need some DataGrid's strings. Let's ensure they are properly initialized based on the current locale
         jpvs.DataGrid.strings = jpvs.DataGrid.allStrings[jpvs.currentLocale()];
@@ -87,10 +93,6 @@
             //Mark events as bound, so a subsequent call to this method does not bind events again
             this.eventsBound_FilterSort = true;
         }
-
-        //Reset filter/sort settings
-        this.sortSettings = [];
-        this.filterSettings = [];
     };
 
     function getColSpan(cell) {

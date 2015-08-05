@@ -55,6 +55,11 @@ window.jpvs = window.jpvs || {};
         /// }
     };
 
+    Extender.prototype.clearSortAndFilterSettings = function () {
+        /// <summary>Resets sort and filter settings to no-sort and no-filter.</summary>
+    };
+
+
     Extender.prototype.apply = function () {
         /// <summary>Activates this TableExtender. First, you must create the extender via the "create" function. Then,
         /// you must configure it through its properties (e.g.: resizableColumns, persistColumnSizes, ...). Finally,

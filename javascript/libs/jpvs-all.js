@@ -10077,6 +10077,7 @@ jpvs.makeWidget({
         function onAddFilter() {
             extender.filterSettings.push({
                 colName: colName,
+                colHeader:colHeader,
                 operand: "EQ",
                 value: ""
             });
@@ -10088,6 +10089,7 @@ jpvs.makeWidget({
         function onAddSort() {
             extender.sortSettings.push({
                 colName: colName,
+                colHeader: colHeader,
                 descending: false
             });
 
@@ -10116,7 +10118,7 @@ jpvs.makeWidget({
             var row = tblFilter.writeRow();
 
             jpvs.write(row.writeCell(), jpvs.DataGrid.strings.condition + ": ");
-            jpvs.writeTag(row.writeCell(), "strong", item.colName);
+            jpvs.writeTag(row.writeCell(), "strong", item.colHeader);
 
             var cmbOp = jpvs.DropDownList.create(row.writeCell());
             cmbOp.addItem("");
@@ -10175,7 +10177,7 @@ jpvs.makeWidget({
 
             jpvs.writeTag(row.writeCell().css("cursor", "move"), "img").attr("src", jpvs.Resources.images.moveButton);
             jpvs.write(row.writeCell(), (itemIndex == 0 ? jpvs.DataGrid.strings.orderBy : jpvs.DataGrid.strings.thenBy) + ": ");
-            jpvs.writeTag(row.writeCell(), "strong", item.colName);
+            jpvs.writeTag(row.writeCell(), "strong", item.colHeader);
             jpvs.CheckBox.create(row.writeCell()).text(jpvs.DataGrid.strings.descending).checked(item.descending).change(function () { item.descending = this.checked(); });
 
             jpvs.LinkButton.create(row.writeCell()).text(jpvs.DataGrid.strings.remove).click(function () {

@@ -45,10 +45,11 @@ window.jpvs = window.jpvs || {};
     Extender.prototype.getSortAndFilterSettings = function () {
         /// <summary>Gets sorting and filtering settings. Returns an object of type { sort: [], filter: [] }.
         /// The "sort" field is an array of sorting rules. Each sorting rule has this form: { colName: <value of the COL's "data-col-name" attribute>,
-        /// descending: <true/false> }.
+        /// colHeader: <value of the "data-col-header" attribute, descending: <true/false> }.
         /// The "filter" field is an array of filtering rules. Each filtering rule has this form:
         /// { 
         ///     colName: <value of the COL's "data-col-name" attribute>, 
+        ///     colHeader: <value of the "data-col-header" attribute, 
         ///     operand: <"EQ" | "NEQ" | "CONTAINS" | "NCONTAINS" | "STARTS" | "NSTARTS" | "LT" | "LTE" | "GT" | "GTE">, 
         ///     value: <value set by the user>
         /// }

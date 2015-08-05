@@ -9654,6 +9654,10 @@ jpvs.makeWidget({
             //Mark events as bound, so a subsequent call to this method does not bind events again
             this.eventsBound_FilterSort = true;
         }
+
+        //Reset filter/sort settings
+        this.sortSettings = [];
+        this.filterSettings = [];
     };
 
     function getColSpan(cell) {
@@ -10077,7 +10081,7 @@ jpvs.makeWidget({
         function onAddFilter() {
             extender.filterSettings.push({
                 colName: colName,
-                colHeader:colHeader,
+                colHeader: colHeader,
                 operand: "EQ",
                 value: ""
             });

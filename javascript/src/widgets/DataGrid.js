@@ -11,8 +11,9 @@
     jpvs.DataGrid.allStrings = {
         en: {
             column: "Column",
-            addFilter: "Add filter",
-            addSort: "Add sort",
+            currentColumn: "Selected column",
+            addFilter: "Add filtering rule",
+            addSort: "Add sorting rule",
 
             clickToSortAndFilter: "Click here for sorting/filtering options",
             clickToSort: "Click here for sorting options",
@@ -48,8 +49,9 @@
 
         it: {
             column: "Colonna",
-            addFilter: "Aggiungi filtro",
-            addSort: "Aggiungi ordinamento",
+            currentColumn: "Colonna selezionata",
+            addFilter: "Aggiungi criterio di filtro",
+            addSort: "Aggiungi criterio di ordinamento",
 
             clickToSortAndFilter: "Clicca qui per ordinare/filtrare i dati",
             clickToSort: "Clicca qui per ordinare i dati",

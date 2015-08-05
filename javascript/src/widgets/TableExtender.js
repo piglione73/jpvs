@@ -46,6 +46,13 @@
         set: function (value) { this._enableFiltering = !!value; }
     });
 
+    Extender.prototype.getSortAndFilterSettings = function () {
+        return {
+            sort: this.sortSettings,
+            filter: this.filterSettings
+        };
+    };
+
     Extender.prototype.apply = function () {
         //We need some DataGrid's strings. Let's ensure they are properly initialized based on the current locale
         jpvs.DataGrid.strings = jpvs.DataGrid.allStrings[jpvs.currentLocale()];
@@ -464,26 +471,10 @@
         else if (extender.enableFiltering())
             popTitle = jpvs.DataGrid.strings.titleFilter;
 
-        var pop = jpvs.Popup.create().title(popTitle);
-
-        //Section with filtering info
-        var tblFilter;
-        if (isFiltering) {
-            tblFilter = jpvs.Table.create(pop);
-            writeFilterSettings();
-            jpvs.writeTag(pop, "hr");
-        }
-
-        //Section with sorting info
-        var tblSort;
-        if (isSorting) {
-            tblSort = jpvs.Table.create(pop);
-            writeSortSettings();
-            jpvs.writeTag(pop, "hr");
-        }
+        var pop = jpvs.Popup.create().title(popTitle).close(onClosePopup);
 
         //Section with column details
-        jpvs.write(pop, jpvs.DataGrid.strings.column + ": ");
+        jpvs.write(pop, jpvs.DataGrid.strings.currentColumn + ": ");
         jpvs.writeTag(pop, "strong", colHeader);
         jpvs.write(pop, "\u00a0\u00a0\u00a0");
 
@@ -496,6 +487,22 @@
             jpvs.LinkButton.create(pop).text(jpvs.DataGrid.strings.addSort).click(onAddSort);
 
         jpvs.writeln(pop);
+
+        //Section with filtering info
+        var tblFilter;
+        if (isFiltering) {
+            jpvs.writeTag(pop, "hr");
+            tblFilter = jpvs.Table.create(pop);
+            writeFilterSettings();
+        }
+
+        //Section with sorting info
+        var tblSort;
+        if (isSorting) {
+            jpvs.writeTag(pop, "hr");
+            tblSort = jpvs.Table.create(pop);
+            writeSortSettings();
+        }
 
         //Finally, show the popup
         pop.show();
@@ -568,6 +575,12 @@
                     var item = extender.sortSettings[i];
                     writeSortSettingsRow(item, i);
                 }
+
+                //Enable manual reordering of sorting rules
+                tblSort.element.find("tbody").sortable({
+                    handle: "td:first",
+                    update: onSortUpdate
+                });
             }
             else {
                 var row = tblSort.writeRow();
@@ -575,12 +588,25 @@
             }
         }
 
+        function onSortUpdate() {
+            //Apply the new ordering
+            extender.sortSettings = [];
+            tblSort.element.find("tr").each(function () {
+                var tr = $(this);
+                var item = tr.data("item");
+                extender.sortSettings.push(item);
+            });
+
+            //Refresh
+            writeSortSettings();
+        }
+
         function writeSortSettingsRow(item, itemIndex) {
             //MOVE ICON Order by: (field name) CHECKBOX (descending), Remove button
             var row = tblSort.writeRow();
             row.element.data("item", item);
 
-            jpvs.writeTag(row.writeCell(), "img").attr("src", jpvs.Resources.images.moveButton);
+            jpvs.writeTag(row.writeCell().css("cursor", "move"), "img").attr("src", jpvs.Resources.images.moveButton);
             jpvs.write(row.writeCell(), (itemIndex == 0 ? jpvs.DataGrid.strings.orderBy : jpvs.DataGrid.strings.thenBy) + ": ");
             jpvs.writeTag(row.writeCell(), "strong", item.colName);
             jpvs.CheckBox.create(row.writeCell()).text(jpvs.DataGrid.strings.descending).checked(item.descending).change(function () { item.descending = this.checked(); });
@@ -592,6 +618,10 @@
             });
         }
 
+        function onClosePopup() {
+            //Fire the event
+            extender.changeFilterSort.fire(extender);
+        }
     }
 
 })();

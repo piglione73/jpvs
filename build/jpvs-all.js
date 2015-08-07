@@ -342,14 +342,19 @@ var jpvs = (function () {
 
     jpvs.runTask = function (flagAsync, task, onSuccess, onProgress, onError) {
         if (flagAsync)
-            jpvs.runBackgroundTask(task, onSuccess, onProgress, onError);
+            return jpvs.runBackgroundTask(task, onSuccess, onProgress, onError);
         else
-            jpvs.runForegroundTask(task, onSuccess, onProgress, onError);
+            return jpvs.runForegroundTask(task, onSuccess, onProgress, onError);
     };
 
     jpvs.runBackgroundTask = function (task, onSuccess, onProgress, onError) {
         //Start the task runner, that runs asynchronously until task termination
-        setTimeout(taskRunnerAsync(task, onSuccess, onProgress, onError), 0);
+        var taskFunctions = taskRunnerAsync(task, onSuccess, onProgress, onError);
+
+        setTimeout(taskFunctions.run, 0);
+
+        //Returns an object containing a "function cancel() {}", that can be used to interrupt the task at any moment
+        return { cancel: taskFunctions.cancel };
     };
 
     jpvs.runForegroundTask = function (task, onSuccess, onProgress, onError) {
@@ -407,18 +412,32 @@ var jpvs = (function () {
         //We want to exit immediately on the first iteration, so we load the task settings right away
         var minRunTimeMs = 0;
 
-        //Return a reference to the "run" function
-        return run;
+        //Flag used for cancelling the task
+        var mustCancel = false;
+
+        //Return a reference to the "run" and "cancel" functions
+        return { run: run, cancel: cancel };
+
+
+        //Cancel function
+        function cancel() {
+            //Simply turn on the flag, so the task stops working
+            mustCancel = true;
+        }
 
         //Runner function, runs until task termination
         //In case of exception in the "task" function, the task is terminated
         //The "task" function returns info about how to continue running the task
         function run() {
+            //If we must stop, then just exit and don't schedule anything more, so this task stops executing immediately
+            if (mustCancel)
+                return;
+
             try {
                 //Run the task for at least minRunTime milliseconds
                 var start = new Date().getTime();
                 var end = start + minRunTimeMs;
-                while (true) {
+                while (!mustCancel) {
                     //Run once and analyze the return code
                     var info = task(ctx);
                     var infoDecoded = analyzeTaskRetCode(info);

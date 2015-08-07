@@ -46,24 +46,31 @@
             };
         }
 
+        var taskCanceler;
+
         function testFore(btn) {
             jpvs.runForegroundTask(fibonacciTask(), onSuccess(btn), onProgress(btn), onError(btn));
         }
 
         function test1(btn) {
-            jpvs.runBackgroundTask(fibonacciTask(0.01), onSuccess(btn), onProgress(btn), onError(btn));
+            taskCanceler = jpvs.runBackgroundTask(fibonacciTask(0.01), onSuccess(btn), onProgress(btn), onError(btn));
         }
 
         function test10(btn) {
-            jpvs.runBackgroundTask(fibonacciTask(0.1), onSuccess(btn), onProgress(btn), onError(btn));
+            taskCanceler = jpvs.runBackgroundTask(fibonacciTask(0.1), onSuccess(btn), onProgress(btn), onError(btn));
         }
 
         function test90(btn) {
-            jpvs.runBackgroundTask(fibonacciTask(0.9), onSuccess(btn), onProgress(btn), onError(btn));
+            taskCanceler = jpvs.runBackgroundTask(fibonacciTask(0.9), onSuccess(btn), onProgress(btn), onError(btn));
         }
 
         function testDef(btn) {
-            jpvs.runBackgroundTask(fibonacciTask(), onSuccess(btn), onProgress(btn), onError(btn));
+            taskCanceler = jpvs.runBackgroundTask(fibonacciTask(), onSuccess(btn), onProgress(btn), onError(btn));
+        }
+
+        function cancelTask() {
+            if (taskCanceler && taskCanceler.cancel)
+                taskCanceler.cancel();
         }
 
         function onSuccess(btn) {
@@ -92,6 +99,7 @@
     <div><button onclick="test90(this);">Background 90%</button> <span></span></div>
     <div><button onclick="testDef(this);">Background Default (50%)</button> <span></span></div>
     <div><button onclick="testFore(this);">Foreground</button> <span></span></div>
+    <div><button onclick="cancelTask();">Cancel running task</button> <span></span></div>
 
     <textarea rows="20" cols="80">Write here to see if responsive!</textarea>
 </body>

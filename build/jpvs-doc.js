@@ -61,6 +61,8 @@ jpvs.runTask = function (flagAsync, task, onSuccess, onProgress, onError) {
     /// <param name="onError" type="Function">Optional callback function that will receive exceptions in case of abnormal
     /// termination. Signature: function onError(e) {}, where "e" is the exception/error object thrown by the task function and
     /// can be an object of any type.</param>
+    /// <returns type="any">If run as a background task, returns an object like this: { cancel: function() {} }. Calling the "cancel" function interrupts the task immediately.
+    /// If run as a foreground task, returns the value returned by the task.</returns>
 };
 
 jpvs.runBackgroundTask = function (task, onSuccess, onProgress, onError) {
@@ -89,6 +91,7 @@ jpvs.runBackgroundTask = function (task, onSuccess, onProgress, onError) {
     /// <param name="onError" type="Function">Optional callback function that will receive exceptions in case of abnormal
     /// termination. Signature: function onError(e) {}, where "e" is the exception/error object thrown by the task function and
     /// can be an object of any type.</param>
+    /// <returns type="any">An object like this: { cancel: function() {} }. Calling the "cancel" function interrupts the task immediately.</returns>
 };
 
 jpvs.runForegroundTask = function (task, onSuccess, onProgress, onError) {

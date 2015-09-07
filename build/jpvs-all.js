@@ -7650,8 +7650,10 @@ jpvs.makeWidget({
         //allLine has all the MenuElements that we must show
         for (var i = 0; i < allLine.length; i++) {
             var me = allLine[i];
-            if (me.isPopup) {
-                //A popup menu must appear close to the parent menu item
+            me.element.show();
+
+            if (me.isPopup && me.parentElement) {
+                //A popup menu must appear close to the parent menu item, if any
                 var parentElement = me.parentElement;
 
                 //Find the item (in the parent menu element) that has "me" as submenu
@@ -7661,7 +7663,7 @@ jpvs.makeWidget({
                 var box = getBox(parentMenuItem);
                 var coords = getPopupCoords(box, parentElement.childrenAlignment);
 
-                me.element.show().css({
+                me.element.css({
                     position: "absolute",
                     left: coords.x + "px",
                     top: coords.y + "px"
@@ -7669,10 +7671,6 @@ jpvs.makeWidget({
 
                 //Then fit in visible area
                 jpvs.fitInWindow(me.element);
-            }
-            else {
-                //A non-popup menu, must just appear
-                me.element.show();
             }
         }
 

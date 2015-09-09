@@ -10245,33 +10245,26 @@ jpvs.makeWidget({
         }
     }
 
-    function destroyFloatingHeaderClone(extender) {
-        //If a header clone is present, destroy it
-        if (extender.floatingHeaderClone) {
-            extender.floatingHeaderClone.remove();
-            extender.floatingHeaderClone = null;
-        }
-    }
-
     function createFloatingHeaderClone(extender) {
-        //First of all, if a header clone is already present, let's destroy it
-        destroyFloatingHeaderClone(extender);
+        //My scrolling container, if any. $(window) otherwise.
+        var scrollingContainer = getScrollingContainer(extender.tableElement).css("position", "relative");
 
         //Then clone the TABLE with its THEAD and its COL's
-        extender.floatingHeaderClone = extender.tableElement.clone();
-        extender.floatingHeaderClone.children("tbody, tfoot, caption").remove();
-        extender.floatingHeaderClone.insertAfter(extender.tableElement);
+        if (!extender.floatingHeaderClone) {
+            extender.floatingHeaderClone = extender.tableElement.clone();
+            extender.floatingHeaderClone.children("tbody, tfoot, caption").remove();
+            extender.floatingHeaderClone.insertAfter(extender.tableElement);
 
-        //Respond to scrolling events from the scrolling container
-        var scrollingContainer = getScrollingContainer(extender.tableElement).css("position", "relative");
-        refreshFloatingHeaderVisibility();
-        scrollingContainer.off(".jpvsTableExtender");
-        scrollingContainer.on("scroll", refreshFloatingHeaderVisibility);
+            //Respond to scrolling events from the scrolling container
+            scrollingContainer.on("scroll", refreshFloatingHeaderVisibility);
+        }
 
         //Border sizes
         var isWindow = scrollingContainer[0].jpvs;
         var borderLeftSize = isWindow ? 0 : parseInt(scrollingContainer.css("border-left-width"), 10);
         var borderTopSize = isWindow ? 0 : parseInt(scrollingContainer.css("border-top-width"), 10);
+
+        refreshFloatingHeaderVisibility();
 
         function refreshFloatingHeaderVisibility() {
             //Top-left of the scrolling container. 

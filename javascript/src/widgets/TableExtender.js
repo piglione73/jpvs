@@ -83,25 +83,19 @@
         if (this.tableHeaderAlwaysVisible())
             createFloatingHeaderClone(this);
 
-        if (this.resizableColumns() && !this.eventsBound_Resizing) {
+        if (this.resizableColumns()) {
             //Activate resizable visual cues on vertical grid lines
             activateResizeCursorOnVerticalLines(this);
 
             //Handle cell border dragging
             handleCellBorderDragging(this);
-
-            //Mark events as bound, so a subsequent call to this method does not bind events again
-            this.eventsBound_Resizing = true;
         }
 
         //Let's activate sorting/filtering, if required
         var sortingOrFiltering = this.enableFiltering() || this.enableSorting();
-        if (sortingOrFiltering && !this.eventsBound_FilterSort) {
+        if (sortingOrFiltering) {
             //Activate filtering/sorting on TH elements
             activateFilterSort(this);
-
-            //Mark events as bound, so a subsequent call to this method does not bind events again
-            this.eventsBound_FilterSort = true;
         }
     };
 
@@ -171,7 +165,7 @@
         if (extender.floatingHeaderClone)
             tbl = tbl.add(extender.floatingHeaderClone);
 
-        tbl.on("mousemove", allCellsSelector, function (e) {
+        tbl.off("mousemove.jpvsTableExtender").on("mousemove.jpvsTableExtender", allCellsSelector, function (e) {
             var cell = $(e.currentTarget);
             var cellOffset = cell.offset();
             var relX = e.pageX - cellOffset.left;
@@ -182,7 +176,7 @@
                 cell.removeClass("ColumnResize");
         });
 
-        tbl.on("mouseleave", allCellsSelector, function (e) {
+        tbl.off("mouseleave.jpvsTableExtender").on("mouseleave.jpvsTableExtender", allCellsSelector, function (e) {
             var cell = $(e.currentTarget);
             cell.removeClass("ColumnResize");
         });
@@ -249,7 +243,7 @@
         if (extender.floatingHeaderClone)
             tbl = tbl.add(extender.floatingHeaderClone);
 
-        tbl.on("mousedown", allCellsSelector, function (e) {
+        tbl.off("mousedown.jpvsTableExtender").on("mousedown.jpvsTableExtender", allCellsSelector, function (e) {
             var cell = $(e.currentTarget);
 
             //Coordinates, relative to the table
@@ -277,7 +271,7 @@
             }
         });
 
-        $(document).on("mousemove", function (e) {
+        $(document).off("mousemove.jpvsTableExtender" + extender.uniqueName).on("mousemove.jpvsTableExtender" + extender.uniqueName, function (e) {
             if (draggingCol) {
                 //Coordinates, relative to the table
                 //We use tbl.eq(0) because "tbl" might contain either tableElement or tableElement+floatingHeaderClone
@@ -313,7 +307,7 @@
             }
         });
 
-        $(document).on("mouseup", function (e) {
+        $(document).off("mouseup.jpvsTableExtender" + extender.uniqueName).on("mouseup.jpvsTableExtender" + extender.uniqueName, function (e) {
             //End dragging, if active
             if (draggingCol && lastEventParams) {
                 //Fire one last event
@@ -417,7 +411,7 @@
             tbl = tbl.add(extender.floatingHeaderClone);
 
         //Handle sorting filtering visual cues
-        tbl.on("mousemove", allHeaderCellsSelector, function (e) {
+        tbl.off("mousemove.jpvsTableExtender").on("mousemove.jpvsTableExtender", allHeaderCellsSelector, function (e) {
             var cell = $(e.currentTarget);
 
             if (isFilteringAndOrSorting(extender, cell, e))
@@ -426,13 +420,13 @@
                 cell.removeClass("SortOrFilter");
         });
 
-        tbl.on("mouseleave", allHeaderCellsSelector, function (e) {
+        tbl.off("mouseleave.jpvsTableExtender").on("mouseleave.jpvsTableExtender", allHeaderCellsSelector, function (e) {
             var cell = $(e.currentTarget);
             cell.removeClass("SortOrFilter");
         });
 
         //Handle sorting/filtering requests
-        tbl.on("mousedown", allHeaderCellsSelector, function (e) {
+        tbl.off("mousedown.jpvsTableExtender").on("mousedown.jpvsTableExtender", allHeaderCellsSelector, function (e) {
             var cell = $(e.currentTarget);
 
             if (isFilteringAndOrSorting(extender, cell, e)) {

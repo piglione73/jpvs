@@ -665,15 +665,18 @@
         //My scrolling container, if any. $(window) otherwise.
         var scrollingContainer = getScrollingContainer(extender.tableElement).css("position", "relative");
 
-        //Then clone the TABLE with its THEAD and its COL's
-        if (!extender.floatingHeaderClone) {
-            extender.floatingHeaderClone = extender.tableElement.clone();
-            extender.floatingHeaderClone.children("tbody, tfoot, caption").remove();
-            extender.floatingHeaderClone.insertAfter(extender.tableElement);
+        //Destroy and recreate the floating header clone
+        if (extender.floatingHeaderClone)
+            extender.floatingHeaderClone.remove();
 
-            //Respond to scrolling events from the scrolling container
-            scrollingContainer.on("scroll", refreshFloatingHeaderVisibility);
-        }
+        //Then clone the TABLE with its THEAD and its COL's
+        extender.floatingHeaderClone = extender.tableElement.clone();
+        extender.floatingHeaderClone.children("tbody, tfoot, caption").remove();
+        extender.floatingHeaderClone.insertAfter(extender.tableElement);
+
+        //Respond to scrolling events from the scrolling container
+        scrollingContainer.off("scroll.jpvsTableExtender");
+        scrollingContainer.on("scroll.jpvsTableExtender", refreshFloatingHeaderVisibility);
 
         //Border sizes
         var isWindow = scrollingContainer[0].jpvs;

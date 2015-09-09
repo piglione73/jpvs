@@ -9749,7 +9749,7 @@ jpvs.makeWidget({
         if (extender.floatingHeaderClone)
             tbl = tbl.add(extender.floatingHeaderClone);
 
-        tbl.off("mousemove.jpvsTableExtender").on("mousemove.jpvsTableExtender", allCellsSelector, function (e) {
+        tbl.off("mousemove.jpvsTableExtender1").on("mousemove.jpvsTableExtender1", allCellsSelector, function (e) {
             var cell = $(e.currentTarget);
             var cellOffset = cell.offset();
             var relX = e.pageX - cellOffset.left;
@@ -9760,7 +9760,7 @@ jpvs.makeWidget({
                 cell.removeClass("ColumnResize");
         });
 
-        tbl.off("mouseleave.jpvsTableExtender").on("mouseleave.jpvsTableExtender", allCellsSelector, function (e) {
+        tbl.off("mouseleave.jpvsTableExtender1").on("mouseleave.jpvsTableExtender1", allCellsSelector, function (e) {
             var cell = $(e.currentTarget);
             cell.removeClass("ColumnResize");
         });
@@ -9827,7 +9827,7 @@ jpvs.makeWidget({
         if (extender.floatingHeaderClone)
             tbl = tbl.add(extender.floatingHeaderClone);
 
-        tbl.off("mousedown.jpvsTableExtender").on("mousedown.jpvsTableExtender", allCellsSelector, function (e) {
+        tbl.off("mousedown.jpvsTableExtender2").on("mousedown.jpvsTableExtender2", allCellsSelector, function (e) {
             var cell = $(e.currentTarget);
 
             //Coordinates, relative to the table
@@ -9855,7 +9855,7 @@ jpvs.makeWidget({
             }
         });
 
-        $(document).off("mousemove.jpvsTableExtender" + extender.uniqueName).on("mousemove.jpvsTableExtender" + extender.uniqueName, function (e) {
+        $(document).off("mousemove.jpvsTableExtender2" + extender.uniqueName).on("mousemove.jpvsTableExtender2" + extender.uniqueName, function (e) {
             if (draggingCol) {
                 //Coordinates, relative to the table
                 //We use tbl.eq(0) because "tbl" might contain either tableElement or tableElement+floatingHeaderClone
@@ -9891,7 +9891,7 @@ jpvs.makeWidget({
             }
         });
 
-        $(document).off("mouseup.jpvsTableExtender" + extender.uniqueName).on("mouseup.jpvsTableExtender" + extender.uniqueName, function (e) {
+        $(document).off("mouseup.jpvsTableExtender2" + extender.uniqueName).on("mouseup.jpvsTableExtender2" + extender.uniqueName, function (e) {
             //End dragging, if active
             if (draggingCol && lastEventParams) {
                 //Fire one last event
@@ -9995,7 +9995,7 @@ jpvs.makeWidget({
             tbl = tbl.add(extender.floatingHeaderClone);
 
         //Handle sorting filtering visual cues
-        tbl.off("mousemove.jpvsTableExtender").on("mousemove.jpvsTableExtender", allHeaderCellsSelector, function (e) {
+        tbl.off("mousemove.jpvsTableExtender3").on("mousemove.jpvsTableExtender3", allHeaderCellsSelector, function (e) {
             var cell = $(e.currentTarget);
 
             if (isFilteringAndOrSorting(extender, cell, e))
@@ -10004,13 +10004,13 @@ jpvs.makeWidget({
                 cell.removeClass("SortOrFilter");
         });
 
-        tbl.off("mouseleave.jpvsTableExtender").on("mouseleave.jpvsTableExtender", allHeaderCellsSelector, function (e) {
+        tbl.off("mouseleave.jpvsTableExtender3").on("mouseleave.jpvsTableExtender3", allHeaderCellsSelector, function (e) {
             var cell = $(e.currentTarget);
             cell.removeClass("SortOrFilter");
         });
 
         //Handle sorting/filtering requests
-        tbl.off("mousedown.jpvsTableExtender").on("mousedown.jpvsTableExtender", allHeaderCellsSelector, function (e) {
+        tbl.off("mousedown.jpvsTableExtender3").on("mousedown.jpvsTableExtender3", allHeaderCellsSelector, function (e) {
             var cell = $(e.currentTarget);
 
             if (isFilteringAndOrSorting(extender, cell, e)) {
@@ -10253,8 +10253,8 @@ jpvs.makeWidget({
         extender.floatingHeaderClone.insertAfter(extender.tableElement);
 
         //Respond to scrolling events from the scrolling container
-        scrollingContainer.off("scroll.jpvsTableExtender");
-        scrollingContainer.on("scroll.jpvsTableExtender", refreshFloatingHeaderVisibility);
+        scrollingContainer.off("scroll.jpvsTableExtender4");
+        scrollingContainer.on("scroll.jpvsTableExtender4", refreshFloatingHeaderVisibility);
 
         //Border sizes
         var isWindow = scrollingContainer[0].jpvs;

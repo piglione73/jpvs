@@ -59,6 +59,10 @@ window.jpvs = window.jpvs || {};
         /// <summary>Resets sort and filter settings to no-sort and no-filter.</summary>
     };
 
+    Extender.prototype.tableHeaderAlwaysVisible = function () {
+        /// <summary>Property: true/false. Specifies whether the table header must always be visible even when it would otherwise scroll
+        /// out of sight.</summary>
+    };
 
     Extender.prototype.apply = function () {
         /// <summary>Activates this TableExtender. First, you must create the extender via the "create" function. Then,

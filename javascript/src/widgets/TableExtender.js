@@ -15,6 +15,7 @@
 
     function Extender(tableElement) {
         this.tableElement = tableElement;
+        this.floatingHeaderClone = null;
 
         //The unique name is applied as a CSS class name on THEAD and TBODY in order to uniquely identify cells affected by this extender (i.e.:
         //cells in subtables of tableElement must not be affected by this extender). This allows the allCellsSelector to work.
@@ -59,6 +60,11 @@
         this.filterSettings = [];
     };
 
+    Extender.prototype.tableHeaderAlwaysVisible = jpvs.property({
+        get: function () { return !!this._tableHeaderAlwaysVisible; },
+        set: function (value) { this._tableHeaderAlwaysVisible = !!value; }
+    });
+
     Extender.prototype.apply = function () {
         //We need some DataGrid's strings. Let's ensure they are properly initialized based on the current locale
         jpvs.DataGrid.strings = jpvs.DataGrid.allStrings[jpvs.currentLocale()];
@@ -72,6 +78,10 @@
         //Column sizes are persisted?
         if (this.persistColumnSizes())
             loadColSizesFromStorage(this);
+
+        //Let's activate the table header fixing, if required
+        if (this.tableHeaderAlwaysVisible())
+            createFloatingHeaderClone(this);
 
         if (this.resizableColumns() && !this.eventsBound_Resizing) {
             //Activate resizable visual cues on vertical grid lines
@@ -157,6 +167,10 @@
         var tbl = extender.tableElement;
         var allCellsSelector = extender.allCellsSelector;
 
+        //Same visual cues on the floating header clone, if present
+        if (extender.floatingHeaderClone)
+            tbl = tbl.add(extender.floatingHeaderClone);
+
         tbl.on("mousemove", allCellsSelector, function (e) {
             var cell = $(e.currentTarget);
             var cellOffset = cell.offset();
@@ -220,6 +234,7 @@
 
     function handleCellBorderDragging(extender) {
         var draggingCol;
+        var draggingCol_FH;         //Matching COL in the fixed floating header, if any
         var draggingColIndex;
         var originalTableX;
         var originalColWidth;
@@ -230,11 +245,16 @@
         var scrollingContainer = getScrollingContainer(tbl);
         var lastEventParams;
 
+        //Same behavior on the floating header clone, if present
+        if (extender.floatingHeaderClone)
+            tbl = tbl.add(extender.floatingHeaderClone);
+
         tbl.on("mousedown", allCellsSelector, function (e) {
             var cell = $(e.currentTarget);
 
             //Coordinates, relative to the table
-            var tblOffset = tbl.offset();
+            //We use tbl.eq(0) because "tbl" might contain either tableElement or tableElement+floatingHeaderClone
+            var tblOffset = tbl.eq(0).offset();
             var tableX = e.pageX - tblOffset.left;
 
             //Coordinates, relative to the cell
@@ -260,7 +280,8 @@
         $(document).on("mousemove", function (e) {
             if (draggingCol) {
                 //Coordinates, relative to the table
-                var tblOffset = tbl.offset();
+                //We use tbl.eq(0) because "tbl" might contain either tableElement or tableElement+floatingHeaderClone
+                var tblOffset = tbl.eq(0).offset();
                 var tableX = e.pageX - tblOffset.left;
 
                 //Resize the COL element. Let's set a minimum so the column can be easily restored
@@ -274,6 +295,7 @@
 
                 tbl.css("width", newTblWidth + "px");
                 draggingCol.css("width", newColWidth + "px");
+                draggingCol_FH.css("width", newColWidth + "px");
 
                 //If required, persist column sizes
                 if (extender.persistColumnSizes())
@@ -298,6 +320,7 @@
                 lastEventParams.resizing = false;
                 extender.afterResize.fire(extender, null, lastEventParams);
                 draggingCol = null;
+                draggingCol_FH = null;
 
                 //Stop propagation: this event has been fully handled now
                 return false;
@@ -309,8 +332,10 @@
             var leftBorderIndex = getLeftBorderIndex(cell);
             var colIndex = leftBorderIndex + getColSpan(cell) - 1;
             var cols = getColElements(tbl);
+            var cols_FH = extender.floatingHeaderClone && getColElements(extender.floatingHeaderClone);
 
             draggingCol = cols.eq(colIndex);
+            draggingCol_FH = cols_FH.eq(colIndex);
             draggingColIndex = colIndex;
             originalTableX = tableX;
             originalColWidth = draggingCol.width();
@@ -386,6 +411,10 @@
     function activateFilterSort(extender) {
         var tbl = extender.tableElement;
         var allHeaderCellsSelector = extender.allHeaderCellsSelector;
+
+        //Same behavior on the floating header clone, if present
+        if (extender.floatingHeaderClone)
+            tbl = tbl.add(extender.floatingHeaderClone);
 
         //Handle sorting filtering visual cues
         tbl.on("mousemove", allHeaderCellsSelector, function (e) {
@@ -629,6 +658,67 @@
         function onClosePopup() {
             //Fire the event
             extender.changeFilterSort.fire(extender);
+        }
+    }
+
+    function destroyFloatingHeaderClone(extender) {
+        //If a header clone is present, destroy it
+        if (extender.floatingHeaderClone) {
+            extender.floatingHeaderClone.remove();
+            extender.floatingHeaderClone = null;
+        }
+    }
+
+    function createFloatingHeaderClone(extender) {
+        //First of all, if a header clone is already present, let's destroy it
+        destroyFloatingHeaderClone(extender);
+
+        //Then clone the TABLE with its THEAD and its COL's
+        extender.floatingHeaderClone = extender.tableElement.clone();
+        extender.floatingHeaderClone.children("tbody, tfoot, caption").remove();
+        extender.floatingHeaderClone.insertAfter(extender.tableElement);
+
+        //Respond to scrolling events from the scrolling container
+        var scrollingContainer = getScrollingContainer(extender.tableElement).css("position", "relative");
+        refreshFloatingHeaderVisibility();
+        scrollingContainer.off(".jpvsTableExtender");
+        scrollingContainer.on("scroll", refreshFloatingHeaderVisibility);
+
+        //Border sizes
+        var isWindow = scrollingContainer[0].jpvs;
+        var borderLeftSize = isWindow ? 0 : parseInt(scrollingContainer.css("border-left-width"), 10);
+        var borderTopSize = isWindow ? 0 : parseInt(scrollingContainer.css("border-top-width"), 10);
+
+        function refreshFloatingHeaderVisibility() {
+            //Top-left of the scrolling container. 
+            //If it is the $(window) itself, then the top-left of the visible area
+            var scXY = scrollingContainer.offset() || { left: scrollingContainer.scrollLeft(), top: scrollingContainer.scrollTop() };
+
+            //Top-left of the internal contents of the scrolling container
+            var scXY_WithScroll = {
+                left: scXY.left - scrollingContainer.scrollLeft(),
+                top: scXY.top - scrollingContainer.scrollTop()
+            };
+
+            //Top-left of the table
+            var tblXY = extender.tableElement.offset();
+
+            //Coordinates relative to the scrolling container contents (accounting for scroll)
+            var tableX = tblXY.left - scXY_WithScroll.left;
+            var tableY = tblXY.top - scXY_WithScroll.top;
+
+            //If the header is partially/fully out of sight (vertically), then we show the floatingHeaderClone on top
+            //Otherwise, we hide the floatingHeaderClone
+            if (scrollingContainer.scrollTop() > tableY) {
+                extender.floatingHeaderClone.show().css({
+                    position: "absolute",
+                    left: (tableX - borderLeftSize) + "px",
+                    top: (scrollingContainer.scrollTop() - borderTopSize) + "px",
+                    margin: "0px"
+                });
+            }
+            else
+                extender.floatingHeaderClone.hide();
         }
     }
 

@@ -4896,6 +4896,9 @@ jpvs.makeWidget({
                     lbl = $(document.createElement("label"));
                     lbl.attr("for", this.id());
                     lbl.insertAfter(this.element);
+
+                    //Let's keep a reference to the label, just in case
+                    this.label = lbl;
                 }
 
                 lbl.text(value);

@@ -664,7 +664,7 @@
             extender.floatingHeaderClone.remove();
 
         //Then clone the TABLE with its THEAD and its COL's
-        extender.floatingHeaderClone = extender.tableElement.clone();
+        extender.floatingHeaderClone = extender.tableElement.clone(true);
         extender.floatingHeaderClone.children("tbody, tfoot, caption").remove();
         extender.floatingHeaderClone.insertAfter(extender.tableElement);
 

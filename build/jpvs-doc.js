@@ -209,6 +209,11 @@ jpvs.findElementsBoundTo = function (dataObject, objectPropertyName) {
 
 window.jpvs = window.jpvs || {};
 
+jpvs.getElementIfWidget = function(X) {
+	/// <summary>If X is a jpvs widget, get the jQuery object representing the main content element of X. Otherwise, return X.</summary>
+	return $("");
+};
+
 jpvs.find = function (selector) {
     /// <summary>Finds jpvs widgets by selector.</summary>
     /// <param name="selector" type="String">jQuery selector or jQuery object.</param>

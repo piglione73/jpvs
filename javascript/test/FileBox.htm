@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>FileBox</title>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/FileBox.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+            w.cntFile.fileselected(function (file) {
+                this.file({ name: file.name + " (" + file.type + ")", icon: jpvs.Resources.images.closeButton });
+                this.postFile("PostDummyHandler.ashx");
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="cntFile" data-jpvs-type="FileBox"></div>
+</body>
+</html>

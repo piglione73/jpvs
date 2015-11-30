@@ -16,7 +16,7 @@
     <script type="text/javascript">
         jpvs(function (w) {
             w.cntFile.fileselected(function (file) {
-                this.file({ name: file.name + " (" + file.type + ")", icon: jpvs.Resources.images.closeButton });
+                this.file({ label: file.name + " (" + file.type + ")", icon: jpvs.Resources.images.closeButton });
                 this.postFile("PostDummyHandler.ashx");
             });
         });

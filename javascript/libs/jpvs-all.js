@@ -7501,7 +7501,7 @@ jpvs.makeWidget({
             //Hidden file input element
             recreateOrResetInput(this);
 
-            //Label with icon and file name
+            //Label with icon and text
             this.lbl = jpvs.writeTag(this.element, "label").click(onShow(W));
             jpvs.writeTag(this.lbl, "img").addClass("Icon");
             jpvs.writeTag(this.lbl, "span").addClass("Text");
@@ -7569,9 +7569,9 @@ jpvs.makeWidget({
             else
                 W.lbl.find(".Icon").hide();
 
-            //Write file name, if present
-            if (file.name)
-                W.lbl.find(".Text").show().text(file.name);
+            //Write file label, if present
+            if (file.label)
+                W.lbl.find(".Text").show().text(file.label);
             else
                 W.lbl.find(".Text").hide();
 

@@ -7521,7 +7521,7 @@ jpvs.makeWidget({
         prototype: {
             enabled: jpvs.property({
                 get: function () {
-                    return this.element.data("enabled");
+                    return this.element.data("enabled") !== false;    //Default is true
                 },
                 set: function (value) {
                     this.element.data("enabled", value);

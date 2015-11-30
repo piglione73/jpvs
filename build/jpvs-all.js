@@ -7519,6 +7519,16 @@ jpvs.makeWidget({
         },
 
         prototype: {
+            enabled: jpvs.property({
+                get: function () {
+                    return this.element.data("enabled");
+                },
+                set: function (value) {
+                    this.element.data("enabled", value);
+                    refresh(this);
+                }
+            }),
+
             file: jpvs.property({
                 get: function () {
                     return this.element.data("file");
@@ -7585,6 +7595,12 @@ jpvs.makeWidget({
 
             //Show/hide link buttons as appropriate
             W.lnkSelect.element.show();
+            W.lnkRemove.element.hide();
+        }
+
+        //If disabled, hide the two buttons anyway
+        if (!W.enabled()) {
+            W.lnkSelect.element.hide();
             W.lnkRemove.element.hide();
         }
     }

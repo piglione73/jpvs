@@ -14,6 +14,11 @@ jpvs.makeWidget({
     type: "FileBox",
 
     prototype: {
+        enabled: function (value) {
+            /// <summary>Property: if true, the user can upload/remove and open. If disabled, the user can only open.</summary>
+            return this;
+        },
+
         file: function (value) {
             /// <summary>Property: object containing information about the file contained in this FileBox. It is in the form 
             /// { icon: "url of the icon",  label: "text to be displayed", url: "url for opening the file" }. 

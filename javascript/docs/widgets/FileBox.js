@@ -24,7 +24,8 @@ jpvs.makeWidget({
         },
 
         postFile: function (url, callback) {
-            /// <summary>Posts the file to the given url. At the end, the callback is called.</summary>
+            /// <summary>Posts the file to the given url. At the end, the callback is called with a single argument, which is the
+            /// responseText received from the http post call.</summary>
         }
     }
 });

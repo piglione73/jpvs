@@ -7626,7 +7626,7 @@ jpvs.makeWidget({
                 refresh(W);
 
                 if (callback)
-                    callback();
+                    callback(xhr.responseText);
             }
         };
 
@@ -7645,6 +7645,7 @@ jpvs.makeWidget({
         var file = $(W.inputFileElement)[0].files[0];
         xhr.open("POST", url);
         xhr.setRequestHeader("Content-Type", file.type);
+        xhr.setRequestHeader("FileName", file.name);
         xhr.send(file);
     }
 

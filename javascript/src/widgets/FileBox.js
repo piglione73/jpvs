@@ -65,8 +65,8 @@
                 }
             }),
 
-            postFile: function (url) {
-                post(this, url);
+            postFile: function (url, callback) {
+                post(this, url, callback);
             }
         }
     });
@@ -85,7 +85,17 @@
 
     function refresh(W) {
         var file = W.file();
-        if (file) {
+        if (W.posting) {
+            //Post in progress
+            W.lbl.show();
+            W.lbl.find(".Icon").show().attr("src", jpvs.Resources.images.loading);
+            W.lbl.find(".Text").show().text(W.progress);
+
+            //Show/hide link buttons as appropriate
+            W.lnkSelect.element.hide();
+            W.lnkRemove.element.hide();
+        }
+        else if (file) {
             //File present
             W.lbl.show();
 
@@ -102,6 +112,7 @@
                 W.lbl.find(".Text").hide();
 
             //Show/hide link buttons as appropriate
+            W.lnkSelect.element.show();
             W.lnkRemove.element.show();
         }
         else {
@@ -109,6 +120,7 @@
             W.lbl.hide();
 
             //Show/hide link buttons as appropriate
+            W.lnkSelect.element.show();
             W.lnkRemove.element.hide();
         }
     }
@@ -141,27 +153,35 @@
             recreateOrResetInput(W);
         };
     }
-    var xhr;
     function post(W, url, callback) {
-        xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
 
         xhr.onreadystatechange = function () {
-            if (xhr.readyState == XMLHttpRequest.DONE)
-                alert(xhr.responseText);
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                W.posting = false;
+                refresh(W);
+
+                if (callback)
+                    callback();
+            }
         };
 
+        xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable) {
+                var percentage = Math.round((e.loaded * 100) / e.total);
+                W.progress = percentage + "%";
+                refresh(W);
+            }
+        };
+
+        //Send
+        W.posting = true;
+        W.progress = "0%";
+        refresh(W);
         var file = $(W.inputFileElement)[0].files[0];
         xhr.open("POST", url);
         xhr.setRequestHeader("Content-Type", file.type);
-        xhr.send(file.slice(0));
-        return;
-
-        var reader = new FileReader();
-        reader.onload = function () {
-            xhr.send(reader.result);
-        };
-
-        reader.readAsArrayBuffer(file);
+        xhr.send(file);
     }
 
 

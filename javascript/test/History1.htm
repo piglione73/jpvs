@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>History</title>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/History.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+
+            var n = 5;
+            var func = function(n) { alert(n); };
+            var strFunc = func.toString();
+            alert(strFunc);
+
+            var func2 = new Function("n", "alert(n);");
+            func2(n);
+
+            jpvs.History.setStartingPoint(function () {
+                $("body div").hide();
+            });
+        });
+
+        function goTo(n) {
+            jpvs.History.addHistoryPoint([ n ], function (n) {
+                $("body div").hide();
+                $("#div" + n).show();
+            });
+        }
+    </script>
+</head>
+<body>
+    <button onclick="goTo(1);">GoTo 1</button>
+    <button onclick="goTo(2);">GoTo 2</button>
+    <button onclick="goTo(3);">GoTo 3</button>
+    <button onclick="goTo(4);">GoTo 4</button>
+
+    <div id="div1" style="border:1px solid red">History point 1</div>
+    <div id="div2" style="border:1px solid red">History point 2</div>
+    <div id="div3" style="border:1px solid red">History point 3</div>
+    <div id="div4" style="border:1px solid red">History point 4</div>
+</body>
+</html>

@@ -125,8 +125,11 @@ var jpvs = (function () {
                 else {
                     //Done
                     jpvs.createAllWidgets();
+
                     if (onready)
                         onready(jpvs.widgets);
+
+                    jpvs.History.reloadCurrentHistoryPoint();
                 }
             }
 

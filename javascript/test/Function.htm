@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>Function</title>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/JSON.js"></script>
+    <script type="text/javascript" src="../src/Function.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+        });
+
+        function serializeCall() {
+            var serializedFunctionCall = jpvs.Function.serializeCall(
+                ["Hello", 1, "world!"],
+                function (token1, count, token2) {
+                    alert(token1 + ", " + count + " " + token2);
+                }
+            );
+
+            $("#txtSerCall").val(serializedFunctionCall);
+        }
+
+        function deserializeCall() {
+            var serializedFunctionCall = $("#txtSerCall").val();
+            jpvs.Function.deserializeCall(serializedFunctionCall);
+        }
+    </script>
+</head>
+<body>
+    <button onclick="serializeCall();">Serialize sample call</button>
+    <button onclick="deserializeCall();">Deserialize call</button>
+    <br />
+    <textarea id="txtSerCall" cols="80" rows="20"></textarea>
+</body>
+</html>

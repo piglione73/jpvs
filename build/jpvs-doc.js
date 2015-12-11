@@ -473,6 +473,65 @@ jpvs.Event.prototype.fire = function (widget, handlerName, params, browserEvent)
 
 window.jpvs = window.jpvs || {};
 
+jpvs.Function = {
+    serializeCall: function (argsArray, func) {
+        /// <summary>Obtains a string serialization of a function call with its arguments, 
+        /// for later execution by calling jpvs.Function.deserializeCall.</summary>
+        /// <param name="argsArray" type="Array">The array of arguments to be passed to the function.</param>
+        /// <param name="func" type="Function">The function to be called. This function must not refer to captured variables of the
+        /// enclosing scope or a reference error will occur during deserialization (because during deserialization the function
+        /// will be executed in a different scope). The function may only use its arguments. If it
+        /// is necessary to refer to captured variables or to "this", then they must be directly passed as arguments in "argsArray".</param>
+        return "";
+    },
+
+    deserializeCall: function (serializedCall) {
+        /// <summary>Deserialized a string returned by jpvs.Function.serializeCall. This actually results in calling the serialized
+        /// function with its arguments and with this = null. The function is called like this: func.apply(null, argsArray). If the
+        /// function call returns a value, then this value is passed as a return value.</summary>
+        /// <param name="serializedCall" type="String">The string returned by jpvs.Function.serializeCall.</param>
+    }
+};
+
+;
+
+
+window.jpvs = window.jpvs || {};
+
+jpvs.History = {
+    setStartingPoint: function (argsArray, action) {
+        /// <summary>Executes a given function and also adds the function call as the starting history point for the current page.
+        /// When the user, by clicking the "Back" browser button, navigates back to when the page was first loaded, the function call is executed
+        /// again with the same arguments.</summary>
+        /// <param name="argsArray" type="Array">The array of arguments to be passed to the function.</param>
+        /// <param name="action" type="Function">The function to be called. This function must not refer to captured variables of the
+        /// enclosing scope or a reference error will occur during deserialization (because during deserialization the function
+        /// will be executed in a different scope). The function may only use its arguments. If it
+        /// is necessary to refer to captured variables or to "this", then they must be directly passed as arguments in "argsArray".</param>
+    },
+
+    addHistoryPoint: function (argsArray, action) {
+        /// <summary>Executes a given function and also adds the function call as a history point into the browser history. 
+        /// When the user, by clicking the "Back" browser button, navigates back to a saved history point, the function call is executed
+        /// again with the same arguments.</summary>
+        /// <param name="argsArray" type="Array">The array of arguments to be passed to the function.</param>
+        /// <param name="action" type="Function">The function to be called. This function must not refer to captured variables of the
+        /// enclosing scope or a reference error will occur during deserialization (because during deserialization the function
+        /// will be executed in a different scope). The function may only use its arguments. If it
+        /// is necessary to refer to captured variables or to "this", then they must be directly passed as arguments in "argsArray".</param>
+    },
+
+    reloadCurrentHistoryPoint: function () {
+        /// <summary>This function is called internally when the jpvs library is started. If the url contains a reference to a history point,
+        /// reloads that history point by executing the associated action.</summary>
+    }
+};
+
+;
+
+
+window.jpvs = window.jpvs || {};
+
 jpvs.parseJSON = function (jsonString) {
     /// <summary>Parses a JSON string.</summary>
     /// <param name="jsonString" type="String">The string to decode.</param>

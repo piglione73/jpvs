@@ -2,7 +2,25 @@
 
     var eventsHooked = false;
 
-    var hashes = {};
+    //Here we save the actions associated to history points (we prefer session storage, when available; otherwise we use a variable)
+    var historyPoints = window.sessionStorage || {};
+
+    function getKey(hash) {
+        return "jpvsHist" + location.pathname + "#" + hash;
+    }
+
+    function loadAndExecHash(hash) {
+        //Load and call the function associated to the given history point (hash url)
+        var serializedCall = historyPoints[getKey(hash)];
+        if (serializedCall)
+            jpvs.Function.deserializeCall(serializedCall);
+    }
+
+    function saveHash(hash, args, action) {
+        //Serialize the function call for later execution (when the user hits the browser back button)
+        var serializedCall = jpvs.Function.serializeCall(args, action);
+        historyPoints[getKey(hash)] = serializedCall;
+    }
 
     function getHashWithoutSharp() {
         // Do not use "window.location.hash" for a FireFox bug on encoding/decoding
@@ -32,19 +50,19 @@
         eventsHooked = true;
     }
 
-    function setStartingPoint(action) {
+    function setStartingPoint(argsArray, action) {
         //Make sure we are listening to history events
         ensureEventsAreHooked();
 
-        //Associate the empty hash url with the callback
-        hashes[""] = action;
+        //Save the action for later execution when the user goes back in the browser history
+        //The action is associated to the page name without hash
+        saveHash("", argsArray, action);
 
-        //Execute the action
-        if (action)
-            action();
+        //Execute the action immediately
+        loadAndExecHash("");
     }
 
-    function addHistoryPoint(action) {
+    function addHistoryPoint(argsArray, action) {
         //Make sure we are listening to history events
         ensureEventsAreHooked();
 
@@ -52,21 +70,17 @@
         var hashWithoutSharp = jpvs.randomString(10);
         var url = "#" + hashWithoutSharp;
 
-        //Associate it with the callback that modifies the page
-        hashes[hashWithoutSharp] = action;
+        //Associate it with the callback
+        saveHash(hashWithoutSharp, argsArray, action);
 
-        //Now navigate to the url, so the "hashchange" event is triggered, so "navigateToHistoryPoint(hashWithoutSharp)" is called,
-        //so the action is executed
+        //Now navigate to the url, so the url goes into the browser history, so the "hashchange" event is triggered, 
+        //so "navigateToHistoryPoint(hashWithoutSharp)" is called, so the action is executed
         window.location = url;
     }
 
     function navigateToHistoryPoint(hashWithoutSharp) {
-        //Get the action...
-        var action = hashes[hashWithoutSharp];
-
-        //Execute it
-        if (action)
-            action();
+        //Get the action and execute it
+        loadAndExecHash(hashWithoutSharp);
     }
 
     function reloadCurrentHistoryPoint() {

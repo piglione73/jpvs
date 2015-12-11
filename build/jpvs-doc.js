@@ -499,7 +499,7 @@ jpvs.Function = {
 window.jpvs = window.jpvs || {};
 
 jpvs.History = {
-    setStartingPoint: function (argsArray, action) {
+    setStartingHistoryPoint: function (argsArray, action) {
         /// <summary>Executes a given function and also adds the function call as the starting history point for the current page.
         /// When the user, by clicking the "Back" browser button, navigates back to when the page was first loaded, the function call is executed
         /// again with the same arguments.</summary>
@@ -522,8 +522,9 @@ jpvs.History = {
     },
 
     reloadCurrentHistoryPoint: function () {
-        /// <summary>This function is called internally when the jpvs library is started. If the url contains a reference to a history point,
-        /// reloads that history point by executing the associated action.</summary>
+        /// <summary>If the url contains a reference to a history point,
+        /// reloads that history point by executing the associated action. This function should be called on page load, just after
+        /// setStartingHistoryPoint.</summary>
     }
 };
 

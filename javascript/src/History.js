@@ -50,7 +50,7 @@
         eventsHooked = true;
     }
 
-    function setStartingPoint(argsArray, action) {
+    function setStartingHistoryPoint(argsArray, action) {
         //Make sure we are listening to history events
         ensureEventsAreHooked();
 
@@ -92,7 +92,7 @@
     }
 
     jpvs.History = {
-        setStartingPoint: setStartingPoint,
+        setStartingHistoryPoint: setStartingHistoryPoint,
         addHistoryPoint: addHistoryPoint,
         reloadCurrentHistoryPoint: reloadCurrentHistoryPoint
     };

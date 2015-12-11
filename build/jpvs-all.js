@@ -105,7 +105,6 @@ var jpvs = (function () {
             $(document).ready(function () {
                 jpvs.createAllWidgets();
                 onready(jpvs.widgets);
-                jpvs.History.reloadCurrentHistoryPoint();
             });
         }
         else {
@@ -129,8 +128,6 @@ var jpvs = (function () {
 
                     if (onready)
                         onready(jpvs.widgets);
-
-                    jpvs.History.reloadCurrentHistoryPoint();
                 }
             }
 
@@ -2162,7 +2159,7 @@ jpvs.Event.prototype.fire = function (widget, handlerName, params, browserEvent)
         eventsHooked = true;
     }
 
-    function setStartingPoint(argsArray, action) {
+    function setStartingHistoryPoint(argsArray, action) {
         //Make sure we are listening to history events
         ensureEventsAreHooked();
 
@@ -2204,7 +2201,7 @@ jpvs.Event.prototype.fire = function (widget, handlerName, params, browserEvent)
     }
 
     jpvs.History = {
-        setStartingPoint: setStartingPoint,
+        setStartingHistoryPoint: setStartingHistoryPoint,
         addHistoryPoint: addHistoryPoint,
         reloadCurrentHistoryPoint: reloadCurrentHistoryPoint
     };

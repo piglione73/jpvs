@@ -17,10 +17,11 @@
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript">
         jpvs(function (w) {
-
-            jpvs.History.setStartingPoint([], function () {
+            jpvs.History.setStartingHistoryPoint([], function () {
                 $("body div").hide();
             });
+
+            jpvs.History.reloadCurrentHistoryPoint();
         });
 
         function goTo(n) {

@@ -105,7 +105,6 @@ var jpvs = (function () {
             $(document).ready(function () {
                 jpvs.createAllWidgets();
                 onready(jpvs.widgets);
-                jpvs.History.reloadCurrentHistoryPoint();
             });
         }
         else {
@@ -129,8 +128,6 @@ var jpvs = (function () {
 
                     if (onready)
                         onready(jpvs.widgets);
-
-                    jpvs.History.reloadCurrentHistoryPoint();
                 }
             }
 

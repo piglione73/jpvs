@@ -580,6 +580,19 @@
             //This is plain text and it can contain ${FIELD} patterns that must be made clickable
             renderTextWithFields(W, curElem, xmlNode.value || "", fields, fieldHighlightList);
         }
+        else if (xmlNode.name == "#COMMENT") {
+            //This is a comment. Render it unaltered. If the comment contains "pagebreak", then render as <hr/>
+            //(The TinyMCE editor treats pagebreaks as special "<!-- pagebreak -->" comments
+            var commentText = xmlNode.value || "";
+            if (commentText.indexOf("pagebreak") < 0) {
+                var comment = document.createComment(xmlNode.value || "");
+                curElem.append(comment);
+            }
+            else {
+                //Special "pagebreak" comment. Make it visible.
+                jpvs.writeTag(curElem, "hr");
+            }
+        }
         else if (xmlNode.name == "root") {
             //This is the dummy root node. Let's just write the content, recursively
             if (xmlNode.children) {

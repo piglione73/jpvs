@@ -10197,6 +10197,13 @@ jpvs.makeWidget({
         tbl.find(allCellsSelector).css("overflow", "hidden");
     }
 
+    function quickGetWidth(element) {
+        //Avoid the jQuery width() function, which is painfully slow because it has to take the content box model
+        //into account.
+        //If the width is set in CSS in px, then this function performs much faster
+        return parseFloat(element.style.width);
+    }
+    
     function handleCellBorderDragging(extender) {
         var draggingCol;
         var draggingCol_FH;         //Matching COL in the fixed floating header, if any
@@ -10205,6 +10212,8 @@ jpvs.makeWidget({
         var originalColWidth;
         var originalSumOfAllColWidths;
 
+        var newColWidth;
+        
         var tbl = extender.tableElement;
         var allCellsSelector = extender.allCellsSelector;
         var scrollingContainer = getScrollingContainer(tbl);
@@ -10251,44 +10260,30 @@ jpvs.makeWidget({
 
                 //Resize the COL element. Let's set a minimum so the column can be easily restored
                 var totalDeltaX = tableX - originalTableX;
-                var newColWidth = originalColWidth + totalDeltaX;
+                newColWidth = Math.max(originalColWidth + totalDeltaX, 2 * handleToleranceX);
 
-                newColWidth = Math.max(newColWidth, 2 * handleToleranceX);
-
-                //Resize the table
-                var newTblWidth = originalSumOfAllColWidths - originalColWidth + newColWidth;
-
-                tbl.css("width", newTblWidth + "px");
-                draggingCol.css("width", newColWidth + "px");
-                draggingCol_FH.css("width", newColWidth + "px");
-
-                //If required, persist column sizes
-                if (extender.persistColumnSizes())
-                    saveColSizesIntoStorage(extender, draggingCol, draggingColIndex, newColWidth);
-
-                //Fire event
-                lastEventParams = {
-                    newTableWidth: newTblWidth,
-                    columnIndex: draggingColIndex,
-                    newColumnWidth: newColWidth,
-                    resizing: true
-                };
-
-                extender.afterResize.fire(extender, null, lastEventParams);
+                //Only apply the new col width as a visual cue, not as the real col width, so we avoid wasting
+                //CPU resources on lengthy table relayouting
+                applyNewColWidth(false, e);
             }
         });
 
         $(document).off("mouseup.jpvsTableExtender2" + extender.uniqueName).on("mouseup.jpvsTableExtender2" + extender.uniqueName, function (e) {
             //End dragging, if active
-            if (draggingCol && lastEventParams) {
-                //Fire one last event
-                lastEventParams.resizing = false;
-                extender.afterResize.fire(extender, null, lastEventParams);
-                draggingCol = null;
-                draggingCol_FH = null;
+            if (draggingCol) {
+                //Apply the new col width
+                applyNewColWidth(true, e);
+                
+                if(lastEventParams) {
+                    //Fire one last event
+                    lastEventParams.resizing = false;
+                    extender.afterResize.fire(extender, null, lastEventParams);
+                    draggingCol = null;
+                    draggingCol_FH = null;
 
-                //Stop propagation: this event has been fully handled now
-                return false;
+                    //Stop propagation: this event has been fully handled now
+                    return false;
+                }
             }
         });
 
@@ -10303,15 +10298,60 @@ jpvs.makeWidget({
             draggingCol_FH = cols_FH.eq(colIndex);
             draggingColIndex = colIndex;
             originalTableX = tableX;
-            originalColWidth = draggingCol.width();
-
+            originalColWidth = quickGetWidth(draggingCol[0]);
+            newColWidth = originalColWidth;
+            
             originalSumOfAllColWidths = 0;
             cols.each(function () {
-                var col = $(this);
-                originalSumOfAllColWidths += col.width();
+                originalSumOfAllColWidths += quickGetWidth(this);
             });
 
             lastEventParams = null;
+        }
+
+        function applyNewColWidth(reallyVisuallyApply, e) {
+            //Resize the table
+            var newTblWidth = originalSumOfAllColWidths - originalColWidth + newColWidth;
+
+            if(reallyVisuallyApply) {
+                tbl.css("width", newTblWidth + "px");
+                draggingCol.css("width", newColWidth + "px");
+                draggingCol_FH.css("width", newColWidth + "px");
+                
+                //Delete the visual cue, if present
+                if(extender.verticalResizingCue) {
+                    extender.verticalResizingCue.remove();
+                    extender.verticalResizingCue = null;
+                }
+            }
+            else {
+                //Use a visual cue (a vertical line)
+                if(!extender.verticalResizingCue) {
+                    extender.verticalResizingCue = jpvs.writeTag("body", "div").css({
+                        position: "absolute",
+                        height: tbl.height() + "px",
+                        width: "0px",
+                        top: tbl.offset().top + "px",
+                        "border-right": "1px dotted #f00"
+                    });                        
+                }
+                
+                extender.verticalResizingCue.css("left", e.pageX + "px");
+            }
+            
+            //If required, persist column sizes
+            if (extender.persistColumnSizes())
+                saveColSizesIntoStorage(extender, draggingCol, draggingColIndex, newColWidth);
+
+            //Fire event
+            lastEventParams = {
+                newTableWidth: newTblWidth,
+                columnIndex: draggingColIndex,
+                newColumnWidth: newColWidth,
+                resizing: true
+            };
+
+            extender.afterResize.fire(extender, null, lastEventParams);
         }
     }
 

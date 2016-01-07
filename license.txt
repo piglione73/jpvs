@@ -1,4 +1,4 @@
-Copyright (c) 2012, 2013, 2014 
+Copyright (c) 2012, 2013, 2014, 2015, 2016 
 Pavia System s.a.s. (http://www.paviasystem.com)
 
 Dual licensed under the GPL (http://www.gnu.org/licenses/gpl.html)

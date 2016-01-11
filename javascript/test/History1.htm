@@ -24,17 +24,18 @@
             jpvs.History.reloadCurrentHistoryPoint();
         });
 
-        function goTo(n) {
+        function goTo(n, suppress) {
             jpvs.History.addHistoryPoint([ n ], function (n) {
                 $("body div").hide();
                 $("#div" + n).show();
-            });
+            }, suppress);
         }
     </script>
 </head>
 <body>
     <button onclick="goTo(1);">GoTo 1</button>
     <button onclick="goTo(2);">GoTo 2</button>
+    <button onclick="goTo(2, true);">GoTo 2 (with suppress immediate execution)</button>
     <button onclick="goTo(3);">GoTo 3</button>
     <button onclick="goTo(4);">GoTo 4</button>
     <button onclick="location='History2.htm';">GoTo History 2</button>

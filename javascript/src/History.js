@@ -5,6 +5,9 @@
     //Here we save the actions associated to history points (we prefer session storage, when available; otherwise we use a variable)
     var historyPoints = window.sessionStorage || {};
 
+    //Temporary flag used for suppressing immediate execution of a history point function
+    var tempSuppress = false;
+
     function getKey(hash) {
         return "jpvsHist" + location.pathname + "#" + hash;
     }
@@ -43,6 +46,13 @@
 
         //Hook to the "hashchange" event
         window.onhashchange = function () {
+            //If the temporary "suppress execution" flag is on, we ignore this single "hash change" event
+            if (tempSuppress) {
+                tempSuppress = false;
+                return;
+            }
+
+            //Otherwise, we execute the history point function
             var hashWithoutSharp = getHashWithoutSharp();
             navigateToHistoryPoint(hashWithoutSharp);
         };
@@ -62,7 +72,7 @@
         loadAndExecHash("");
     }
 
-    function addHistoryPoint(argsArray, action) {
+    function addHistoryPoint(argsArray, action, suppressImmediateExecution) {
         //Make sure we are listening to history events
         ensureEventsAreHooked();
 
@@ -74,7 +84,11 @@
         saveHash(hashWithoutSharp, argsArray, action);
 
         //Now navigate to the url, so the url goes into the browser history, so the "hashchange" event is triggered, 
-        //so "navigateToHistoryPoint(hashWithoutSharp)" is called, so the action is executed
+        //so "navigateToHistoryPoint(hashWithoutSharp)" is called, so the action is (optionally) executed
+        //To suppress this immediate execution, we raise a temporary flag
+        if (suppressImmediateExecution)
+            tempSuppress = true;
+
         window.location = url;
     }
 

@@ -105,7 +105,7 @@
             w.cntTree.nodeTemplate();
 
             w.cntTree.childrenSelector(function (node) { return node.sons || []; });
-            w.cntTree.nodeRendered(onNodeRendered).nodeClick(onNodeClick);
+            w.cntTree.nodeRendered(onNodeRendered).nodeClick(onNodeClick).nodeRightClick(onNodeRightClick);
             w.cntTree.dataBind(data);
 
             //Create a second tree, configured just like the first one
@@ -130,6 +130,12 @@
 
                 //Change text
                 nodeElement.node.firstName += " - Changed";
+                nodeElement.refreshNode();
+            }
+
+            function onNodeRightClick(nodeElement) {
+                //Change text
+                nodeElement.node.firstName += " - Right-clicked";
                 nodeElement.refreshNode();
             }
 

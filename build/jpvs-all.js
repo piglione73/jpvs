@@ -11715,6 +11715,10 @@ jpvs.makeWidget({
         },
 
         init: function (W) {
+            //All over the tree, we don't want the standard browser right-click behavior, because the tree has its own "nodeRightClick" event
+            W.element.on("contextmenu", function () {
+                return false;
+            });
         },
 
         canAttachTo: function (obj) {

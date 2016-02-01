@@ -301,7 +301,7 @@ var jpvs = (function () {
     */
     jpvs.flashClass = function (element, cssClass, duration, count, leaveOnTime) {
         var $elem = $(element);
-        var N = count || 15;
+        var N = count || 2;
         var T1 = 2 * N;
 
         //Flash and leave the CSS class on
@@ -309,7 +309,7 @@ var jpvs = (function () {
             t0: 0,
             t1: T1,
             step: 1,
-            duration: duration || 2000
+            duration: duration || 1000
         }, function (t) {
             if (t % 2 == 0)
                 $elem.addClass(cssClass);
@@ -322,7 +322,7 @@ var jpvs = (function () {
             t0: 0,
             t1: 1,
             step: 1,
-            duration: leaveOnTime || 4000
+            duration: leaveOnTime || 2000
         }, function (t) {
             if (t == 1)
                 $elem.removeClass(cssClass);
@@ -6493,7 +6493,12 @@ jQuery(function ($) {
             error: "Error",
             ok: "OK",
             cancel: "Cancel",
-            apply: "Apply"
+            apply: "Apply",
+
+            oddEven: "Odd/Even pages",
+            whichContent: "Which content do you wish to edit?",
+            oddPages: "Odd pages",
+            evenPages: "Even pages"
         },
 
         it: {
@@ -6538,7 +6543,12 @@ jQuery(function ($) {
             error: "Errore",
             ok: "OK",
             cancel: "Annulla",
-            apply: "Applica"
+            apply: "Applica",
+
+            oddEven: "Pagine dispari/pari",
+            whichContent: "Quale testo si desidera modificare?",
+            oddPages: "Pagine dispari",
+            evenPages: "Pagine pari"
         }
     };
 
@@ -6625,6 +6635,15 @@ jQuery(function ($) {
                 },
                 set: function (value) {
                     this.element.data("fieldDisplayMapper", value);
+                }
+            }),
+
+            allowEvenOddHeadersFooters: jpvs.property({
+                get: function () {
+                    return this.element.data("allowEvenOddHeadersFooters");
+                },
+                set: function (value) {
+                    this.element.data("allowEvenOddHeadersFooters", value);
                 }
             })
         }
@@ -6925,9 +6944,60 @@ jQuery(function ($) {
         applySectionFooterMargins(domElem.footerElement, section);
 
         //Refresh content
-        writeContent(W, domElem.headerElement, domElem.headerElement, section && section.header && section.header.content, fields, "Header-Hover", section && section.header && section.header.highlight ? "Header-Highlight" : "", function (x) { section.header = section.header || {}; section.header.content = x; section.header.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditHeader);
-        writeContent(W, domElem.bodyElement, domElem.bodyElement, section && section.body && section.body.content, fields, "Body-Hover", section && section.body && section.body.highlight ? "Body-Highlight" : "", function (x) { section.body = section.body || {}; section.body.content = x; section.body.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEdit);
-        writeContent(W, domElem.footerElementInside, domElem.footerElement, section && section.footer && section.footer.content, fields, "Footer-Hover", section && section.footer && section.footer.highlight ? "Footer-Highlight" : "", function (x) { section.footer = section.footer || {}; section.footer.content = x; section.footer.highlight = true; }, fieldHighlightList, jpvs.DocumentEditor.strings.clickToEditFooter);
+        writeContent(
+            W,
+            domElem.headerElement,
+            domElem.headerElement,
+            section && section.header && section.header.content,
+            fields,
+            "Header-Hover",
+            section && section.header && section.header.highlight ? "Header-Highlight" : "",
+            function (x) { section.header = section.header || {}; section.header.content = x; section.header.highlight = true; },
+            fieldHighlightList,
+            jpvs.DocumentEditor.strings.clickToEditHeader,
+            section && section.header && section.header.content_even,
+            function (x) { section.header = section.header || {}; section.header.content_even = x; section.header.highlight = true; }
+        );
+
+        writeContent(
+            W,
+            domElem.bodyElement,
+            domElem.bodyElement,
+            section && section.body && section.body.content,
+            fields,
+            "Body-Hover",
+            section && section.body && section.body.highlight ? "Body-Highlight" : "",
+            function (x) { section.body = section.body || {}; section.body.content = x; section.body.highlight = true; },
+            fieldHighlightList,
+            jpvs.DocumentEditor.strings.clickToEdit,
+            null,
+            null
+        );
+
+        writeContent(
+            W,
+            domElem.footerElementInside,
+            domElem.footerElement,
+            section && section.footer && section.footer.content,
+            fields,
+            "Footer-Hover",
+            section && section.footer && section.footer.highlight ? "Footer-Highlight" : "",
+            function (x) { section.footer = section.footer || {}; section.footer.content = x; section.footer.highlight = true; },
+            fieldHighlightList,
+            jpvs.DocumentEditor.strings.clickToEditFooter,
+            section && section.footer && section.footer.content_even,
+            function (x) { section.footer = section.footer || {}; section.footer.content_even = x; section.footer.highlight = true; }
+        );
+
+        //After rendering, turn the highlight flag off
+        if (section && section.header && section.header.highlight)
+            section.header.highlight = false;
+
+        if (section && section.body && section.body.highlight)
+            section.body.highlight = false;
+
+        if (section && section.footer && section.footer.highlight)
+            section.footer.highlight = false;
     }
 
     function applyFieldHighlighting(W, fieldHighlightList) {
@@ -6978,7 +7048,7 @@ jQuery(function ($) {
         return defaultValue;
     }
 
-    function writeContent(W, element, clickableElement, content, fields, hoverCssClass, highlightCssClass, newContentSetterFunc, fieldHighlightList, placeHolderText) {
+    function writeContent(W, element, clickableElement, content, fields, hoverCssClass, highlightCssClass, newContentSetterFunc, fieldHighlightList, placeHolderText, evenPagesContent, newEvenPagesContentSetterFunc) {
         var contentToWrite = content;
         if (!content)
             contentToWrite = "";
@@ -6999,7 +7069,7 @@ jQuery(function ($) {
 
         //...make the element clickable (click-to-edit)...
         clickableElement.css("cursor", "pointer").attr("title", jpvs.DocumentEditor.strings.clickToEdit).unbind(".writeContent").bind("click.writeContent", function () {
-            onEditFormattedText(W, content, newContentSetterFunc, sectionNum);
+            editContent();
             return false;
         }).bind("mouseenter.writeContent", function () {
             clickableElement.parent().addClass("Section-Hover");
@@ -7016,6 +7086,27 @@ jQuery(function ($) {
         //At the end, do a flashing animation if required to do so
         if (highlightCssClass != "")
             jpvs.flashClass(element, highlightCssClass);
+
+        function editContent() {
+            if (!newEvenPagesContentSetterFunc || !W.allowEvenOddHeadersFooters()) {
+                //Simple case: no evenPagesContent or odd/even header/footer non allowed. We edit the main content.
+                editOddContent();
+            }
+            else {
+                //Complex case: odd/even headers/footers are allowed and we have a newEvenPagesContentSetterFunc (i.e.: we are
+                //on a header or a footer)
+                //We must ask the user what to edit: standard content or even pages content?
+                jpvs.confirm(jpvs.DocumentEditor.strings.oddEven, jpvs.DocumentEditor.strings.whichContent, editOddContent, editEvenContent, jpvs.DocumentEditor.strings.oddPages, jpvs.DocumentEditor.strings.evenPages);
+            }
+        }
+
+        function editOddContent() {
+            onEditFormattedText(W, content, newContentSetterFunc, sectionNum);
+        }
+
+        function editEvenContent() {
+            onEditFormattedText(W, evenPagesContent, newEvenPagesContentSetterFunc, sectionNum);
+        }
     }
 
     function renderXHtmlWithFields(W, curElem, xmlNode, fields, fieldHighlightList) {

@@ -1097,6 +1097,10 @@ jpvs.makeWidget({
             /// field display mapper, field values are displayed. By changing this property, you can choose to display some other
             /// text instead of the field value.</summary>
             return this;
+        },
+
+        allowEvenOddHeadersFooters: function (value) {
+            /// <summary>Property: true to allow setting different headers/footers for even pages and odd pages.</summary>
         }
     }
 });

@@ -134,6 +134,11 @@
             Header height in cm (CSS-style: 1cm)
             </summary>
         </member>
+        <member name="F:JpvsNet.DocumentEditor.Document.Header.content_even">
+            <summary>
+            Content for even pages in (X)HTML format; if null, the same content is used for odd and even pages
+            </summary>
+        </member>
         <member name="T:JpvsNet.DocumentEditor.Document.Footer">
             <summary>
             Footer of a document
@@ -147,6 +152,11 @@
         <member name="F:JpvsNet.DocumentEditor.Document.Footer.height">
             <summary>
             Footer height in cm (CSS-style: 1cm)
+            </summary>
+        </member>
+        <member name="F:JpvsNet.DocumentEditor.Document.Footer.content_even">
+            <summary>
+            Content for even pages in (X)HTML format; if null, the same content is used for odd and even pages
             </summary>
         </member>
         <member name="T:JpvsNet.DocumentEditor.Document.Field">

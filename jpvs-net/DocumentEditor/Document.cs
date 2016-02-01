@@ -117,6 +117,11 @@ namespace JpvsNet.DocumentEditor {
             /// Header height in cm (CSS-style: 1cm)
             /// </summary>
             public string height;
+
+            /// <summary>
+            /// Content for even pages in (X)HTML format; if null, the same content is used for odd and even pages
+            /// </summary>
+            public string content_even;
         }
 
         /// <summary>
@@ -132,6 +137,11 @@ namespace JpvsNet.DocumentEditor {
             /// Footer height in cm (CSS-style: 1cm)
             /// </summary>
             public string height;
+
+            /// <summary>
+            /// Content for even pages in (X)HTML format; if null, the same content is used for odd and even pages
+            /// </summary>
+            public string content_even;
         }
 
         /// <summary>

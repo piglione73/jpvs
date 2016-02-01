@@ -525,12 +525,18 @@
                 Field2: { value: "New 2 xxx", highlight: true }
             });
         }
+
+        function evenOdd() {
+            jpvs.find("#cntEdit").allowEvenOddHeadersFooters(true);
+            alert("Allowed! Now you will be prompted whenever trying to edit a header or a footer.");
+        }
     </script>
 </head>
 <body>
     <button onclick="field1();">Field1</button>
     <button onclick="field2();">Field2</button>
     <button onclick="field12();">Field1 & 2</button>
+    <button onclick="evenOdd();">Allow even/odd headers and footers</button>
     <div data-jpvs-type="DocumentEditor" id="cntEdit" style="position:fixed;top:30pt;left:0px;width:100%;height:100%;overflow:auto">
     </div>
 </body>

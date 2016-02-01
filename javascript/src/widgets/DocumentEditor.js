@@ -544,6 +544,16 @@
             section && section.footer && section.footer.content_even,
             function (x) { section.footer = section.footer || {}; section.footer.content_even = x; section.footer.highlight = true; }
         );
+
+        //After rendering, turn the highlight flag off
+        if (section && section.header && section.header.highlight)
+            section.header.highlight = false;
+
+        if (section && section.body && section.body.highlight)
+            section.body.highlight = false;
+
+        if (section && section.footer && section.footer.highlight)
+            section.footer.highlight = false;
     }
 
     function applyFieldHighlighting(W, fieldHighlightList) {

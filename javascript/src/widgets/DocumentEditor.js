@@ -652,7 +652,28 @@
                 //Complex case: odd/even headers/footers are allowed and we have a newEvenPagesContentSetterFunc (i.e.: we are
                 //on a header or a footer)
                 //We must ask the user what to edit: standard content or even pages content?
-                jpvs.confirm(jpvs.DocumentEditor.strings.oddEven, jpvs.DocumentEditor.strings.whichContent, editOddContent, editEvenContent, jpvs.DocumentEditor.strings.oddPages, jpvs.DocumentEditor.strings.evenPages);
+                var pop = jpvs.Popup.create().title(jpvs.DocumentEditor.strings.oddEven);
+                jpvs.writeln(pop, jpvs.DocumentEditor.strings.whichContent);
+                var ul = jpvs.writeTag(pop, "ul");
+                var li1 = jpvs.writeTag(ul, "li");
+                var li2 = jpvs.writeTag(ul, "li");
+                jpvs.LinkButton.create(li1).text(jpvs.DocumentEditor.strings.oddPages).click(combine(onCancel, editOddContent));
+                jpvs.LinkButton.create(li2).text(jpvs.DocumentEditor.strings.evenPages).click(combine(onCancel, editEvenContent));
+
+                jpvs.writeButtonBar(pop, [{ text: jpvs.DocumentEditor.strings.cancel, click: onCancel}]);
+
+                pop.show();
+
+                function onCancel() {
+                    pop.destroy();
+                }
+
+                function combine(f1, f2) {
+                    return function () {
+                        f1();
+                        f2();
+                    };
+                }
             }
         }
 

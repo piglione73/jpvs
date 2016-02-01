@@ -161,7 +161,7 @@
     */
     jpvs.flashClass = function (element, cssClass, duration, count, leaveOnTime) {
         var $elem = $(element);
-        var N = count || 15;
+        var N = count || 2;
         var T1 = 2 * N;
 
         //Flash and leave the CSS class on
@@ -169,7 +169,7 @@
             t0: 0,
             t1: T1,
             step: 1,
-            duration: duration || 2000
+            duration: duration || 1000
         }, function (t) {
             if (t % 2 == 0)
                 $elem.addClass(cssClass);
@@ -182,7 +182,7 @@
             t0: 0,
             t1: 1,
             step: 1,
-            duration: leaveOnTime || 4000
+            duration: leaveOnTime || 2000
         }, function (t) {
             if (t == 1)
                 $elem.removeClass(cssClass);

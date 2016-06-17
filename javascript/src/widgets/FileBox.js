@@ -4,6 +4,7 @@
         this.attach(selector);
 
         this.fileselected = jpvs.event(this);
+        this.filedeleted = jpvs.event(this);
     };
 
     jpvs.FileBox.allStrings = {
@@ -167,6 +168,9 @@
         return function () {
             W.file(null);
             recreateOrResetInput(W);
+
+            //Let's fire the "filedeleted" event
+            W.filedeleted.fire(W);
         };
     }
     function post(W, url, callback) {

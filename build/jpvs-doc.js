@@ -1163,6 +1163,9 @@ jpvs.FileBox = function (selector) {
     /// <summary>This event is raised whenever the user selects a file; the event handler receives an object in the form
     /// { name: ..., size: ..., type: ... }.</summary>
     this.fileselected = jpvs.event(this);
+
+    /// <summary>This event is raised whenever the user deletes a file.</summary>
+    this.filedeleted = jpvs.event(this);
 };
 
 jpvs.makeWidget({
@@ -1190,8 +1193,6 @@ jpvs.makeWidget({
         }
     }
 });
-
-
 ;
 
 

@@ -7965,9 +7965,10 @@ jpvs.makeWidget({
         W.progress = "0%";
         refresh(W);
 
-        if (W.file()) {
+        var file = $(W.inputFileElement)[0].files && $(W.inputFileElement)[0].files[0];
+
+        if (file) {
             //If a file is selected, then post it
-            var file = $(W.inputFileElement)[0].files[0];
             xhr.open("POST", url);
             xhr.setRequestHeader("Content-Type", file.type);
             xhr.setRequestHeader("FileName", file.name);

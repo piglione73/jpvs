@@ -7964,11 +7964,21 @@ jpvs.makeWidget({
         W.posting = true;
         W.progress = "0%";
         refresh(W);
-        var file = $(W.inputFileElement)[0].files[0];
-        xhr.open("POST", url);
-        xhr.setRequestHeader("Content-Type", file.type);
-        xhr.setRequestHeader("FileName", file.name);
-        xhr.send(file);
+
+        if (W.file()) {
+            //If a file is selected, then post it
+            var file = $(W.inputFileElement)[0].files[0];
+            xhr.open("POST", url);
+            xhr.setRequestHeader("Content-Type", file.type);
+            xhr.setRequestHeader("FileName", file.name);
+            xhr.send(file);
+        }
+        else {
+            //If no file is selected (for example after using the "remove" button), then post a NULL file (with a special header)
+            xhr.open("POST", url);
+            xhr.setRequestHeader("FileNull", "true");
+            xhr.send();
+        }
     }
 
 

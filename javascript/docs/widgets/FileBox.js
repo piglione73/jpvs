@@ -33,7 +33,9 @@ jpvs.makeWidget({
 
         postFile: function (url, callback) {
             /// <summary>Posts the file to the given url. At the end, the callback is called with a single argument, which is the
-            /// responseText received from the http post call.</summary>
+            /// responseText received from the http post call.
+            /// If a file is selected, it is POST'ed and a FileName header is sent along with it.
+            /// Otherwise, if no file is selected, an empty content body is POST'ed and a FileNull header is sent along with it.</summary>
         }
     }
 });

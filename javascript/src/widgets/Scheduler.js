@@ -12,7 +12,6 @@
             day: "Day",
             week: "Week",
             month: "Month",
-            year: "Year",
             agenda: "Agenda"
         },
 
@@ -21,7 +20,6 @@
             day: "Giorno",
             week: "Settimana",
             month: "Mese",
-            year: "Anno",
             agenda: "Agenda"
         }
     };
@@ -103,22 +101,46 @@
         W.btnDay = jpvs.Button.create(W.pager).text(str("day")).click(onSetMode(W, "day"));
         W.btnWeek = jpvs.Button.create(W.pager).text(str("week")).click(onSetMode(W, "week"));
         W.btnMonth = jpvs.Button.create(W.pager).text(str("month")).click(onSetMode(W, "month"));
-        W.btnYear = jpvs.Button.create(W.pager).text(str("year")).click(onSetMode(W, "year"));
         W.btnAgenda = jpvs.Button.create(W.pager).text(str("agenda")).click(onSetMode(W, "agenda"));
     }
 
     function onToday(W) {
         return function () {
+            W.date(moment().format("YYYYMMDD"));
         };
     }
 
     function onPrevious(W) {
         return function () {
+            //Move the current date based on the current display mode
+            var mode = W.mode();
+            var date = moment(W.date(), "YYYYMMDD");
+
+            if (mode == "day")
+                date.add(-1, "days");
+            else if (mode == "week")
+                date.add(-7, "days");
+            else if (mode == "month")
+                date.add(-1, "month");
+
+            W.date(date.format("YYYYMMDD"));
         };
     }
 
     function onNext(W) {
         return function () {
+            //Move the current date based on the current display mode
+            var mode = W.mode();
+            var date = moment(W.date(), "YYYYMMDD");
+
+            if (mode == "day")
+                date.add(+1, "days");
+            else if (mode == "week")
+                date.add(+7, "days");
+            else if (mode == "month")
+                date.add(+1, "month");
+
+            W.date(date.format("YYYYMMDD"));
         };
     }
 
@@ -147,8 +169,6 @@
             btn = W.btnWeek;
         else if (mode == "month")
             btn = W.btnMonth;
-        else if (mode == "year")
-            btn = W.btnYear;
         else if (mode == "agenda")
             btn = W.btnAgenda;
 
@@ -224,7 +244,7 @@
                     var y2 = calcDayY(item.timeTo);
                     var x1 = calcWeekX(item.dateFrom, startOfWeek);
                     var x2 = calcWeekX(item.dateTo, startOfWeek);
-                    var divItem = drawRect(W.body, x1 + 0.1/7, x2 +0.9/7, y1, y2, "", "Item");
+                    var divItem = drawRect(W.body, x1 + 0.1 / 7, x2 + 0.9 / 7, y1, y2, "", "Item");
                     jpvs.applyTemplate(divItem, template, item);
                 }
             });
@@ -232,10 +252,6 @@
 
         month: function (W) {
             jpvs.write(W.body, "TODO: Month");
-        },
-
-        year: function (W) {
-            jpvs.write(W.body, "TODO: Year");
         },
 
         agenda: function (W) {
@@ -246,7 +262,8 @@
     function readData(from, to, callback) {
         callback([
             { dateFrom: moment().format("YYYYMMDD"), dateTo: moment().format("YYYYMMDD"), timeFrom: "0937", timeTo: "1530" },
-            { dateFrom: moment().format("YYYYMMDD"), dateTo: moment().format("YYYYMMDD"), timeFrom: "1600", timeTo: "1700" }
+            { dateFrom: moment().format("YYYYMMDD"), dateTo: moment().format("YYYYMMDD"), timeFrom: "1600", timeTo: "1700" },
+            { dateFrom: moment().add(2, "days").format("YYYYMMDD"), dateTo: moment().add(2, "days").format("YYYYMMDD"), timeFrom: "1600", timeTo: "1700" }
         ]);
     }
 
@@ -296,8 +313,19 @@
     }
 
     function calcWeekX(date, startOfWeek) {
-        var day = moment(date).hours(0).minutes(0).seconds(0).milliseconds(0).subtract(startOfWeek).days();
-        return day / 7;
+        var diffDays = 0;
+        var dateAsStr = moment(date).format("YYYYMMDD");
+        var startOfWeekAsStr = moment(startOfWeek).format("YYYYMMDD");
+        while (moment(dateAsStr, "YYYYMMDD").isAfter(moment(startOfWeekAsStr, "YYYYMMDD"))) {
+            diffDays++;
+            dateAsStr = moment(dateAsStr, "YYYYMMDD").add(-1, "days").format("YYYYMMDD");
+        }
+        while (moment(dateAsStr, "YYYYMMDD").isBefore(moment(startOfWeekAsStr, "YYYYMMDD"))) {
+            diffDays--;
+            dateAsStr = moment(dateAsStr, "YYYYMMDD").add(+1, "days").format("YYYYMMDD");
+        }
+
+        return diffDays / 7;
     }
 
     //Coordinates are proportional: they go from 0 (left/top) to 1 (right/bottom).

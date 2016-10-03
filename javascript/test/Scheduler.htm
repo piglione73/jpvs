@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>Scheduler</title>
+    <style type="text/css">
+        .Button
+        {
+            background-color: #ccc;
+            border: 1px solid #777;
+        }
+        .Button-Active 
+        {
+            background-color: #7ff;
+            border: 1px solid #00a;
+        }
+        .Scheduler .Header 
+        {
+            border-top: 1px solid #000;
+            border-right: 1px solid #000;
+            border-left: 1px solid #000;
+        }
+        .Scheduler .Body 
+        {
+            border: 1px solid #000;
+        }
+        .Scheduler .Item 
+        {
+            border:2px solid rgba(100,100,255,0.8);
+            background-color:rgba(200,200,255,0.8);
+            border-radius:4px;
+        }
+        .Scheduler .Holiday 
+        {
+            background-color: rgba(255,100,100,0.8);
+        }
+    </style>
+    <script type="text/javascript" src="../libs/moment.js"></script>
+    <script type="text/javascript" src="../libs/moment/it.js"></script>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/widgets/Scheduler.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript">
+        jpvs.currentLocale("it");
+        jpvs(function (w) {
+        });
+    </script>
+</head>
+<body>
+    <div id="cntScheduler" data-jpvs-type="Scheduler"></div>
+</body>
+</html>

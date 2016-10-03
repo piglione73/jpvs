@@ -24,6 +24,7 @@
   ],
   "dependencies": {
     "jquery": "*",
-    "jquery-ui": "*"
+    "jquery-ui": "*",
+    "moment": "^2.15.1"
   }
 }

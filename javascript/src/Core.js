@@ -123,7 +123,13 @@
 
         return jpvs.property({
             get: function () { return curLoc; },
-            set: function (value) { curLoc = value; }
+            set: function (value) {
+                //JPVS locale
+                curLoc = value;
+
+                //Set "moment" library to same locale
+                moment.locale(curLoc);
+            }
         });
     })();
 

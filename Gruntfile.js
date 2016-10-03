@@ -13,7 +13,11 @@ module.exports = function (grunt) {
                 src: [
                     'javascript/src/jpvs.js',
                     'javascript/src/*.js',
-                    'javascript/src/**/*.js'
+                    'javascript/src/**/*.js',
+					
+					//Additional libraries embedded into jpvs-all.js
+					'bower_components/moment/moment.js',
+					'bower_components/moment/locale/it.js'
                 ],
                 dest: 'build/jpvs-all.js'
             },

@@ -795,12 +795,12 @@
     Displays rows in the grid one page at a time
     */
     jpvs.DataGrid.pagingBinder = function (params) {
-        var pageSize = (params && params.pageSize) || 10;
-        var preserveCurrentPage = (params && params.preserveCurrentPage);
-
         var copyOfCurPage = 0;
 
         function binder(section, data) {
+            var pageSize = (params && params.pageSize) || 10;
+            var preserveCurrentPage = (params && params.preserveCurrentPage);
+
             var W = this;
 
             var sectionElement = getSection(W, section);

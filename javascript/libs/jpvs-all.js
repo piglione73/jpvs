@@ -8057,7 +8057,7 @@ jpvs.makeWidget({
 
         //Post to URL using old style form
         W.posting = true;
-        W.progress = 0;
+        W.progress = "0%";
         refresh(W);
 
         W.oldStyleForm.action = url;

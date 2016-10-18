@@ -14,7 +14,7 @@ public class PostDummyHandler : IHttpHandler {
 
         //Write something
         context.Response.ContentType = "text/plain";
-        context.Response.Write("Hello World");
+        context.Response.Write("Hello World " + context.Request.ContentLength);
     }
 
     public bool IsReusable {

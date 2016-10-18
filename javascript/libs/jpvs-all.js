@@ -7807,17 +7807,46 @@ jpvs.makeWidget({
         init: function (W) {
             jpvs.FileBox.strings = jpvs.FileBox.allStrings[jpvs.currentLocale()];
 
-            //Hidden file input element
-            recreateOrResetInput(this);
+            //ID of the input type file element
+            this.inputFileElementID = jpvs.randomString(20);
 
             //Label with icon and text
             this.lbl = jpvs.writeTag(this.element, "label").click(onShow(W));
             jpvs.writeTag(this.lbl, "img").addClass("Icon");
             jpvs.writeTag(this.lbl, "span").addClass("Text");
 
-            //Link buttons: Select/Remove
-            this.lnkSelect = jpvs.LinkButton.create(this.element).text(jpvs.FileBox.strings.select).click(onSelect(W));
-            this.lnkRemove = jpvs.LinkButton.create(this.element).text(jpvs.FileBox.strings.remove).click(onRemove(W));
+            /*
+            Link buttons: Select/Remove
+
+            Wrap a fake linkbutton as a label, so clicking on it will trigger the "input type file" without generating "access denied"
+            errors that occur in IE8 when the "Browse" button is "clicked" by javascript.
+
+            We make the two buttons the same way for styling purposes.
+
+            The "select" button triggers the inputFileElementID (and, as a consequence,  the choose file dialog box), 
+            the "remove" button triggers the onRemove(W) function.
+            */
+            W.lnkSelect = jpvs.writeTag(this, "label", jpvs.FileBox.strings.select).attr("for", this.inputFileElementID).addClass("LinkButton");
+            W.lnkRemove = jpvs.writeTag(this, "label", jpvs.FileBox.strings.remove).addClass("LinkButton").click(onRemove(W));
+
+            //Only to enable old-style uploads: we use the IFRAME method (POST to IFRAME), so we need an IFRAME and a FORM
+            var iframeName = jpvs.randomString(10);
+            var iframe = document.createElement("iframe");
+            iframe.name = iframeName;
+            W.element[0].appendChild(iframe);
+            this.oldStyleIframe = iframe;
+            $(iframe).css("display", "none");
+
+            var form = document.createElement("form");
+            form.target = iframeName;                   //So, it posts to the IFRAME
+            form.method = "POST";
+            form.enctype = "multipart/form-data";
+            form.encoding = "multipart/form-data";
+            W.element[0].appendChild(form);
+            this.oldStyleForm = form;
+
+            //Hidden file input element
+            recreateOrResetInput(this);
 
             //Refresh state
             refresh(W);
@@ -7860,10 +7889,19 @@ jpvs.makeWidget({
             W.inputFileElement.remove();
 
         var input = document.createElement("input");
-        $(input).attr("type", "file");
-        W.element.append(input);
+        $(input).attr({
+            "id": W.inputFileElementID,
+            "type": "file",
+            "name": "PostedFile"
+        });
+        W.oldStyleForm.appendChild(input);
 
-        W.inputFileElement = $(input).change(onSelected(W)).hide();
+        //Hidden but not with display: none, otherwise the fake label for clicking it will not work
+        W.inputFileElement = $(input).change(onSelected(W)).css({
+            position: "absolute",
+            top: "-100em",
+            left: "-100em"
+        });
     }
 
     function refresh(W) {
@@ -7875,8 +7913,8 @@ jpvs.makeWidget({
             W.lbl.find(".Text").show().text(W.progress);
 
             //Show/hide link buttons as appropriate
-            W.lnkSelect.element.hide();
-            W.lnkRemove.element.hide();
+            W.lnkSelect.hide();
+            W.lnkRemove.hide();
         }
         else if (file) {
             //File present
@@ -7895,22 +7933,22 @@ jpvs.makeWidget({
                 W.lbl.find(".Text").hide();
 
             //Show/hide link buttons as appropriate
-            W.lnkSelect.element.show();
-            W.lnkRemove.element.show();
+            W.lnkSelect.show();
+            W.lnkRemove.show();
         }
         else {
             //No file
             W.lbl.hide();
 
             //Show/hide link buttons as appropriate
-            W.lnkSelect.element.show();
-            W.lnkRemove.element.hide();
+            W.lnkSelect.show();
+            W.lnkRemove.hide();
         }
 
         //If disabled, hide the two buttons anyway
         if (!W.enabled()) {
-            W.lnkSelect.element.hide();
-            W.lnkRemove.element.hide();
+            W.lnkSelect.hide();
+            W.lnkRemove.hide();
         }
     }
 
@@ -7930,9 +7968,17 @@ jpvs.makeWidget({
 
     function onSelected(W) {
         return function () {
-            //Let's fire the "fileselected" event with the File API File object
-            var file = $(W.inputFileElement)[0].files[0];
-            W.fileselected.fire(W, null, file);
+            //Let's fire the "fileselected" event with the File API File object, if available
+            var txtFile = $(W.inputFileElement)[0];
+            if (txtFile.files) {
+                //File API is available (modern browser), let's use it
+                var file = txtFile.files[0];
+                W.fileselected.fire(W, null, file);
+            }
+            else {
+                //File API not available, let's send a dummy object to the event
+                W.fileselected.fire(W, null, { name: txtFile.value });
+            }
         };
     }
 
@@ -7945,7 +7991,16 @@ jpvs.makeWidget({
             W.filedeleted.fire(W);
         };
     }
+
     function post(W, url, callback) {
+        var txtFile = $(W.inputFileElement)[0];
+        if (txtFile.files)
+            post_ModernVersion(W, url, callback);
+        else
+            post_OldStyleVersion(W, url, callback);
+    }
+
+    function post_ModernVersion(W, url, callback) {
         var xhr = new XMLHttpRequest();
 
         xhr.onreadystatechange = function () {
@@ -7988,6 +8043,18 @@ jpvs.makeWidget({
         }
     }
 
+    function post_OldStyleVersion(W, url, callback) {
+        W.oldStyleIframe.onreadystatechange = function () {
+            if (W.oldStyleIframe.readyState == "complete") {
+                if (callback)
+                    callback();
+            }
+        };
+
+        //Post to URL using old style form
+        W.oldStyleForm.action = url;
+        W.oldStyleForm.submit();
+    }
 
 })();
 ;

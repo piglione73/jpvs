@@ -274,6 +274,9 @@
     function post_OldStyleVersion(W, url, callback) {
         W.oldStyleIframe.onreadystatechange = function () {
             if (W.oldStyleIframe.readyState == "complete") {
+                W.posting = false;
+                refresh(W);
+
                 var responseText = W.oldStyleIframe.contentDocument.body.innerText;
                 if (callback)
                     callback(responseText);
@@ -281,6 +284,10 @@
         };
 
         //Post to URL using old style form
+        W.posting = true;
+        W.progress = 0;
+        refresh(W);
+
         W.oldStyleForm.action = url;
         W.oldStyleForm.submit();
     }

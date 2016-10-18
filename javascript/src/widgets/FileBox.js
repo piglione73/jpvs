@@ -274,8 +274,9 @@
     function post_OldStyleVersion(W, url, callback) {
         W.oldStyleIframe.onreadystatechange = function () {
             if (W.oldStyleIframe.readyState == "complete") {
+                var responseText = W.oldStyleIframe.contentDocument.body.innerText;
                 if (callback)
-                    callback();
+                    callback(responseText);
             }
         };
 

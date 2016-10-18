@@ -25,7 +25,9 @@
         jpvs(function (w) {
             w.cntFile.fileselected(function (file) {
                 this.file({ label: file.name + " (" + file.type + ")", icon: jpvs.Resources.images.closeButton });
-                this.postFile("PostDummyHandler.ashx");
+                this.postFile("PostDummyHandler.ashx", function (responseText) {
+                    alert(responseText);
+                });
             });
         });
     </script>

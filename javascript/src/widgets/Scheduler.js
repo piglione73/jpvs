@@ -2,8 +2,6 @@
 
     jpvs.Scheduler = function (selector) {
         this.attach(selector);
-
-        this.change = jpvs.event(this);
     };
 
     jpvs.Scheduler.allStrings = {
@@ -52,12 +50,6 @@
 
             createPagerLayout(W);
             refresh(W);
-
-            /*
-            this.element.change(function () {
-            return W.change.fire(W);
-            });
-            */
         },
 
         canAttachTo: function (obj) {
@@ -75,6 +67,10 @@
                 set: function (value) { this.element.data("date", value); refresh(this); }
             }),
 
+            refresh: function () {
+                refresh(this);
+            },
+
             dayItemTemplate: jpvs.property({
                 get: function () { return this.element.data("dayItemTemplate") || defaultDayItemTemplate },
                 set: function (value) { this.element.data("dayItemTemplate", value); refresh(this); }
@@ -83,6 +79,16 @@
             weekItemTemplate: jpvs.property({
                 get: function () { return this.element.data("weekItemTemplate") || defaultWeekItemTemplate },
                 set: function (value) { this.element.data("weekItemTemplate", value); refresh(this); }
+            }),
+
+            monthItemTemplate: jpvs.property({
+                get: function () { return this.element.data("monthItemTemplate") || defaultMonthItemTemplate },
+                set: function (value) { this.element.data("monthItemTemplate", value); refresh(this); }
+            }),
+
+            agendaItemTemplate: jpvs.property({
+                get: function () { return this.element.data("agendaItemTemplate") || defaultAgendaItemTemplate },
+                set: function (value) { this.element.data("agendaItemTemplate", value); refresh(this); }
             })
         }
     });
@@ -251,11 +257,64 @@
         },
 
         month: function (W) {
-            jpvs.write(W.body, "TODO: Month");
+            //Load data for the current month only
+            var date = moment(W.date(), "YYYYMMDD");
+            var startOfMonth = moment(date).startOf("month");
+            var startDate = startOfMonth.format("YYYYMMDD");
+            var endOfMonth = moment(date).endOf("month");
+            var endDate = endOfMonth.format("YYYYMMDD");
+
+            readData(startDate, endDate, function (list) {
+                //Header
+                W.header.empty();
+                W.header.css("overflow-y", "scroll");
+                W.header.css("overflow-x", "hidden");
+                drawNamesOfWeekDays_Header(W.header);
+
+                //Body
+                W.body.empty();
+                W.body.css("overflow-y", "scroll");
+                W.body.css("overflow-x", "hidden");
+
+                //Draw month days
+                var allCoords = drawMonthDays(W.body, startOfMonth, endOfMonth);
+
+                //Write a rectangle for each scheduled item
+                //Use the item template for writing inside
+                var template = W.monthItemTemplate();
+                for (var i in list) {
+                    var item = list[i];
+                    var coords = allCoords[item.dateFrom];
+                    if (coords) {
+                        var divItem = allCoords[item.dateFrom].div;
+                        jpvs.applyTemplate(divItem, template, item);
+                    }
+                }
+            });
         },
 
         agenda: function (W) {
-            jpvs.write(W.body, "TODO: Agenda");
+            //Load data for the next 90 days only
+            var date = moment(W.date(), "YYYYMMDD");
+            var startDate = date.format("YYYYMMDD");
+            var endDate = moment(date).add(+90, "days").format("YYYYMMDD");
+
+            readData(startDate, endDate, function (list) {
+                //No header
+                W.header.empty();
+
+                //Body
+                W.body.empty();
+                W.body.css("overflow-y", "auto");
+                W.body.css("overflow-x", "auto");
+
+                //Just list items
+                var template = W.agendaItemTemplate();
+                for (var i in list) {
+                    var item = list[i];
+                    jpvs.applyTemplate(W.body, template, item);
+                }
+            });
         }
     };
 
@@ -328,6 +387,66 @@
         return diffDays / 7;
     }
 
+    function drawNamesOfWeekDays_Header(container) {
+        //Divide in 7 parts (Mon-Sun)
+        var weekdays = moment.weekdays();       //Sunday-Monday-...-Saturday
+
+        //Draw Monday-Saturday
+        for (var i = 1; i < 7; i++) {
+            drawRect(container, (i - 1) / 7, i / 7, 0, 1, "R", i == 6 ? "Holiday" : "");
+            drawCenteredText(container, (i - 1) / 7, i / 7, 0, weekdays[i]);
+        }
+
+        //Sunday
+        drawRect(container, 6 / 7, 7 / 7, 0, 1, "R", "Holiday");
+        drawCenteredText(container, 6 / 7, 7 / 7, 0, weekdays[0]);
+    }
+
+    function drawMonthDays(container, startOfMonth, endOfMonth) {
+        var date = moment(startOfMonth);
+        var dateAsStr = date.format("YYYYMMDD");
+        var lineIndex = 0;
+        var NROWS = 6;      //Starting week + 4 full weeks + ending week
+        var paddingX = 0.05 / 7;
+        var paddingY = 0.05 / NROWS;
+
+        var allCoords = {};
+
+        while (!date.isAfter(endOfMonth)) {
+            //Draw the appropriate rectangle on lineIndex
+            var dayOfWeek = date.day();
+            var x = dayOfWeek == 0 ? 6 / 7 : (dayOfWeek - 1) / 7;
+            var y = lineIndex / NROWS;
+
+            var coords = {
+                x1: x + paddingX,
+                x2: x + 1 / 7 - paddingX,
+                y1: y + paddingY,
+                y2: y + 1 / NROWS - paddingY
+            };
+
+            var div = drawRect(container, coords.x1, coords.x2, coords.y1, coords.y2, "RLTB", dayOfWeek == 0 || dayOfWeek == 6 ? "Holiday" : "");
+
+            //Write the day of month
+            var dayOfMonth = date.date();
+            jpvs.writeTag(div, "h1", dayOfMonth.toString());
+
+            //Let's keep track of all the rectangles' coordinates
+            coords.div = div;
+            allCoords[date.format("YYYYMMDD")] = coords;
+
+            //Go to next line if it's Sunday
+            if (dayOfWeek == 0)
+                lineIndex++;
+
+            //Go to next day
+            date.add(+1, "days");
+        }
+
+        return allCoords;
+    }
+
+
     //Coordinates are proportional: they go from 0 (left/top) to 1 (right/bottom).
     //(0,0) is the top-left corner; (1,1) is the bottom-right corner
     function drawRect(container, x1, x2, y1, y2, borders, cssClass) {
@@ -336,8 +455,11 @@
             left: (100 * x1) + "%",
             top: (100 * y1) + "%",
             width: (100 * (x2 - x1)) + "%",
-            height: (100 * (y2 - y1)) + "%"
+            height: (100 * (y2 - y1)) + "%",
+            overflow: "hidden"
         });
+
+        div.addClass("Rectangle");
 
         if (cssClass)
             div.addClass(cssClass);
@@ -395,5 +517,23 @@
         var timeFrom = moment(dataItem.timeFrom, "HHmm").format("HH:mm");
         var timeTo = moment(dataItem.timeTo, "HHmm").format("HH:mm");
         jpvs.write(this, timeFrom + " - " + timeTo);
+    }
+
+    function defaultMonthItemTemplate(dataItem) {
+        var timeFrom = moment(dataItem.timeFrom, "HHmm").format("HH:mm");
+        var timeTo = moment(dataItem.timeTo, "HHmm").format("HH:mm");
+        jpvs.writeln(this, timeFrom + " - " + timeTo);
+    }
+
+    function defaultAgendaItemTemplate(dataItem) {
+        var dateFrom = moment(dataItem.dateFrom, "YYYYMMDD").format("L");
+        var dateTo = moment(dataItem.dateTo, "YYYYMMDD").format("L");
+        var timeFrom = moment(dataItem.timeFrom, "HHmm").format("HH:mm");
+        var timeTo = moment(dataItem.timeTo, "HHmm").format("HH:mm");
+
+        if (dateFrom != dateTo)
+            jpvs.writeln(this, dateFrom + " " + timeFrom + " - " + dateTo + " " + timeTo);
+        else
+            jpvs.writeln(this, dateFrom + "\u00a0\u00a0\u00a0\u00a0" + timeFrom + " - " + timeTo);
     }
 })();

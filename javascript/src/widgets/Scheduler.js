@@ -57,6 +57,11 @@
         },
 
         prototype: {
+            readDataFunction: jpvs.property({
+                get: function () { return this.element.data("readDataFunction"); },
+                set: function (value) { this.element.data("readDataFunction", value); refresh(this); }
+            }),
+
             mode: jpvs.property({
                 get: function () { return this.element.data("mode") || "day"; },
                 set: function (value) { this.element.data("mode", value); refresh(this); }
@@ -194,7 +199,7 @@
             //Load data for the current date only
             var date = W.date();
 
-            readData(date, date, function (list) {
+            readData(W, date, date, function (list) {
                 //Header
                 W.header.empty();
                 drawCenteredText(W.header, 0, 1, 0, moment(date, "YYYYMMDD").format("dddd - LL"));
@@ -225,7 +230,7 @@
             var startDate = startOfWeek.format("YYYYMMDD");
             var endDate = moment(date).endOf("week").format("YYYYMMDD");
 
-            readData(startDate, endDate, function (list) {
+            readData(W, startDate, endDate, function (list) {
                 //Header
                 W.header.empty();
                 W.header.css("overflow-y", "scroll");
@@ -264,7 +269,7 @@
             var endOfMonth = moment(date).endOf("month");
             var endDate = endOfMonth.format("YYYYMMDD");
 
-            readData(startDate, endDate, function (list) {
+            readData(W, startDate, endDate, function (list) {
                 //Header
                 W.header.empty();
                 W.header.css("overflow-y", "scroll");
@@ -299,7 +304,7 @@
             var startDate = date.format("YYYYMMDD");
             var endDate = moment(date).add(+90, "days").format("YYYYMMDD");
 
-            readData(startDate, endDate, function (list) {
+            readData(W, startDate, endDate, function (list) {
                 //No header
                 W.header.empty();
 
@@ -318,12 +323,19 @@
         }
     };
 
-    function readData(from, to, callback) {
-        callback([
-            { dateFrom: moment().format("YYYYMMDD"), dateTo: moment().format("YYYYMMDD"), timeFrom: "0937", timeTo: "1530" },
-            { dateFrom: moment().format("YYYYMMDD"), dateTo: moment().format("YYYYMMDD"), timeFrom: "1600", timeTo: "1700" },
-            { dateFrom: moment().add(2, "days").format("YYYYMMDD"), dateTo: moment().add(2, "days").format("YYYYMMDD"), timeFrom: "1600", timeTo: "1700" }
-        ]);
+    function readData(W, from, to, callback) {
+        //Get the function currently responsible of returning data to this widget
+        //If not set, we return no data items
+        var readDataFunc = W.readDataFunction();
+        if (!readDataFunc) {
+            if (callback)
+                callback([]);
+
+            return;
+        }
+
+        //If set, we just call it
+        readDataFunc(from, to, callback);
     }
 
     var NUM_OF_VISIBLE_HOURS = 10;

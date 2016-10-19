@@ -10,6 +10,18 @@ jpvs.makeWidget({
     type: "Scheduler",
 
     prototype: {
+        readDataFunction: function (value) {
+            /// <summary>
+            /// Property: get/set current function responsible for loading the data items to display.
+            /// The function must have the following signature: function(start, to, callback) {}.
+            /// The two "start" and "to" parameters are dates in the YYYYMMDD format. The function must call the callback passing
+            /// an array of data items satisfying the passed date range criterion. Each item, at a minimum, must have four string properties:
+            /// - dateFrom and dateTo (YYYYMMDD)
+            /// - timeFrom and timeTo (HHmm)
+            /// </summary>
+            return this;
+        },
+
         mode: function (value) {
             /// <summary>Property: get/set current display mode (one of the following strings: "day", "week", "month", "agenda").</summary>
             return this;

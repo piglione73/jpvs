@@ -60,6 +60,15 @@
     <script type="text/javascript">
         jpvs.currentLocale("it");
         jpvs(function (w) {
+            w.cntScheduler.readDataFunction(testReadData);
+
+            function testReadData(start, from, callback) {
+                callback([
+                    { dateFrom: moment().format("YYYYMMDD"), dateTo: moment().format("YYYYMMDD"), timeFrom: "0937", timeTo: "1530" },
+                    { dateFrom: moment().format("YYYYMMDD"), dateTo: moment().format("YYYYMMDD"), timeFrom: "1600", timeTo: "1700" },
+                    { dateFrom: moment().add(2, "days").format("YYYYMMDD"), dateTo: moment().add(2, "days").format("YYYYMMDD"), timeFrom: "1600", timeTo: "1700" }
+                ]);
+            }
         });
     </script>
 </head>

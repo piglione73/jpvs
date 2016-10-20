@@ -37,16 +37,8 @@
             jpvs.Scheduler.strings = jpvs.Scheduler.allStrings[jpvs.currentLocale()];
 
             W.pager = jpvs.writeTag(W, "div").addClass("Pager");
-
-            W.header = jpvs.writeTag(W, "div").addClass("Header").css({
-                position: "relative",
-                height: "1em"
-            });
-
-            W.body = jpvs.writeTag(W, "div").addClass("Body").css({
-                position: "relative",
-                height: "400px"
-            });
+            W.header = jpvs.writeTag(W, "div").addClass("Header");
+            W.body = jpvs.writeTag(W, "div").addClass("Body");
 
             createPagerLayout(W);
             refresh(W);

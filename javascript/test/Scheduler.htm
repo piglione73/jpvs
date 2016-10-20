@@ -68,7 +68,9 @@
     <script type="text/javascript">
         jpvs.currentLocale("it");
         jpvs(function (w) {
-            w.cntScheduler.readDataFunction(testReadData);
+            w.cntScheduler.readDataFunction(testReadData).requireAdd(function () {
+                alert("User wishes to create a new event...");
+            });
 
             function testReadData(start, from, callback) {
                 callback([

@@ -2,6 +2,8 @@
 
     jpvs.Scheduler = function (selector) {
         this.attach(selector);
+
+        this.requireAdd = jpvs.event(this);
     };
 
     jpvs.Scheduler.allStrings = {
@@ -10,7 +12,8 @@
             day: "Day",
             week: "Week",
             month: "Month",
-            agenda: "Agenda"
+            agenda: "Agenda",
+            add: "Add"
         },
 
         it: {
@@ -18,7 +21,8 @@
             day: "Giorno",
             week: "Settimana",
             month: "Mese",
-            agenda: "Agenda"
+            agenda: "Agenda",
+            add: "Aggiungi"
         }
     };
 
@@ -105,6 +109,10 @@
         W.btnWeek = jpvs.Button.create(W.pager).text(str("week")).click(onSetMode(W, "week"));
         W.btnMonth = jpvs.Button.create(W.pager).text(str("month")).click(onSetMode(W, "month"));
         W.btnAgenda = jpvs.Button.create(W.pager).text(str("agenda")).click(onSetMode(W, "agenda"));
+
+        jpvs.writeTag(W.pager, "span", " ").addClass("Spacer");
+
+        jpvs.Button.create(W.pager).text(str("add")).click(onAdd(W));
     }
 
     function onToday(W) {
@@ -150,6 +158,12 @@
     function onSetMode(W, mode) {
         return function () {
             W.mode(mode);
+        };
+    }
+
+    function onAdd(W) {
+        return function () {
+            W.requireAdd.fire(W);
         };
     }
 

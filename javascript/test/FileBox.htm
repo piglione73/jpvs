@@ -29,6 +29,12 @@
                     alert(responseText);
                 });
             });
+
+            w.cntFile.allowRename(true).filerename(function () {
+                var f = this.file();
+                f.label = prompt("New name:", f.label);
+                this.file(f);
+            });
         });
     </script>
 </head>

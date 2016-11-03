@@ -5,19 +5,22 @@
 
         this.fileselected = jpvs.event(this);
         this.filedeleted = jpvs.event(this);
+        this.filerename = jpvs.event(this);
     };
 
     jpvs.FileBox.allStrings = {
         en: {
             show: "Show",
             select: "Select...",
-            remove: "Remove"
+            remove: "Remove",
+            rename: "Rename..."
         },
 
         it: {
             show: "Visualizza",
             select: "Seleziona...",
-            remove: "Rimuovi"
+            remove: "Rimuovi",
+            rename: "Rinomina..."
         }
     };
 
@@ -49,12 +52,13 @@
             Wrap a fake linkbutton as a label, so clicking on it will trigger the "input type file" without generating "access denied"
             errors that occur in IE8 when the "Browse" button is "clicked" by javascript.
 
-            We make the two buttons the same way for styling purposes.
+            We make the buttons the same way for styling purposes.
 
             The "select" button triggers the inputFileElementID (and, as a consequence,  the choose file dialog box), 
-            the "remove" button triggers the onRemove(W) function.
+            the "remove" button triggers the onRemove(W) function. The "rename" button triggers the onRename(W) function.
             */
             W.lnkSelect = jpvs.writeTag(this, "label", jpvs.FileBox.strings.select).attr("for", this.inputFileElementID).addClass("LinkButton");
+            W.lnkRename = jpvs.writeTag(this, "label", jpvs.FileBox.strings.rename).addClass("LinkButton").click(onRename(W));
             W.lnkRemove = jpvs.writeTag(this, "label", jpvs.FileBox.strings.remove).addClass("LinkButton").click(onRemove(W));
 
             //Only to enable old-style uploads: we use the IFRAME method (POST to IFRAME), so we need an IFRAME and a FORM
@@ -91,6 +95,16 @@
                 },
                 set: function (value) {
                     this.element.data("enabled", value);
+                    refresh(this);
+                }
+            }),
+
+            allowRename: jpvs.property({
+                get: function () {
+                    return !!this.element.data("allowRename");    //Default is false
+                },
+                set: function (value) {
+                    this.element.data("allowRename", value);
                     refresh(this);
                 }
             }),
@@ -142,6 +156,7 @@
 
             //Show/hide link buttons as appropriate
             W.lnkSelect.hide();
+            W.lnkRename.hide();
             W.lnkRemove.hide();
         }
         else if (file) {
@@ -162,6 +177,12 @@
 
             //Show/hide link buttons as appropriate
             W.lnkSelect.show();
+
+            if (W.allowRename())
+                W.lnkRename.show();
+            else
+                W.lnkRename.hide();
+
             W.lnkRemove.show();
         }
         else {
@@ -170,12 +191,14 @@
 
             //Show/hide link buttons as appropriate
             W.lnkSelect.show();
+            W.lnkRename.hide();
             W.lnkRemove.hide();
         }
 
-        //If disabled, hide the two buttons anyway
+        //If disabled, hide the buttons anyway
         if (!W.enabled()) {
             W.lnkSelect.hide();
+            W.lnkRename.hide();
             W.lnkRemove.hide();
         }
     }
@@ -217,6 +240,13 @@
 
             //Let's fire the "filedeleted" event
             W.filedeleted.fire(W);
+        };
+    }
+
+    function onRename(W) {
+        return function () {
+            //Let's fire the "filerename" event
+            W.filerename.fire(W);
         };
     }
 

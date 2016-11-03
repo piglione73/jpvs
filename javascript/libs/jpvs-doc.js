@@ -1166,6 +1166,9 @@ jpvs.FileBox = function (selector) {
 
     /// <summary>This event is raised whenever the user deletes a file.</summary>
     this.filedeleted = jpvs.event(this);
+
+    /// <summary>This event is raised whenever the user clicks on the "rename" button.</summary>
+    this.filerename = jpvs.event(this);
 };
 
 jpvs.makeWidget({
@@ -1178,12 +1181,19 @@ jpvs.makeWidget({
             return this;
         },
 
+        allowRename: function (value) {
+            /// <summary>Property: if true, when the FileBox is enabled the user can also rename.</summary>
+            return this;
+        },
+
         file: function (value) {
             /// <summary>Property: object containing information about the file contained in this FileBox. It is in the form 
             /// { icon: "url of the icon",  label: "text to be displayed", url: "url for opening the file" }. 
             /// This property never changes automatically. The expected usage is: 
             /// (1) the user selects a file; (2) the "fileselected" event is raised; (3) in the "fileselected" handler, the user code 
-            /// calls the "postFile" method, passing a callback that sets the "file" property based on the selected file info.</summary>
+            /// calls the "postFile" method, passing a callback that sets the "file" property based on the selected file info.
+            /// Or: (1) the user clicks the "rename" button; (2) the "filerename" event is raised; (3) in the "filerename"
+            /// handler, the user code shows a popup. At the end, it sets the "file" property based on the new name entered.</summary>
             return this;
         },
 

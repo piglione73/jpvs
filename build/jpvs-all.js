@@ -7783,14 +7783,14 @@ jpvs.makeWidget({
     jpvs.FileBox.allStrings = {
         en: {
             show: "Show",
-            select: "Select...",
+            select: "Insert...",
             remove: "Remove",
             rename: "Rename..."
         },
 
         it: {
             show: "Visualizza",
-            select: "Seleziona...",
+            select: "Inserisci...",
             remove: "Rimuovi",
             rename: "Rinomina..."
         }

@@ -8036,6 +8036,7 @@ jpvs.makeWidget({
         xhr.onreadystatechange = function () {
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 W.posting = false;
+                recreateOrResetInput(W);
                 refresh(W);
 
                 if (callback)
@@ -8077,6 +8078,7 @@ jpvs.makeWidget({
         W.oldStyleIframe.onreadystatechange = function () {
             if (W.oldStyleIframe.readyState == "complete") {
                 W.posting = false;
+                recreateOrResetInput(W);
                 refresh(W);
 
                 var responseText = W.oldStyleIframe.contentDocument.body.innerText;

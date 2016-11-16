@@ -13,7 +13,7 @@ jpvs.makeWidget({
 
     prototype: {
         imageUrls: function (value) {
-            /// <summary>Property: image urls. It is in the form { normal: String, hover: String }. The two urls contain the two states of the image button: the normal state and the hovering state.</summary>
+            /// <summary>Property: image urls. It can be a string representing the normal state image url or it can be in the form { normal: String, hover: String }. The two urls contain the two states of the image button: the normal state and the hovering state. If the hover field is not passed, then there will be no hovering effect.</summary>
             return this;
         },
 

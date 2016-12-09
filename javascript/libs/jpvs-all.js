@@ -2009,7 +2009,7 @@ jpvs.Event = function (widget) {
 jpvs.Event.prototype.bind = function (handlerName, handler) {
     if (!handler) {
         handler = handlerName;
-        handlerName = new Date().toString();
+        handlerName = this.handlers.length.toString();
     }
 
     this.handlers[handlerName] = handler;

@@ -11,13 +11,14 @@ jpvs.Event = function (widget) {
 
     obj.widget = widget;
     obj.handlers = {};
+    obj.internalCounter = 0;
     return obj;
 };
 
 jpvs.Event.prototype.bind = function (handlerName, handler) {
     if (!handler) {
         handler = handlerName;
-        handlerName = this.handlers.length.toString();
+        handlerName = (this.internalCounter++).toString();
     }
 
     this.handlers[handlerName] = handler;

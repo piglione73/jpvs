@@ -234,6 +234,10 @@
                 this.__WIDGET__ = widgetDef.type;
                 this.element = $(selector);
 
+                //Put in collection
+                jpvs.widgets[this.element.attr("id")] = this;
+                this.element.data("jpvs-widget", this);
+
                 //Decorate with CSS
                 this.element.addClass("Widget");
                 this.element.addClass(widgetDef.cssClass);
@@ -241,10 +245,6 @@
                 //Initialize widget behavior
                 init(this);
                 widgetDef.init.call(this, this);
-
-                //Put in collection
-                jpvs.widgets[this.element.attr("id")] = this;
-                this.element.data("jpvs-widget", this);
             };
         }
 

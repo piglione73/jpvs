@@ -8252,6 +8252,7 @@ jpvs.makeWidget({
 
             addClass: function (className) {
                 this.element.addClass(className);
+                return this;
             },
 
             originalSizePx: function () {

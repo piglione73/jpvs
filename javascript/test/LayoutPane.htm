@@ -2,13 +2,23 @@
 <html>
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
     <title>LayoutPane</title>
     <style>
-        .LayoutPane {
-            border: 5px solid #000;
+        .LayoutPane-VerticalResizer {
+            border-left: 1px solid #0f0;
+            border-right: 1px solid #0f0;
+            background-color:rgba(100,255,100,0.6);
+            cursor:ew-resize;
         }
-        .LayoutPane > .LayoutPane {
-            border: 5px solid #f00;
+        .LayoutPane-HorizontalResizer {
+            border-top: 1px solid #f00;
+            border-top: 1px solid #f00;
+            background-color:rgba(255,100,100,0.6);
+            cursor: ns-resize;
+        }
+        div.LayoutPane-HorizontalResizer:hover, div.LayoutPane-VerticalResizer:hover{
+            background-color:#ff0;
         }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
@@ -18,6 +28,7 @@
     <script type="text/javascript" src="../src/Resources.js"></script>
     <script type="text/javascript" src="../src/Random.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/TouchGestures.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>

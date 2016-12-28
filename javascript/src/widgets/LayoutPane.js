@@ -3,6 +3,15 @@
     //On browser resize, we relayout everything
     $(window).on("resize", refresh);
 
+    //On drag, handle resizing as appropriate
+    $(document).on("mousedown", onStartDrag);
+    $(document).on("mousemove", onContinueDrag);
+    $(document).on("mouseup", onEndDrag);
+    jpvs.addGestureListener(document, {
+        allowedEventTargets: function (target) {
+            return $(target).is(".LayoutPane-Resizer");
+        }
+    }, onTouch);
 
     jpvs.LayoutPane = function (selector) {
         this.attach(selector);
@@ -29,12 +38,16 @@
 
         prototype: {
             anchor: jpvs.property({
-                get: function () { return this.element.data("anchor"); },
+                get: function () {
+                    return (this.element.data("anchor") || "fill").toLowerCase();
+                },
                 set: function (value) { this.element.data("anchor", value); refresh(); }
             }),
 
             size: jpvs.property({
-                get: function () { return this.element.data("size"); },
+                get: function () {
+                    return (this.element.data("size") || "auto").toLowerCase();
+                },
                 set: function (value) { this.element.data("size", value); refresh(); }
             }),
 
@@ -44,11 +57,28 @@
                     return x == true || x == "true";
                 },
                 set: function (value) { this.element.data("resizable", value); refresh(); }
-            })
+            }),
+
+            addClass: function (className) {
+                this.element.addClass(className);
+            },
+
+            originalSizePx: function () {
+                var anchor = this.anchor();
+                if (anchor == "left" || anchor == "right")
+                    return this.element.outerWidth();
+                else if (anchor == "top" || anchor == "bottom")
+                    return this.element.outerHeight();
+                else
+                    return undefined;
+            }
         }
     });
 
     function refresh() {
+        //Remove all resizers (we recreate them at the correct updated positions)
+        $("div.LayoutPane-Resizer").remove();
+
         //We must relayout the entire hierarchy of LayoutPane's starting from the roots
         var roots = getRoots();
 
@@ -98,39 +128,58 @@
         //Assign space to all panes one at a time
         for (var i in ctx.panes) {
             var pane = ctx.panes[i];
-            allocate(pane);
-        }
-
-        //Depending on the anchor setting, allocate the pane on the screen
-        function allocate(pane) {
             var anchor = (pane.anchor() || "fill").toLowerCase();
             var size = (pane.size() || "auto").toLowerCase();
             var resizable = pane.resizable();
             var childPanes = getLayoutPanes(pane.element);
 
+            allocate(pane.element, anchor, size, childPanes);
+
+            //Then, if the pane is anchored and requires to be resizable, let's allocate a second special thin pane that
+            //acts as the border/handle for resizing
+            if (resizable) {
+                var resizer = jpvs.writeTag("body", "div");
+                resizer.data("LayoutPane", pane);
+
+                if (anchor == "left" || anchor == "right") {
+                    allocate(resizer, anchor, "10px", []);
+                    resizer.addClass("LayoutPane-Resizer LayoutPane-VerticalResizer");
+                }
+                else if (anchor == "top" || anchor == "bottom") {
+                    allocate(resizer, anchor, "10px", []);
+                    resizer.addClass("LayoutPane-Resizer LayoutPane-HorizontalResizer");
+                }
+
+                //No scrollbars on the resizer
+                resizer.css("overflow", "hidden");
+            }
+        }
+
+        //Depending on the anchor setting, allocate the pane on the screen
+        function allocate(paneElement, anchor, size, childPanes) {
             //We have some reasonable constraints for ease of implementation
             if (childPanes.length > 0 && anchor != "fill" && size == "auto") {
                 //If we have child LayoutPane's, then we don't support "auto" size
-                pane.element.empty().text("Error: since nested LayoutPane's are present, the combination " + anchor + "/" + size + " is not supported. Please set an explicit size for this LayoutPane.");
+                paneElement.empty().text("Error: since nested LayoutPane's are present, the combination " + anchor + "/" + size + " is not supported. Please set an explicit size for this LayoutPane.");
                 return;
             }
 
             //Checks OK. Allocate the pane on the screen.
-            pane.element.css({
+            paneElement.css({
                 position: "fixed",
                 overflow: "auto"
             });
 
             if (anchor == "top") {
                 //Anchor to the top, eating space from ctx.y1
-                pane.element.css({
+                paneElement.css({
                     left: ctx.x1 + "px",
                     right: ctx.x2 + "px",
                     top: ctx.y1 + "px",
                     height: size
                 });
 
-                var usedHeight = pane.element.outerHeight();
+                var usedHeight = paneElement.outerHeight();
 
                 //Layout nested panes, if present
                 relayout({
@@ -146,14 +195,14 @@
             }
             else if (anchor == "bottom") {
                 //Anchor to the bottom, eating space from ctx.y2
-                pane.element.css({
+                paneElement.css({
                     left: ctx.x1 + "px",
                     right: ctx.x2 + "px",
                     bottom: ctx.y2 + "px",
                     height: size
                 });
 
-                var usedHeight = pane.element.outerHeight();
+                var usedHeight = paneElement.outerHeight();
 
                 //Layout nested panes, if present
                 relayout({
@@ -169,14 +218,14 @@
             }
             else if (anchor == "left") {
                 //Anchor to the left, eating space from ctx.x1
-                pane.element.css({
+                paneElement.css({
                     left: ctx.x1 + "px",
                     top: ctx.y1 + "px",
                     bottom: ctx.y2 + "px",
                     width: size
                 });
 
-                var usedWidth = pane.element.outerWidth();
+                var usedWidth = paneElement.outerWidth();
 
                 //Layout nested panes, if present
                 relayout({
@@ -192,14 +241,14 @@
             }
             else if (anchor == "right") {
                 //Anchor to the right, eating space from ctx.x2
-                pane.element.css({
+                paneElement.css({
                     right: ctx.x2 + "px",
                     top: ctx.y1 + "px",
                     bottom: ctx.y2 + "px",
                     width: size
                 });
 
-                var usedWidth = pane.element.outerWidth();
+                var usedWidth = paneElement.outerWidth();
 
                 //Layout nested panes, if present
                 relayout({
@@ -215,7 +264,7 @@
             }
             else if (anchor == "fill") {
                 //Fill the remaining space
-                pane.element.css({
+                paneElement.css({
                     left: ctx.x1 + "px",
                     right: ctx.x2 + "px",
                     top: ctx.y1 + "px",
@@ -233,8 +282,104 @@
             }
             else {
                 //If invalid, let's show the error
-                pane.element.empty().text("Invalid anchor for LayoutPane: " + anchor);
+                paneElement.empty().text("Invalid anchor for LayoutPane: " + anchor);
             }
+        }
+    }
+
+    var dragCtx = {};
+
+    function onStartDrag(e) {
+        if ($(e.target).is(".LayoutPane-Resizer")) {
+            //Mouse down on a LayoutPane Resizer --> start dragging
+            startDragging(e.clientX, e.clientY, e.target);
+            return false;
+        }
+    }
+
+    function startDragging(clientX, clientY, target) {
+        dragCtx.dragging = true;
+        dragCtx.x0 = clientX;
+        dragCtx.y0 = clientY;
+        dragCtx.pane = $(target).data("LayoutPane");
+        dragCtx.resizer = $(target);
+        dragCtx.originalSizePx = dragCtx.pane.originalSizePx();
+        dragCtx.originalResizerPosition = $(target).offset();
+    }
+
+    function onContinueDrag(e) {
+        if (dragCtx.dragging) {
+            //Dragging in progress --> let's move the resizer following the mouse pointer
+            continueDragging(e.clientX, e.clientY);
+            return false;
+        }
+    }
+
+    function continueDragging(clientX, clientY) {
+        var anchor = dragCtx.pane && dragCtx.pane.anchor();
+        if (anchor == "left" || anchor == "right") {
+            //Move the X
+            var delta = clientX - dragCtx.x0;
+            var newX = dragCtx.originalResizerPosition.left + delta;
+            $(dragCtx.resizer).css("left", newX + "px");
+        }
+        else if (anchor == "top" || anchor == "bottom") {
+            //Move the Y
+            var delta = clientY - dragCtx.y0;
+            var newY = dragCtx.originalResizerPosition.top + delta;
+            $(dragCtx.resizer).css("top", newY + "px");
+        }
+    }
+
+    function onEndDrag(e) {
+        if (dragCtx.dragging) {
+            //Dragging in progress --> let's end the dragging operation
+            endDragging(e.clientX, e.clientY);
+            return false;
+        }
+    }
+
+    function endDragging(clientX, clientY) {
+        dragCtx.dragging = false;
+
+        var anchor = dragCtx.pane && dragCtx.pane.anchor();
+        if (anchor == "left") {
+            //Increase size
+            var delta = clientX - dragCtx.x0;
+            dragCtx.pane.size((dragCtx.originalSizePx + delta) + "px");
+        }
+        else if (anchor == "right") {
+            //Decrease size
+            var delta = clientX - dragCtx.x0;
+            dragCtx.pane.size((dragCtx.originalSizePx - delta) + "px");
+        }
+        else if (anchor == "top") {
+            //Increase size
+            var delta = clientY - dragCtx.y0;
+            dragCtx.pane.size((dragCtx.originalSizePx + delta) + "px");
+        }
+        else if (anchor == "bottom") {
+            //Decrease size
+            var delta = clientY - dragCtx.y0;
+            dragCtx.pane.size((dragCtx.originalSizePx - delta) + "px");
+        }
+
+        //Refresh all with the new sizes
+        refresh();
+    }
+
+    function onTouch(e) {
+        if (e.isDrag && !dragCtx.dragging && $(e.target).is(".LayoutPane-Resizer")) {
+            //Start dragging
+            startDragging(e.start.clientX, e.start.clientY, e.target);
+        }
+        else if (e.isDrag && dragCtx.dragging) {
+            //Continue dragging
+            continueDragging(e.current.clientX, e.current.clientY);
+        }
+        else if (e.isEndDrag && dragCtx.dragging) {
+            //End dragging
+            endDragging(e.current.clientX, e.current.clientY);
         }
     }
 

@@ -8371,7 +8371,7 @@ jpvs.makeWidget({
                     left: ctx.x1 + "px",
                     right: ctx.x2 + "px",
                     top: ctx.y1 + "px",
-                    bottom: null,
+                    bottom: "auto",
                     height: size
                 });
 
@@ -8394,7 +8394,7 @@ jpvs.makeWidget({
                 paneElement.css({
                     left: ctx.x1 + "px",
                     right: ctx.x2 + "px",
-                    top: null,
+                    top: "auto",
                     bottom: ctx.y2 + "px",
                     height: size
                 });
@@ -8417,7 +8417,7 @@ jpvs.makeWidget({
                 //Anchor to the left, eating space from ctx.x1
                 paneElement.css({
                     left: ctx.x1 + "px",
-                    right: null,
+                    right: "auto",
                     top: ctx.y1 + "px",
                     bottom: ctx.y2 + "px",
                     width: size
@@ -8440,7 +8440,7 @@ jpvs.makeWidget({
             else if (anchor == "right") {
                 //Anchor to the right, eating space from ctx.x2
                 paneElement.css({
-                    top: null,
+                    top: "auto",
                     right: ctx.x2 + "px",
                     top: ctx.y1 + "px",
                     bottom: ctx.y2 + "px",

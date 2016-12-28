@@ -180,6 +180,7 @@
                     left: ctx.x1 + "px",
                     right: ctx.x2 + "px",
                     top: ctx.y1 + "px",
+                    bottom: null,
                     height: size
                 });
 
@@ -202,6 +203,7 @@
                 paneElement.css({
                     left: ctx.x1 + "px",
                     right: ctx.x2 + "px",
+                    top: null,
                     bottom: ctx.y2 + "px",
                     height: size
                 });
@@ -224,6 +226,7 @@
                 //Anchor to the left, eating space from ctx.x1
                 paneElement.css({
                     left: ctx.x1 + "px",
+                    right: null,
                     top: ctx.y1 + "px",
                     bottom: ctx.y2 + "px",
                     width: size
@@ -246,6 +249,7 @@
             else if (anchor == "right") {
                 //Anchor to the right, eating space from ctx.x2
                 paneElement.css({
+                    top: null,
                     right: ctx.x2 + "px",
                     top: ctx.y1 + "px",
                     bottom: ctx.y2 + "px",

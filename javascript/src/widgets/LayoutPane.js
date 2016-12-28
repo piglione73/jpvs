@@ -17,6 +17,9 @@
         this.attach(selector);
     };
 
+    //Static function for refreshing the entire layout
+    jpvs.LayoutPane.refresh = refresh;
+
     jpvs.makeWidget({
         widget: jpvs.LayoutPane,
         type: "LayoutPane",

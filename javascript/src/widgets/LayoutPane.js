@@ -1,5 +1,9 @@
 (function () {
 
+    //On browser resize, we relayout everything
+    $(window).on("resize", refresh);
+
+
     jpvs.LayoutPane = function (selector) {
         this.attach(selector);
     };
@@ -16,7 +20,7 @@
         },
 
         init: function (W) {
-            refresh(W);
+            refresh();
         },
 
         canAttachTo: function (obj) {
@@ -26,12 +30,12 @@
         prototype: {
             anchor: jpvs.property({
                 get: function () { return this.element.data("anchor"); },
-                set: function (value) { this.element.data("anchor", value); refresh(this); }
+                set: function (value) { this.element.data("anchor", value); refresh(); }
             }),
 
             size: jpvs.property({
                 get: function () { return this.element.data("size"); },
-                set: function (value) { this.element.data("size", value); refresh(this); }
+                set: function (value) { this.element.data("size", value); refresh(); }
             }),
 
             resizable: jpvs.property({
@@ -39,14 +43,14 @@
                     var x = this.element.data("resizable");
                     return x == true || x == "true";
                 },
-                set: function (value) { this.element.data("resizable", value); refresh(this); }
+                set: function (value) { this.element.data("resizable", value); refresh(); }
             })
         }
     });
 
-    function refresh(W) {
+    function refresh() {
         //We must relayout the entire hierarchy of LayoutPane's starting from the roots
-        var roots = getRoots(W);
+        var roots = getRoots();
 
         //Relayout recursively
         var ctx = {
@@ -57,8 +61,8 @@
         relayout(ctx);
     }
 
-    function getRoots(W) {
-        var x = W.element;
+    function getRoots() {
+        var x = $("div.LayoutPane").first();
         while (getLayoutPane(x)) {
             //Go up one level
             x = x.parent();
@@ -72,7 +76,7 @@
     function getLayoutPanes(element) {
         //Get all the LayoutPane's contained in element
         var panes = [];
-        element.children("div").each(function () {
+        element.children("div.LayoutPane").each(function () {
             var pane = getLayoutPane($(this));
             if (pane)
                 panes.push(pane);
@@ -97,11 +101,21 @@
             allocate(pane);
         }
 
+        //Depending on the anchor setting, allocate the pane on the screen
         function allocate(pane) {
-            //Depending on the anchor setting, allocate the pane on the screen
             var anchor = (pane.anchor() || "fill").toLowerCase();
-            var size = pane.size();
+            var size = (pane.size() || "auto").toLowerCase();
+            var resizable = pane.resizable();
+            var childPanes = getLayoutPanes(pane.element);
 
+            //We have some reasonable constraints for ease of implementation
+            if (childPanes.length > 0 && anchor != "fill" && size == "auto") {
+                //If we have child LayoutPane's, then we don't support "auto" size
+                pane.element.empty().text("Error: since nested LayoutPane's are present, the combination " + anchor + "/" + size + " is not supported. Please set an explicit size for this LayoutPane.");
+                return;
+            }
+
+            //Checks OK. Allocate the pane on the screen.
             pane.element.css({
                 position: "fixed",
                 overflow: "auto"
@@ -116,7 +130,19 @@
                     height: size
                 });
 
-                ctx.y1 += pane.element.height();
+                var usedHeight = pane.element.outerHeight();
+
+                //Layout nested panes, if present
+                relayout({
+                    panes: childPanes,
+                    x1: ctx.x1,
+                    x2: ctx.x2,
+                    y1: ctx.y1,
+                    y2: $(window).height() - (ctx.y1 + usedHeight)
+                });
+
+                //Mark the space as used
+                ctx.y1 += usedHeight;
             }
             else if (anchor == "bottom") {
                 //Anchor to the bottom, eating space from ctx.y2
@@ -127,7 +153,19 @@
                     height: size
                 });
 
-                ctx.y2 += pane.element.height();
+                var usedHeight = pane.element.outerHeight();
+
+                //Layout nested panes, if present
+                relayout({
+                    panes: childPanes,
+                    x1: ctx.x1,
+                    x2: ctx.x2,
+                    y1: $(window).height() - (ctx.y2 + usedHeight),
+                    y2: ctx.y2
+                });
+
+                //Mark the space as used
+                ctx.y2 += usedHeight;
             }
             else if (anchor == "left") {
                 //Anchor to the left, eating space from ctx.x1
@@ -138,7 +176,19 @@
                     width: size
                 });
 
-                ctx.x1 += pane.element.width();
+                var usedWidth = pane.element.outerWidth();
+
+                //Layout nested panes, if present
+                relayout({
+                    panes: childPanes,
+                    x1: ctx.x1,
+                    x2: $(window).width() - (ctx.x1 + usedWidth),
+                    y1: ctx.y1,
+                    y2: ctx.y2
+                });
+
+                //Mark the space as used
+                ctx.x1 += usedWidth;
             }
             else if (anchor == "right") {
                 //Anchor to the right, eating space from ctx.x2
@@ -149,7 +199,19 @@
                     width: size
                 });
 
-                ctx.x2 += pane.element.width();
+                var usedWidth = pane.element.outerWidth();
+
+                //Layout nested panes, if present
+                relayout({
+                    panes: childPanes,
+                    x1: $(window).width() - (ctx.x2 + usedWidth),
+                    x2: ctx.x2,
+                    y1: ctx.y1,
+                    y2: ctx.y2
+                });
+
+                //Mark the space as used
+                ctx.x2 += usedWidth;
             }
             else if (anchor == "fill") {
                 //Fill the remaining space
@@ -158,6 +220,15 @@
                     right: ctx.x2 + "px",
                     top: ctx.y1 + "px",
                     bottom: ctx.y2 + "px"
+                });
+
+                //Layout nested panes, if present
+                relayout({
+                    panes: childPanes,
+                    x1: ctx.x1,
+                    x2: ctx.x2,
+                    y1: ctx.y1,
+                    y2: ctx.y2
                 });
             }
             else {

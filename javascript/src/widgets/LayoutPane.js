@@ -67,7 +67,7 @@
                 return this;
             },
 
-            originalSizePx: function () {
+            actualSizePx: function () {
                 var anchor = this.anchor();
                 if (anchor == "left" || anchor == "right")
                     return this.element.outerWidth();
@@ -311,7 +311,7 @@
         dragCtx.y0 = clientY;
         dragCtx.pane = $(target).data("LayoutPane");
         dragCtx.resizer = $(target);
-        dragCtx.originalSizePx = dragCtx.pane.originalSizePx();
+        dragCtx.originalSizePx = dragCtx.pane.actualSizePx();
         dragCtx.originalResizerPosition = $(target).offset();
     }
 

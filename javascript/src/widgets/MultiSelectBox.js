@@ -43,6 +43,9 @@
                 items.push({ value: value, text: text, selected: selected });
             });
 
+            //Read all data-xxx attributes
+            var savedDataAttributes = this.element.data();
+
             //Remove this.element and substitute it with a table
             var newElem = jpvs.writeTag(this.element.parent(), "table");
             newElem.insertAfter(this.element);
@@ -50,6 +53,9 @@
             newElem.attr("id", this.element.attr("id"));
             newElem.attr("class", this.element.attr("class"));
             this.element = newElem;
+
+            //Move the saved data attributes to the new element
+            this.element.data(savedDataAttributes);
 
             //Attach the items collection
             setItems(W, items);

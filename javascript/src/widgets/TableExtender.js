@@ -232,7 +232,7 @@
         //If the width is set in CSS in px, then this function performs much faster
         return parseFloat(element.style.width);
     }
-    
+
     function handleCellBorderDragging(extender) {
         var draggingCol;
         var draggingCol_FH;         //Matching COL in the fixed floating header, if any
@@ -242,7 +242,7 @@
         var originalSumOfAllColWidths;
 
         var newColWidth;
-        
+
         var tbl = extender.tableElement;
         var allCellsSelector = extender.allCellsSelector;
         var scrollingContainer = getScrollingContainer(tbl);
@@ -302,8 +302,8 @@
             if (draggingCol) {
                 //Apply the new col width
                 applyNewColWidth(true, e);
-                
-                if(lastEventParams) {
+
+                if (lastEventParams) {
                     //Fire one last event
                     lastEventParams.resizing = false;
                     extender.afterResize.fire(extender, null, lastEventParams);
@@ -329,7 +329,7 @@
             originalTableX = tableX;
             originalColWidth = quickGetWidth(draggingCol[0]);
             newColWidth = originalColWidth;
-            
+
             originalSumOfAllColWidths = 0;
             cols.each(function () {
                 originalSumOfAllColWidths += quickGetWidth(this);
@@ -342,32 +342,32 @@
             //Resize the table
             var newTblWidth = originalSumOfAllColWidths - originalColWidth + newColWidth;
 
-            if(reallyVisuallyApply) {
+            if (reallyVisuallyApply) {
                 tbl.css("width", newTblWidth + "px");
                 draggingCol.css("width", newColWidth + "px");
                 draggingCol_FH.css("width", newColWidth + "px");
-                
+
                 //Delete the visual cue, if present
-                if(extender.verticalResizingCue) {
+                if (extender.verticalResizingCue) {
                     extender.verticalResizingCue.remove();
                     extender.verticalResizingCue = null;
                 }
             }
             else {
                 //Use a visual cue (a vertical line)
-                if(!extender.verticalResizingCue) {
+                if (!extender.verticalResizingCue) {
                     extender.verticalResizingCue = jpvs.writeTag("body", "div").css({
                         position: "absolute",
                         height: tbl.height() + "px",
                         width: "0px",
                         top: tbl.offset().top + "px",
                         "border-right": "1px dotted #f00"
-                    });                        
+                    });
                 }
-                
+
                 extender.verticalResizingCue.css("left", e.pageX + "px");
             }
-            
+
             //If required, persist column sizes
             if (extender.persistColumnSizes())
                 saveColSizesIntoStorage(extender, draggingCol, draggingColIndex, newColWidth);
@@ -697,7 +697,12 @@
 
     function createFloatingHeaderClone(extender) {
         //My scrolling container, if any. $(window) otherwise.
-        var scrollingContainer = getScrollingContainer(extender.tableElement).css("position", "relative");
+        var scrollingContainer = getScrollingContainer(extender.tableElement);
+
+        //Set position: relative if not already absolutely positioned
+        var scrollingContainerPosition = scrollingContainer.css("position");
+        if (scrollingContainerPosition != "absolute" && scrollingContainerPosition != "relative" && scrollingContainerPosition != "fixed")
+            scrollingContainer.css("position", "relative");
 
         //Destroy and recreate the floating header clone
         if (extender.floatingHeaderClone)

@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>SearchEngine</title>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/LazyTask.js"></script>
+    <script type="text/javascript" src="../src/widgets/DataGrid.js"></script>
+    <script type="text/javascript" src="../src/widgets/Pager.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/DropDownList.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/MultiLineTextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript" src="../src/widgets/SearchEngine.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+            w.obj.label("Search text:");
+            w.obj.searchFunction(function (text, callback) {
+                var ret = [];
+                for (var i = 1; i < text.length; i++)
+                    ret.push("Test record " + i);
+
+                callback(ret);
+            });
+            w.obj.pageSize(10).gridTemplate([{ header: "Item", body: function (x) { jpvs.write(this, x); } }]);
+
+            w.obj.focus();
+
+            w.btn.click(function () {
+                var pop = jpvs.Popup.create().title("Search");
+                var obj = jpvs.SearchEngine.create(pop);
+                obj.label("Search text:");
+                obj.searchFunction(function (text, callback) {
+                    var ret = [];
+                    for (var i = 1; i < text.length; i++)
+                        ret.push("Test record " + i);
+
+                    callback(ret);
+                    pop.applyPosition();
+                });
+                obj.pageSize(null).gridTemplate([{ header: "Item", body: function (x) { jpvs.write(this, x); } }]);
+
+                pop.show(function () { obj.focus(); });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="obj" data-jpvs-type="SearchEngine"></div>
+    <button id="btn">Test in popup</button>
+</body>
+</html>

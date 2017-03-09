@@ -21,7 +21,7 @@
             W.txt = jpvs.TextBox.create(W);
             W.txt.lazychange(onLazyChangeText(W));
 
-            W.pnl = jpvs.writeTag(W, "div").addClass("Results");
+            W.pnl = jpvs.writeTag(W, "div").addClass("Results").hide();
             W.grid = jpvs.DataGrid.create(W.pnl);
             W.grid.enableEvenOdd(true);
             W.grid.element.addClass("Grid");

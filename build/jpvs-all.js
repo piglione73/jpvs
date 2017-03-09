@@ -11954,6 +11954,7 @@ jpvs.TextBox = function (selector) {
     this.attach(selector);
 
     this.change = jpvs.event(this);
+    this.lazychange = jpvs.event(this);
 };
 
 jpvs.makeWidget({
@@ -11969,8 +11970,19 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
-        this.element.change(function () {
+        W.element.change(function () {
             return W.change.fire(W);
+        });
+
+        W.lazyChangeID = jpvs.randomString(10);
+        W.curText = W.text();
+        W.element.on("click change keyup keypress input", function () {
+            if (W.text() != W.curText) {
+                W.curText = W.text();
+                jpvs.runLazyTask(W.lazyChangeID, 750, function () {
+                    W.lazychange.fire(W);
+                });
+            }
         });
     },
 
@@ -11980,8 +11992,13 @@ jpvs.makeWidget({
 
     prototype: {
         text: jpvs.property({
-            get: function () { return this.element.val(); },
-            set: function (value) { this.element.val(value); }
+            get: function () {
+                return this.element.val();
+            },
+            set: function (value) {
+                this.element.val(value);
+                this.curText = this.text();
+            }
         }),
 
         width: jpvs.property({

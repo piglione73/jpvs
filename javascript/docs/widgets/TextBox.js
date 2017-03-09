@@ -5,6 +5,7 @@ jpvs.TextBox = function (selector) {
     /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
 
     this.change = jpvs.event(this);
+    this.lazychange = jpvs.event(this);
 };
 
 jpvs.makeWidget({

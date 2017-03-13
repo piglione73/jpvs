@@ -11136,7 +11136,7 @@ jpvs.makeWidget({
             }),
 
             refresh: function () {
-                onLazyChangeText(this);
+                onLazyChangeText(this)();
                 return this;
             }
         }

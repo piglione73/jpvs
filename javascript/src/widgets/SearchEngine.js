@@ -74,7 +74,7 @@
             }),
 
             refresh: function () {
-                onLazyChangeText(this);
+                onLazyChangeText(this)();
                 return this;
             }
         }

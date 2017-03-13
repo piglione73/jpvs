@@ -71,17 +71,18 @@
                 set: function (value) {
                     this.element.data("pageSize", value);
                 }
-            })
+            }),
+
+            refresh: function () {
+                onLazyChangeText(this);
+                return this;
+            }
         }
     });
 
     function onLazyChangeText(W) {
         return function () {
-            //If no search text, then hide the results grid
-            if (!W.txt.text() || !$.trim(W.txt.text()))
-                W.pnl.hide();
-
-            //Whenever the user entered something into the textbox, we call a function to get some data to display
+            //Whenever the user entered something (even empty text) into the textbox, we call a function to get some data to display
             var functionToCall = W.searchFunction();
             functionToCall(W.txt.text(), function (returnedItems) {
                 //If no results, then hide the results grid

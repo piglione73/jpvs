@@ -1806,6 +1806,11 @@ jpvs.makeWidget({
             /// <summary>Property: page size for grid pagination. If null, no pagination is applied. Otherwise, a pager is
             /// displayed on top of the DataGrid.</summary>
             return this;
+        },
+
+        refresh: function () {
+            /// <summary>Causes the search results to be refreshed immediately, rather than wait for the user to enter text.</summary>
+            return this;
         }
     }
 });

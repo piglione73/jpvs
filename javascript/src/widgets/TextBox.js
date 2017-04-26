@@ -74,6 +74,9 @@ jpvs.makeWidget({
                 this.element.attr("list", this.autoCompleteUniqueID);
                 this.element.attr("autocomplete", "on");
             }
+
+            //Chaining
+            return this;
         }
     }
 });

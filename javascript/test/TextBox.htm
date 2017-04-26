@@ -62,6 +62,9 @@
             var b4 = jpvs.Button.create("#pnl").text("Enable autocomplete on #txtTest").click(function () {
                 w.txtTest.autocomplete(["One", "Two", "Three", "Four"]);
             });
+            var b5 = jpvs.Button.create("#pnl").text("Disable autocomplete on #txtTest").click(function () {
+                w.txtTest.autocomplete(false);
+            });
 
             jpvs.find("#txtAuto").text("Found by jpvs.find");
 

@@ -26,6 +26,7 @@ jpvs.makeWidget({
         autocomplete: function (autoCompleteItems) {
             /// <summary>Turns on or off the autocomplete feature of the TextBox.</summary>
             /// <param name="autoCompleteItems" type="Object">Pass null or false to disable the autocomplete feature. Pass an array of strings to enable it.</param>
+            return this;
         }
     }
 });

@@ -12075,10 +12075,12 @@ jpvs.makeWidget({
     },
 
     init: function (W) {
+        //Change event
         W.element.change(function () {
             return W.change.fire(W);
         });
 
+        //Lazy change event
         W.lazyChangeID = jpvs.randomString(10);
         W.curText = W.text();
         W.element.on("click change keyup keypress input", function () {
@@ -12089,6 +12091,10 @@ jpvs.makeWidget({
                 });
             }
         });
+
+        //Autocomplete off by default
+        W.autoCompleteUniqueID = jpvs.randomString(10);
+        W.autocomplete(false);
     },
 
     canAttachTo: function (obj) {
@@ -12109,7 +12115,23 @@ jpvs.makeWidget({
         width: jpvs.property({
             get: function () { return this.element.css("width"); },
             set: function (value) { this.element.css("width", value); }
-        })
+        }),
+
+        autocomplete: function (autoCompleteItems) {
+            this.element.attr("autocomplete", "off");
+            this.element.attr("list", "");
+            $("#" + this.autoCompleteUniqueID).remove();
+
+            if (autoCompleteItems && autoCompleteItems.length) {
+                //Let's activate the HTML5 autocomplete feature by adding a "datalist" element associated to the textbox
+                var list = jpvs.writeTag(this.element.parent(), "datalist").attr("id", this.autoCompleteUniqueID);
+                for (var i = 0; i < autoCompleteItems.length; i++)
+                    jpvs.writeTag(list, "option").attr("value", autoCompleteItems[i]);
+
+                this.element.attr("list", this.autoCompleteUniqueID);
+                this.element.attr("autocomplete", "on");
+            }
+        }
     }
 });
 

@@ -59,6 +59,9 @@
             var t3 = jpvs.MultiLineTextBox.create("#pnl").text("Hello\nmultiline\ntext\nbox!").change(function () { jpvs.alert("Multiline changed: " + this.text()); });
             var b2 = jpvs.Button.create("#pnl").text("Cliccami").click.bind("H1", function () { alert("Grazie."); }).click.bind("H2", function () { alert("Grazie ancora"); });
             var b3 = jpvs.Button.create("#pnl").text("Cliccami 2").click("H1", function () { alert("Grazie."); }).click("H2", function () { alert("Grazie ancora"); });
+            var b4 = jpvs.Button.create("#pnl").text("Enable autocomplete on #txtTest").click(function () {
+                w.txtTest.autocomplete(["One", "Two", "Three", "Four"]);
+            });
 
             jpvs.find("#txtAuto").text("Found by jpvs.find");
 

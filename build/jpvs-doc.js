@@ -354,24 +354,27 @@ jpvs.createAllWidgets = function () {
 };
 
 
-jpvs.write = function (container, text) {
+jpvs.write = function (container, text, renderLinks) {
     /// <summary>Writes text.</summary>
     /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="text" type="String">The text to write. Newlines in the string are handled correctly.</param>
+    /// <param name="renderLinks" type="Boolean">If true, then links are wrapped into an A element.</param>
 };
 
-jpvs.writeln = function (container, text) {
+jpvs.writeln = function (container, text, renderLinks) {
     /// <summary>Writes text and terminates the current line.</summary>
     /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="text" type="String">The text to write. Newlines in the string are handled correctly.</param>
+    /// <param name="renderLinks" type="Boolean">If true, then links are wrapped into an A element.</param>
     return $("");
 };
 
-jpvs.writeTag = function (container, tagName, text) {
+jpvs.writeTag = function (container, tagName, text, renderLinks) {
     /// <summary>Writes a tag with optional text inside.</summary>
     /// <param name="container" type="Object">Where to write the text: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
     /// <param name="tagName" type="String">The tag name to write.</param>
     /// <param name="text" type="String">Optional: the text to write. Newlines in the string are handled correctly.</param>
+    /// <param name="renderLinks" type="Boolean">If true, then links are wrapped into an A element.</param>
     /// <returns type="jQuery">A jQuery object that wraps the element just written.</returns>
     return $("");
 };

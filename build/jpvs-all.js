@@ -1492,7 +1492,7 @@ var jpvs = (function () {
     };
 
 
-    jpvs.write = function (container, text) {
+    jpvs.write = function (container, text, renderLinks) {
         if (!container)
             return;
 
@@ -1503,29 +1503,85 @@ var jpvs = (function () {
             //Handle multiple lines
             text = text.replace("\r", "");
             var lines = text.split("\n");
-            if (lines.length == 1)
-                $(container).append(document.createTextNode(lines[0]));
-            else if (lines.length > 1) {
-                $.each(lines, function (i, line) {
-                    $(container).append(document.createTextNode(line));
+            $.each(lines, function (i, line) {
+                if (i)
                     $(container).append(document.createElement("br"));
-                });
+
+                writeTextLine(line);
+            });
+        }
+
+        function writeTextLine(line) {
+            if (!renderLinks) {
+                $(container).append(document.createTextNode(line));
+                return;
+            }
+
+            //Split on http:// and https://
+            var index = 0;
+            while (index < line.length) {
+                var link = getNextLink();
+                if (link) {
+                    //Write text up to link
+                    $(container).append(document.createTextNode(line.substring(index, link.start)));
+
+                    //Write link
+                    jpvs.writeTag(container, "a", link.text).attr("href", link.text).attr("target", link.text);
+
+                    //Go to next position
+                    index = link.end;
+                }
+                else {
+                    //No more links: write what remains
+                    $(container).append(document.createTextNode(line.substring(index)));
+                    index = line.length;
+                }
+
+            }
+
+            function getNextLink() {
+                var http = line.indexOf("http://", index);
+                var https = line.indexOf("https://", index);
+
+                var nearest;
+                if (http >= 0 && https >= 0)
+                    nearest = Math.min(http, https);
+                else if (http >= 0 && https < 0)
+                    nearest = http;
+                else if (http < 0 && https >= 0)
+                    nearest = https;
+                else
+                    nearest = -1;
+
+                if (nearest < 0)
+                    return null;
+
+                //Find end of link
+                var end = nearest;
+                while (end < line.length && line[end] != " " && line[end] != "\r" && line[end] != "\n" && line[end] != "\t")
+                    end++;
+
+                return {
+                    start: nearest,
+                    end: end,
+                    text: line.substring(nearest, end)
+                };
             }
         }
     };
 
-    jpvs.writeln = function (container, text) {
+    jpvs.writeln = function (container, text, renderLinks) {
         if (!container)
             return;
 
         //This line allows us to accept DOM elements, jQuery objects AND jpvs widgets
         container = toElement(container);
 
-        jpvs.write(container, text);
+        jpvs.write(container, text, renderLinks);
         $(container).append(document.createElement("br"));
     };
 
-    jpvs.writeTag = function (container, tagName, text) {
+    jpvs.writeTag = function (container, tagName, text, renderLinks) {
         if (!container)
             return;
         if (!tagName)
@@ -1536,7 +1592,7 @@ var jpvs = (function () {
 
         var tag = document.createElement(tagName);
         $(container).append(tag);
-        jpvs.write(tag, text);
+        jpvs.write(tag, text, renderLinks);
 
         return $(tag);
     };

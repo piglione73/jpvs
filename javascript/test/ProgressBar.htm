@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>TextBox</title>
+    <link type="text/css" rel="Stylesheet" href="style/sunny/jquery-ui.css" />
+
+    <style>
+        div.ProgressBar 
+        {
+            border: 1px solid #000;
+            height: 1em;
+            padding: 3pt;
+        }
+        
+        div.ProgressBar .Background 
+        {
+            background-color: #070;
+        }
+        
+        div.ProgressBar .Text 
+        {
+            padding: 3pt;
+            text-align:center;
+        }
+    </style>
+
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/LazyTask.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/widgets/ProgressBar.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+            w.txtProgr1.lazychange(refresh);
+            w.txtText1.lazychange(refresh);
+            w.txtProgr2.lazychange(refresh);
+            w.txtText2.lazychange(refresh);
+
+            function refresh() {
+                w.progr1.width("40em").progress(parseFloat(w.txtProgr1.text())).text(w.txtText1.text());
+                w.progr2.width("60em").progress(parseFloat(w.txtProgr2.text())).text(w.txtText2.text()).color("#f00");
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="progr1" data-jpvs-type="ProgressBar">Hello world</div>
+    <input type="text" id="txtProgr1" value="" placeholder="45"/>
+    <input type="text" id="txtText1" value="" placeholder="45% - almost there" />
+    <hr />
+    <div id="progr2" data-jpvs-type="ProgressBar">Hello world</div>
+    <input type="text" id="txtProgr2" value="" placeholder="45"/>
+    <input type="text" id="txtText2" value="" placeholder="45% - almost there" />
+</body>
+</html>

@@ -70,7 +70,8 @@
             var buttonContainer = jpvs.writeTag(tr, "td");
             buttonContainer.addClass("ButtonContainer");
 
-            this.button = jpvs.Button.create(buttonContainer).text("...").click(function () {
+            this.button = jpvs.Button.create(buttonContainer).text("...");
+            this.element.click(function () {
                 showPopup(W);
             });
 

@@ -18,6 +18,17 @@
             background-color: #abcdef;
             cursor:pointer;
         }
+        
+        th.Sorted 
+        {
+            background-color: #f00;
+        }
+        
+        th.Filtered 
+        {
+            border:3px solid #00f;
+        }
+        
         .ColumnResize
         {
             background-color: #fedcba;
@@ -90,10 +101,10 @@
                 }
             });
 
-            tblExt.resizableColumns(true).persistColumnSizes(true).enableSorting(true).enableFiltering(true).tableHeaderAlwaysVisible(true).apply();
+            tblExt.resizableColumns(true).persistColumnSizes(true).persistSortSettings(true).persistFilterSettings(true).enableSorting(true).enableFiltering(true).tableHeaderAlwaysVisible(true).apply();
 
             var tblExt2 = jpvs.TableExtender.create("#tbl2");
-            tblExt2.resizableColumns(true).persistColumnSizes(true).enableSorting(true).enableFiltering(true).tableHeaderAlwaysVisible(true).apply();
+            tblExt2.resizableColumns(true).persistColumnSizes(true).persistSortSettings(true).persistFilterSettings(true).enableSorting(true).enableFiltering(true).tableHeaderAlwaysVisible(true).apply();
         });
     </script>
 </head>

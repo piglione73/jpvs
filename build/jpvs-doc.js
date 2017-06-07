@@ -1965,6 +1965,16 @@ window.jpvs = window.jpvs || {};
         return this;
     };
 
+    Extender.prototype.persistSortSettings = function (value) {
+        /// <summary>Property: true/false. Specifies whether the sorting settings must be persisted on localStorage.</summary>
+        return this;
+    };
+
+    Extender.prototype.persistFilterSettings = function (value) {
+        /// <summary>Property: true/false. Specifies whether the filtering settings must be persisted on localStorage.</summary>
+        return this;
+    };
+
     Extender.prototype.enableFiltering = function (value) {
         /// <summary>Property: true/false. Specifies whether row filtering has to be enabled. Column names must be identified by the
         /// "data-col-name" attribute on each COL element. Column friendly names (displayed in the filtering popup) are taken
@@ -1975,7 +1985,7 @@ window.jpvs = window.jpvs || {};
     Extender.prototype.enableSorting = function (value) {
         /// <summary>Property: true/false. Specifies whether row sorting has to be enabled. Column names must be identified by the
         /// "data-col-name" attribute on each COL element. Column friendly names (displayed in the sorting popup) are taken
-        /// from the "data-col-header" attribute. Set the "data-col-sort" attribute to "false" to disable filtering on single columns.</summary>
+        /// from the "data-col-header" attribute. Set the "data-col-sort" attribute to "false" to disable sorting on single columns.</summary>
         return this;
     };
 

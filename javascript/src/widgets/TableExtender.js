@@ -47,6 +47,16 @@
         set: function (value) { this._enableFiltering = !!value; }
     });
 
+    Extender.prototype.persistSortSettings = jpvs.property({
+        get: function () { return !!this._persistSortSettings; },
+        set: function (value) { this._persistSortSettings = !!value; }
+    });
+
+    Extender.prototype.persistFilterSettings = jpvs.property({
+        get: function () { return !!this._persistFilterSettings; },
+        set: function (value) { this._persistFilterSettings = !!value; }
+    });
+
     Extender.prototype.getSortAndFilterSettings = function () {
         return {
             sort: this.sortSettings,
@@ -442,6 +452,66 @@
         }
     }
 
+    function loadSortAndFilterSettingsFromStorage(extender) {
+        var tbl = extender.tableElement;
+        var tableName = tbl.data("tableName") || "__GenericTable__";
+
+        if (window.localStorage) {
+            if (extender.persistSortSettings())
+                extender.sortSettings = jpvs.parseJSON(localStorage["jpvs.TableExtenders.Sorts." + tableName] || "[]");
+            if (extender.persistFilterSettings())
+                extender.filterSettings = jpvs.parseJSON(localStorage["jpvs.TableExtenders.Filters." + tableName] || "[]");
+        }
+    }
+
+    function saveSortAndFilterSettingsIntoStorage(extender) {
+        var tbl = extender.tableElement;
+        var tableName = tbl.data("tableName") || "__GenericTable__";
+
+        if (window.localStorage) {
+            if (extender.persistSortSettings())
+                localStorage["jpvs.TableExtenders.Sorts." + tableName] = jpvs.toJSON(extender.sortSettings || []);
+            if (extender.persistFilterSettings())
+                localStorage["jpvs.TableExtenders.Filters." + tableName] = jpvs.toJSON(extender.filterSettings || []);
+        }
+    }
+
+    //Set "Sorted" and/or "Filtered" class on TH's that have sort/filter set on them
+    function updateSortedFilteredCues(extender) {
+        var tbl = extender.tableElement;
+        var allHeaderCellsSelector = extender.allHeaderCellsSelector;
+
+        //Same behavior on the floating header clone, if present
+        if (extender.floatingHeaderClone)
+            tbl = tbl.add(extender.floatingHeaderClone);
+
+        extender.sortSettings = extender.sortSettings || [];
+        extender.filterSettings = extender.filterSettings || [];
+
+        var isSorting = {};
+        for (var i in extender.sortSettings)
+            isSorting[extender.sortSettings[i].colName] = true;
+
+        var isFiltering = {};
+        for (var i in extender.filterSettings)
+            isFiltering[extender.filterSettings[i].colName] = true;
+
+        //Loop over all TH's and decide what classes to apply
+        $(allHeaderCellsSelector).each(function () {
+            var cell = $(this);
+            var leftBorderIndex = getLeftBorderIndex(cell);
+            var cols = getColElements(tbl);
+            var colElement = cols.eq(leftBorderIndex);
+            var colName = colElement.data("colName") || leftBorderIndex.toString();
+
+            cell.removeClass("Sorted").removeClass("Filtered");
+            if (isSorting[colName])
+                cell.addClass("Sorted");
+            if (isFiltering[colName])
+                cell.addClass("Filtered");
+        });
+    }
+
     function activateFilterSort(extender) {
         var tbl = extender.tableElement;
         var allHeaderCellsSelector = extender.allHeaderCellsSelector;
@@ -450,7 +520,14 @@
         if (extender.floatingHeaderClone)
             tbl = tbl.add(extender.floatingHeaderClone);
 
-        //Handle sorting filtering visual cues
+        //If persisted, load sorting/filtering settings from local storage
+        loadSortAndFilterSettingsFromStorage(extender);
+
+        //Handle sorting/filtering visual cues
+        //Set "Sorted" and/or "Filtered" class on TH's that have sort/filter set on them
+        updateSortedFilteredCues(extender);
+
+        //Set "SortOrFilter" class on mouse hover, to convey that that column can be filtered/sorted
         tbl.off("mousemove.jpvsTableExtender3").on("mousemove.jpvsTableExtender3", allHeaderCellsSelector, function (e) {
             var cell = $(e.currentTarget);
 
@@ -540,7 +617,7 @@
         else if (extender.enableFiltering())
             popTitle = jpvs.DataGrid.strings.titleFilter;
 
-        var pop = jpvs.Popup.create().title(popTitle).close(onClosePopup);
+        var pop = jpvs.Popup.create().title(popTitle).close(fireEventAndUpdateCues);
 
         //Section with column details
         jpvs.write(pop, jpvs.DataGrid.strings.currentColumn + ": ");
@@ -689,9 +766,15 @@
             });
         }
 
-        function onClosePopup() {
+        function fireEventAndUpdateCues() {
             //Fire the event
             extender.changeFilterSort.fire(extender);
+
+            //Update visual cues
+            updateSortedFilteredCues(extender);
+
+            //Save, if required
+            saveSortAndFilterSettingsIntoStorage(extender);
         }
     }
 
@@ -700,9 +783,12 @@
         var scrollingContainer = getScrollingContainer(extender.tableElement);
 
         //Set position: relative if not already absolutely positioned
-        var scrollingContainerPosition = scrollingContainer.css("position");
-        if (scrollingContainerPosition != "absolute" && scrollingContainerPosition != "relative" && scrollingContainerPosition != "fixed")
-            scrollingContainer.css("position", "relative");
+        //We do this only if we have a nodeName (i.e.: if it is not the $(window) object)
+        if (scrollingContainer[0].nodeName) {
+            var scrollingContainerPosition = scrollingContainer.css("position");
+            if (scrollingContainerPosition != "absolute" && scrollingContainerPosition != "relative" && scrollingContainerPosition != "fixed")
+                scrollingContainer.css("position", "relative");
+        }
 
         //Destroy and recreate the floating header clone
         if (extender.floatingHeaderClone)

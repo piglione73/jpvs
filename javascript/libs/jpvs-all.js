@@ -12220,14 +12220,14 @@ jpvs.makeWidget({
         }
 
         function fireEventAndUpdateCues() {
-            //Fire the event
-            extender.changeFilterSort.fire(extender);
-
             //Update visual cues
             updateSortedFilteredCues(extender);
 
             //Save, if required
             saveSortAndFilterSettingsIntoStorage(extender);
+
+            //Fire the event
+            extender.changeFilterSort.fire(extender);
         }
     }
 

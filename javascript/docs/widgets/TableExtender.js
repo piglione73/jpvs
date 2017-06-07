@@ -41,7 +41,9 @@ window.jpvs = window.jpvs || {};
     Extender.prototype.enableFiltering = function (value) {
         /// <summary>Property: true/false. Specifies whether row filtering has to be enabled. Column names must be identified by the
         /// "data-col-name" attribute on each COL element. Column friendly names (displayed in the filtering popup) are taken
-        /// from the "data-col-header" attribute. Set the "data-col-filter" attribute to "false" to disable filtering on single columns.</summary>
+        /// from the "data-col-header" attribute. Set the "data-col-filter" attribute to "false" to disable filtering on single 
+        /// In this case, a DateBox is used for entering filtering values and only meaningful filtering rules are allowed.
+        /// The default value is data-col-type="text". Currently, only "date" and "text" are handled.</summary>
         return this;
     };
 

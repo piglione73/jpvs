@@ -607,6 +607,7 @@
 
         var colName = colElement.data("colName") || leftBorderIndex.toString();
         var colHeader = colElement.data("colHeader") || colName;
+        var colType = colElement.data("colType") || "text";
 
         //Open the popup
         var popTitle = "???";
@@ -656,6 +657,7 @@
         function onAddFilter() {
             extender.filterSettings.push({
                 colName: colName,
+                colType: colType,
                 colHeader: colHeader,
                 operand: "EQ",
                 value: ""
@@ -668,6 +670,7 @@
         function onAddSort() {
             extender.sortSettings.push({
                 colName: colName,
+                colType: colType,
                 colHeader: colHeader,
                 descending: false
             });
@@ -693,7 +696,7 @@
         }
 
         function writeFilterSettingsRow(item, itemIndex) {
-            //(field name) COMBO (operand), TEXTBOX (value), Remove button
+            //(field name) COMBO (operand), TEXTBOX/DATEBOX (value), Remove button
             var row = tblFilter.writeRow();
 
             jpvs.write(row.writeCell(), jpvs.DataGrid.strings.condition + ": ");
@@ -701,11 +704,35 @@
 
             var cmbOp = jpvs.DropDownList.create(row.writeCell());
             cmbOp.addItem("");
-            cmbOp.addItems(jpvs.DataGrid.getFilteringOperands());
+
+            //If the colType is "date", only some operands are allowed
+            var isDate = (item.colType || "text").toLowerCase() == "date"
+            var filteringOperands = jpvs.DataGrid.getFilteringOperands();
+            for (var i in filteringOperands) {
+                var filteringOperand = filteringOperands[i];
+                var operandAllowed = true;
+                if (isDate) {
+                    if (filteringOperand.value.indexOf("CONTAINS") >= 0 || filteringOperand.value.indexOf("START") >= 0)
+                        operandAllowed = false;
+                }
+
+                if (operandAllowed)
+                    cmbOp.addItem(filteringOperand.value, filteringOperand.text);
+            }
+
             cmbOp.selectedValue(item.operand).change(function () { item.operand = this.selectedValue(); });
 
-            var txtValue = jpvs.TextBox.create(row.writeCell());
-            txtValue.text(item.value).change(function () { item.value = this.text(); });
+            //Value (DATEBOX yyyymmdd or TEXTBOX)
+            if (isDate) {
+                jpvs.DateBox.create(row.writeCell()).dateString(item.value || null).change(function () {
+                    item.value = this.dateString() || "";
+                });
+            }
+            else {
+                jpvs.TextBox.create(row.writeCell()).text(item.value || "").change(function () {
+                    item.value = this.text() || "";
+                });
+            }
 
             jpvs.LinkButton.create(row.writeCell()).text(jpvs.DataGrid.strings.remove).click(function () {
                 //Remove and refresh

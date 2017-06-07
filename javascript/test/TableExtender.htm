@@ -77,8 +77,10 @@
     <script type="text/javascript" src="../src/Event.js"></script>
     <script type="text/javascript" src="../src/Resources.js"></script>
     <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/LazyTask.js"></script>
     <script type="text/javascript" src="../src/widgets/CheckBox.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DateBox.js"></script>
     <script type="text/javascript" src="../src/widgets/DropDownList.js"></script>
     <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
     <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
@@ -113,7 +115,7 @@
     <div id="pnl">
         <table id="tbl1" data-table-name="TestTable1">
             <colgroup>
-                <col data-col-name="Test1" data-col-header="Test column 1" style="background-color: #ffa" />
+                <col data-col-name="Test1" data-col-header="Test column 1" data-col-type="date" style="background-color: #ffa" />
                 <col data-col-name="Test2" data-col-header="Test column 2" data-col-filter="false" data-col-sort="false" style="width: 15em" />
             </colgroup>
             <thead>
@@ -1248,7 +1250,7 @@
 
     <div id="pnl2" style="position:absolute;top:600px;left:800px;width:500px;height:300px;border:5px solid #000; overflow:scroll">
         Line 1<br />Line 2<br />Line 3
-        <table id="tbl2" data-table-name="TestTable1">
+        <table id="tbl2" data-table-name="TestTable2">
             <colgroup>
                 <col data-col-name="Test1" data-col-header="Test column 1" style="background-color: #ffa" />
                 <col data-col-name="Test2" data-col-header="Test column 2" data-col-filter="false" data-col-sort="false" style="width: 15em" />

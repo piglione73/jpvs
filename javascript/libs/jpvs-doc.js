@@ -1428,7 +1428,8 @@ jpvs.makeWidget({
 
         containerTemplate: function () {
             /// <summary>Property: container template. Must create a container and return it. If not specified, 
-            /// a default container template is used which creates and returns a UL element. When used, no dataItem is passed to this template.</summary>
+            /// a default container template is used which creates and returns a UL element. When used, no dataItem 
+            /// is passed to this template.</summary>
             return this;
         },
 
@@ -1437,6 +1438,13 @@ jpvs.makeWidget({
             /// a default item template is used which creates an LI element with a checkbox inside.
             /// The template must return an object that has a "selected" property and a "change" event. This object allows
             /// the MultiSelectBox to select/unselect the item, read its state and subscribe to its "change" event.</summary>
+            return this;
+        },
+
+        labelTemplate: function () {
+            /// <summary>Property: label template. Given the array of selected items, it must write the summary.
+            /// The default label template writes all selected item texts, separated by commas. The dataItem passed to this
+            /// template is the array of selected items, each of type { text: ..., value: ... }.</summary>
             return this;
         },
 

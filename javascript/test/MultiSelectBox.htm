@@ -75,6 +75,18 @@
                 { value: "Val3", text: "Value 3, initially unselected", selected: false }
             ]);
 
+            cmb2.labelTemplate(function (selectedItems) {
+                jpvs.writeln(this, "This MultiSelectBox has a custom label template.");
+                if (selectedItems.length) {
+                    jpvs.writeTag(this, "b", "Selected items: " + selectedItems.length);
+                    jpvs.writeln(this);
+                    for (var i in selectedItems)
+                        jpvs.write(this, selectedItems[i].value + " ");
+                }
+                else
+                    jpvs.writeTag(this, "em", "(nothing selected)");
+            });
+
             jpvs.LinkButton.create("#pnl").text("Click me").click(function () {
                 w.cmb1.selectedValues(["1", "2", "3"]);
                 cmb2.selectedValues(["1", "2", "3", "4"]);

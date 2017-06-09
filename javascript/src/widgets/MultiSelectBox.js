@@ -121,6 +121,16 @@
                 }
             }),
 
+            labelTemplate: jpvs.property({
+                get: function () {
+                    return this.element.data("labelTemplate");
+                },
+                set: function (value) {
+                    this.element.data("labelTemplate", value);
+                    updateLabel(this);
+                }
+            }),
+
             clearItems: function () {
                 setItems(this, []);
                 updateLabel(this);
@@ -197,16 +207,6 @@
         return selItems;
     }
 
-    function getSelectedTexts(W) {
-        var selItems = getSelectedItems(W);
-        var texts = [];
-        $.each(selItems, function (i, item) {
-            texts.push(item.text);
-        });
-
-        return texts;
-    }
-
     function getSelectedValues(W) {
         var selItems = getSelectedItems(W);
         var values = [];
@@ -239,8 +239,18 @@
     }
 
     function updateLabel(W) {
-        var texts = getSelectedTexts(W);
-        jpvs.write(W.label.empty(), texts.join(", "));
+        var selectedItems = getSelectedItems(W);
+        var labelTemplate = W.labelTemplate() || defaultLabelTemplate;
+        jpvs.applyTemplate(W.label.empty(), labelTemplate, selectedItems);
+
+        function defaultLabelTemplate(selectedItems) {
+            //The default label template writes all texts, separated by commas
+            var selectedTexts = [];
+            for (var i in selectedItems)
+                selectedTexts.push(selectedItems[i].text || "");
+
+            jpvs.write(this, selectedTexts.join(", "));
+        }
     }
 
     function showPopup(W) {

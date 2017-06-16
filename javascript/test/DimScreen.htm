@@ -14,6 +14,7 @@
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/Resources.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/LazyTask.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript">
         jpvs(function ($W) {
@@ -21,8 +22,49 @@
             $W.btnTest2.click(function () { jpvs.showDimScreen(2000); });
             $W.btnTest3.click(function () { jpvs.showDimScreen(null, null, template); });
             $W.btnTest4.click(function () { jpvs.showDimScreen(0, 0, template); });
+            $W.btnTest5.click(function () {
+                var repetitions = 50;
+                dim();
 
-            $(window).keypress(function (e) {
+                function dim() {
+                    jpvs.write("body", "Repeating " + repetitions + "... ");
+                    repetitions--;
+                    jpvs.showDimScreen(0,0);
+                    setTimeout(undim, 50);
+                }
+
+                function undim() {
+                    if (repetitions == 0)
+                        return;
+
+                    jpvs.hideDimScreen();
+                    setTimeout(dim, 50);
+                }
+
+            });
+
+            $W.btnTest6.click(function () {
+                var repetitions = 50;
+                dim();
+
+                function dim() {
+                    jpvs.write("body", "Repeating " + repetitions + "... ");
+                    repetitions--;
+                    jpvs.showDimScreen();
+                    setTimeout(undim, 50);
+                }
+
+                function undim() {
+                    if (repetitions == 0)
+                        return;
+
+                    jpvs.hideDimScreen();
+                    setTimeout(dim, 50);
+                }
+
+            });
+
+            $(document).on("keydown", function (e) {
                 if (e.which == 27)
                     jpvs.hideDimScreen();
             });
@@ -43,5 +85,7 @@
     <button id="btnTest2">Simple with delay</button>
     <button id="btnTest3">Templated</button>
     <button id="btnTest4">Templated with no delay and no animation</button>
+    <button id="btnTest5">Repeated with no delay and no animation</button>
+    <button id="btnTest6">Repeated with delay and animation</button>
 </body>
 </html>

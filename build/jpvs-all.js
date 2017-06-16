@@ -1757,17 +1757,55 @@ var jpvs = (function () {
         }
     };
 
+    /*
+    We use runLazyTask, to avoid ugly flashing effects in case of multiple close calls like this:
+    showDimScreen();
+    hideDimScreen();
+    showDimScreen();
+    hideDimScreen();
+    showDimScreen();
+    hideDimScreen();
+    showDimScreen();
+    hideDimScreen();
+    ...
 
+    A hideDimScreen immediately followed by a showDimScreen must be a no-effect operation. So hideDimScreen must wait for a short
+    while before actually doing its job. In other words, it must be a little lazy.
+
+    Also, the first call to showDimScreen sets a delay. Multiple calls must use the delay set by the first call.
+    showDimScreen(500);
+    hideDimScreen();
+    showDimScreen(500);
+    hideDimScreen();
+    showDimScreen(500);
+    hideDimScreen();
+    showDimScreen(500);
+    hideDimScreen();
+    showDimScreen(500);
+    hideDimScreen();
+    showDimScreen(500);
+    hideDimScreen();
+    showDimScreen(500);
+    hideDimScreen();
+    showDimScreen(500);
+    hideDimScreen();
+
+    The second call must not wait for 500ms, because some of the 500ms set in the first call have already elapsed. Every call must
+    scale the delay down, so that at some time during the chain of calls the dim screen actually appears.
+    */
     jpvs.showDimScreen = function (delayMilliseconds, fadeInDuration, template) {
-        //Schedule creation
-        if (jpvs.showDimScreen.timeout)
-            return;
+        //Let's set the time when the dim screen is desired
+        //If the time is already set, then do not change it
+        var actualDelay = delayMilliseconds != null ? delayMilliseconds : 500;
+        var now = new Date().getTime();
+        jpvs.showDimScreen.timeForShowing = jpvs.showDimScreen.timeForShowing || (now + actualDelay);
 
-        jpvs.showDimScreen.timeout = setTimeout(create, delayMilliseconds != null ? delayMilliseconds : 500);
+        var millisecondsToWait = jpvs.showDimScreen.timeForShowing - now;
+        if (millisecondsToWait < 0)
+            millisecondsToWait = 0;
 
-        function create() {
-            jpvs.showDimScreen.timeout = null;
-
+        jpvs.runLazyTask("jpvs.DimScreenShowHide", millisecondsToWait, function () {
+            //Element already present. Exit immediately.
             if (jpvs.showDimScreen.element)
                 return;
 
@@ -1783,22 +1821,23 @@ var jpvs = (function () {
 
             //Finally, fade in the DIV
             jpvs.showDimScreen.element.fadeIn(fadeInDuration != null ? fadeInDuration : 250);
-        }
+        });
     };
 
     jpvs.hideDimScreen = function (fadeOutDuration) {
-        //If we are still waiting for the timeout to elapse, simply cancel the timeout
-        if (jpvs.showDimScreen.timeout) {
-            clearTimeout(jpvs.showDimScreen.timeout);
-            jpvs.showDimScreen.timeout = null;
-        }
+        //Let's be a little lazy, in case a new showDimScreen call is executed next
+        var removalDelay = 200;
+        jpvs.runLazyTask("jpvs.DimScreenShowHide", removalDelay, function () {
+            //If a screen dimmer is present, fade it out and remove it
+            if (jpvs.showDimScreen.element) {
+                var x = jpvs.showDimScreen.element;
+                jpvs.showDimScreen.element = null;
+                x.fadeOut(fadeOutDuration != null ? fadeOutDuration : 250, function () { x.remove(); });
 
-        //If a screen dimmer is present, fade it out and remove it
-        if (jpvs.showDimScreen.element) {
-            var x = jpvs.showDimScreen.element;
-            jpvs.showDimScreen.element = null;
-            x.fadeOut(fadeOutDuration != null ? fadeOutDuration : 250, function () { x.remove(); });
-        }
+                //Reset the time-for-showing variable, so the next call to showDimScreen can set its delay freely
+                jpvs.showDimScreen.timeForShowing = null;
+            }
+        });
     };
 
     jpvs.fitInWindow = function (element) {

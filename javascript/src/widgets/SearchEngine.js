@@ -21,6 +21,9 @@
             W.txt = jpvs.TextBox.create(W);
             W.txt.lazychange(onLazyChangeText(W));
 
+            //Here additional search fields may be added, if necessary
+            W.pnlAdditionalFields = jpvs.writeTag(W, "div").addClass("AdditionalFields");
+
             W.pnl = jpvs.writeTag(W, "div").addClass("Results").hide();
             W.grid = jpvs.DataGrid.create(W.pnl);
             W.grid.enableEvenOdd(true);
@@ -40,6 +43,13 @@
                 get: function () { return this.lbl.text(); },
                 set: function (value) { this.lbl.text(value); }
             }),
+
+            applyAdditionalFieldsTemplate: function (template) {
+                if (template)
+                    jpvs.applyTemplate(this.pnlAdditionalFields, template, this);
+
+                return this;
+            },
 
             searchFunction: jpvs.property({
                 get: function () {

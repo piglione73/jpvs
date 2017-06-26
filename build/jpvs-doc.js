@@ -1836,6 +1836,14 @@ jpvs.makeWidget({
             return this;
         },
 
+        applyAdditionalFieldsTemplate: function (template) {
+            /// <summary>Allows writing additional search fields below the search string textbox.</summary>
+            /// <param name="template" type="Object">Template that will be passed to jpvs.applyTemplate for writing the additional
+            /// fields. The data item that will be passed to the jpvs.applyTemplate is this SearchEngine widget.
+            /// It is the template's responsibility to call the refresh function whenever the search results must be updated.</param>
+            return this;
+        },
+
         searchFunction: function (value) {
             /// <summary>Property: function that this widget uses for searching whenever the user enters text into
             /// the textbox. The function must be declared as: function(text, callback) {} and must search for the

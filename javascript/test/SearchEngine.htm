@@ -24,11 +24,13 @@
     <script type="text/javascript" src="../src/widgets/SearchEngine.js"></script>
     <script type="text/javascript">
         jpvs(function (w) {
-            w.obj.label("Search text:");
+            w.obj.label("Search text:").applyAdditionalFieldsTemplate(additionalFields);
             w.obj.searchFunction(function (text, callback) {
                 var ret = [];
                 for (var i = 1; i < text.length; i++)
                     ret.push("Test record " + i);
+
+                ret.push(w.obj.txtAdditional.text() + "XXXXXXXXX");
 
                 callback(ret);
             });
@@ -39,9 +41,11 @@
             w.btn.click(function () {
                 var pop = jpvs.Popup.create().title("Search");
                 var obj = jpvs.SearchEngine.create(pop);
-                obj.label("Search text:");
+                obj.label("Search text:").applyAdditionalFieldsTemplate(additionalFields);
                 obj.searchFunction(function (text, callback) {
                     var ret = [];
+                    ret.push(obj.txtAdditional.text() + "XXXXXXXXX");
+
                     for (var i = 1; i < text.length; i++)
                         ret.push("Test record " + i);
 
@@ -53,6 +57,11 @@
                 pop.show(function () { obj.focus(); });
             });
         });
+
+        function additionalFields(searchEngine) {
+            jpvs.writeln(this, "Additional field:");
+            searchEngine.txtAdditional = jpvs.TextBox.create(this).lazychange(function() { searchEngine.refresh(); });
+        }
     </script>
 </head>
 <body>

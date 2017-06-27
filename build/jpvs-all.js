@@ -4981,8 +4981,9 @@ var N = d1.getCount();
         for (var i = 0; i < array.length; i++)
             ret.push(array[i]);
 
-        //Then sort in place
-        ret.sort(comparatorFunction(sortingRules));
+        //Then sort in place (if no sorting rules, leave all unchanged)
+        if (sortingRules.length)
+            ret.sort(comparatorFunction(sortingRules));
 
         return ret;
     };

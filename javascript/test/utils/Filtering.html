@@ -31,12 +31,12 @@
                             { a: "aaa", b: "bbb" },
                             { a: "fff", b: "bbb" }
                         ],
-                        filteringRules,
-                        "Filtering with selector"
+                        filteringRules
                     ),
                     [
                         { a: "aaa", b: "bbb" }
-                    ]
+                    ],
+                    "Filtering with selector"
                 );
 
                 filteringRules = [
@@ -52,44 +52,50 @@
                             { a: "aaa", b: "bbb" },
                             { a: "fff", b: "bbb" }
                         ],
-                        filteringRules,
-                        "Filtering with selector"
+                        filteringRules
                     ),
                     [
                         { a: "123", b: "ccc" }
-                    ]
+                    ],
+                    "Filtering with selector"
                 );
             });
 
             test("Rules", function () {
                 var identity = function (x) { return x; };
 
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "EQ", value: "abcde"}]), ["abcde"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "NEQ", value: "abcde"}]), ["efghi"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "CONTAINS", value: "cd"}]), ["abcde"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "NCONTAINS", value: "cd"}]), ["efghi"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "STARTS", value: "ab"}]), ["abcde"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "NSTARTS", value: "ab"}]), ["efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "EQ", value: "abcde"}]), ["abcde"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "NEQ", value: "abcde"}]), ["efghi", 1, 10, 2, 20]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "CONTAINS", value: "cd"}]), ["abcde"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "NCONTAINS", value: "cd"}]), ["efghi", 1, 10, 2, 20]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "NCONTAINS", value: "1"}]), ["abcde", "efghi", 2, 20]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "NCONTAINS", value: 1}]), ["abcde", "efghi", 2, 20]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "STARTS", value: "ab"}]), ["abcde"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "NSTARTS", value: "ab"}]), ["efghi", 1, 10, 2, 20]);
 
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LT", value: "abcde"}]), []);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LT", value: "BB"}]), ["abcde"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LT", value: "efghi"}]), ["abcde"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "LT", value: "abcde"}]), [1, 10, 2, 20]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "LT", value: "5"}]), [1, 2]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "LT", value: 5}]), [1, 2]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "LT", value: "BB"}]), ["abcde", 1, 10, 2, 20]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "LT", value: "efghi"}]), ["abcde", 1, 10, 2, 20]);
 
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LTE", value: "abcde"}]), ["abcde"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LTE", value: "BB"}]), ["abcde"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "LTE", value: "efghi"}]), ["abcde", "efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "LTE", value: "abcde"}]), ["abcde", 1, 10, 2, 20]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "LTE", value: "BB"}]), ["abcde", 1, 10, 2, 20]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "LTE", value: "efghi"}]), ["abcde", "efghi", 1, 10, 2, 20]);
 
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GT", value: "abcde"}]), ["efghi"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GT", value: "BB"}]), ["efghi"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GT", value: "efghi"}]), []);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "GT", value: "abcde"}]), ["efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "GT", value: "2"}]), ["abcde", "efghi", 10, 20]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "GT", value: 2}]), ["abcde", "efghi", 10, 20]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "GT", value: "BB"}]), ["efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "GT", value: "efghi"}]), []);
 
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GTE", value: "abcde"}]), ["abcde", "efghi"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GTE", value: "BB"}]), ["efghi"]);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "GTE", value: "efghi"}]), ["efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "GTE", value: "abcde"}]), ["abcde", "efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "GTE", value: "BB"}]), ["efghi"]);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "GTE", value: "efghi"}]), ["efghi"]);
 
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "WRONGRULE", value: "abcde"}]), []);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "WRONGRULE", value: "BB"}]), []);
-                deepEqual(jpvs.filter(["abcde", "efghi"], [{ selector: identity, operand: "WRONGRULE", value: "efghi"}]), []);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "WRONGRULE", value: "abcde"}]), []);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "WRONGRULE", value: "BB"}]), []);
+                deepEqual(jpvs.filter(["abcde", "efghi", 1, 10, 2, 20], [{ selector: identity, operand: "WRONGRULE", value: "efghi"}]), []);
             });
 
         });

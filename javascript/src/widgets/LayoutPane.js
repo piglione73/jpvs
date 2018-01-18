@@ -62,6 +62,19 @@
                 set: function (value) { this.element.data("resizable", value); refresh(); }
             }),
 
+            scrollable: jpvs.property({
+                get: function () {
+                    var x = this.element.data("scrollable");
+
+                    //Default is true
+                    if (x === null || x === undefined)
+                        return true;
+                    else
+                        return x == true || x == "true";
+                },
+                set: function (value) { this.element.data("scrollable", value); refresh(); }
+            }),
+
             addClass: function (className) {
                 this.element.addClass(className);
                 return this;
@@ -135,9 +148,10 @@
             var anchor = (pane.anchor() || "fill").toLowerCase();
             var size = (pane.size() || "auto").toLowerCase();
             var resizable = pane.resizable();
+            var scrollable = pane.scrollable();
             var childPanes = getLayoutPanes(pane.element);
 
-            allocate(pane.element, anchor, size, childPanes);
+            allocate(pane.element, anchor, size, scrollable, childPanes);
 
             //Then, if the pane is anchored and requires to be resizable, let's allocate a second special thin pane that
             //acts as the border/handle for resizing
@@ -146,11 +160,11 @@
                 resizer.data("LayoutPane", pane);
 
                 if (anchor == "left" || anchor == "right") {
-                    allocate(resizer, anchor, "10px", []);
+                    allocate(resizer, anchor, "10px", false, []);
                     resizer.addClass("LayoutPane-Resizer LayoutPane-VerticalResizer");
                 }
                 else if (anchor == "top" || anchor == "bottom") {
-                    allocate(resizer, anchor, "10px", []);
+                    allocate(resizer, anchor, "10px", false, []);
                     resizer.addClass("LayoutPane-Resizer LayoutPane-HorizontalResizer");
                 }
 
@@ -160,7 +174,7 @@
         }
 
         //Depending on the anchor setting, allocate the pane on the screen
-        function allocate(paneElement, anchor, size, childPanes) {
+        function allocate(paneElement, anchor, size, scrollable, childPanes) {
             //We have some reasonable constraints for ease of implementation
             if (childPanes.length > 0 && anchor != "fill" && size == "auto") {
                 //If we have child LayoutPane's, then we don't support "auto" size
@@ -171,7 +185,7 @@
             //Checks OK. Allocate the pane on the screen.
             paneElement.css({
                 position: "fixed",
-                overflow: "auto"
+                overflow: scrollable ? "auto" : "hidden"
             });
 
             if (anchor == "top") {

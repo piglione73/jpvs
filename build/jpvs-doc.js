@@ -1301,6 +1301,15 @@ jpvs.makeWidget({
             return this;
         },
 
+        scrollable: function (value) {
+            /// <summary>
+            /// Property: specifies whether the LayoutPane may be scrolled by the user.
+            /// This property may also be specified in HTML by setting the "data-scrollable" attribute.
+            /// Default is true.
+            /// </summary>
+            return this;
+        },
+
         addClass: function (className) {
             /// <summary>Adds a CSS class to the LayoutPane. Adding a CSS class allows the appearance of the LayoutPane to be
             /// customized with borders, background, ...</summary>

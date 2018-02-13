@@ -8573,7 +8573,7 @@ jpvs.makeWidget({
             else if (anchor == "right") {
                 //Anchor to the right, eating space from ctx.x2
                 paneElement.css({
-                    top: "auto",
+                    left: "auto",
                     right: ctx.x2 + "px",
                     top: ctx.y1 + "px",
                     bottom: ctx.y2 + "px",

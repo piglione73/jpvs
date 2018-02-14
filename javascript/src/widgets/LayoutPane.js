@@ -121,9 +121,9 @@
     }
 
     function getLayoutPanes(element) {
-        //Get all the LayoutPane's contained in element
+        //Get all visible LayoutPane's contained in element
         var panes = [];
-        element.children("div.LayoutPane").each(function () {
+        element.children("div.LayoutPane:visible").each(function () {
             var pane = getLayoutPane($(this));
             if (pane)
                 panes.push(pane);

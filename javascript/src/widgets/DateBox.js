@@ -102,7 +102,7 @@ jQuery(function ($) {
     function parse(yyyymmdd) {
         yyyymmdd = $.trim(yyyymmdd);
 
-        if (yyyymmdd == "" || yyyymmdd.length != 8)
+        if (!yyyymmdd || yyyymmdd.length < 8)
             return null;
 
         var y = parseInt(yyyymmdd.substring(0, 4));

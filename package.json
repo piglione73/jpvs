@@ -1,6 +1,6 @@
 {
   "name": "jpvs",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "HTML5 javascript library",
   "main": "jpvs-all.js",
   "scripts": {

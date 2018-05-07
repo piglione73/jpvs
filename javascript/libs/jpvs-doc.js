@@ -1346,6 +1346,11 @@ jpvs.makeWidget({
         text: function (value) {
             /// <summary>Property: text of the link button.</summary>
             return this;
+        },
+
+        enabled: function (value) {
+            /// <summary>Property: true if enabled (default). If disabled, the LinkButton-Disabled class is added.</summary>
+            return this;
         }
     }
 });

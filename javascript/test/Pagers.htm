@@ -1,0 +1,82 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>Pagers</title>
+    <style>
+        a:disabled, .LinkButton-Disabled { color: #ddd; cursor: default }
+    </style>
+    <script type="text/javascript" src="../libs/linq.min.js"></script>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/CheckBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/Table.js"></script>
+    <script type="text/javascript" src="../src/widgets/Popup.js"></script>
+    <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
+    <script type="text/javascript" src="../src/widgets/DropDownList.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Pager.js"></script>
+    <script type="text/javascript" src="../src/widgets/Scroller.js"></script>
+    <script type="text/javascript" src="../src/widgets/DataGrid.js"></script>
+    <script type="text/javascript" src="../src/LazyTask.js"></script>
+    <script type="text/javascript">
+        //Sample data
+        var recs1 = [];
+        for (var i = 0; i < 50; i++)
+            recs1.push({ A: "A" + i, B: "B" + i });
+
+        var recs2 = [];
+        for (var i = 0; i < 50000; i++)
+            recs2.push({ A: "A" + i, B: "B" + i });
+
+
+        jpvs(function ($W) {
+            var tbl1 = $W.tbl1;
+            var tbl2 = $W.tbl2;
+
+            var tmpl = [
+                { body: { fieldName: "A"} },
+                { body: { fieldName: "B"} }
+            ];
+
+            tbl1.template(tmpl).binder(jpvs.DataGrid.pagingBinder({ pageSize: 10, preserveCurrentPage: true }));
+            tbl2.template(tmpl).binder(jpvs.DataGrid.pagingBinder({ pageSize: 10, preserveCurrentPage: true }));
+
+            tbl1.dataBind(recs1);
+            tbl2.dataBind(recs2);
+        });
+    </script>
+</head>
+<body>
+    <table id="tbl1" data-jpvs-type="DataGrid">
+        <thead>
+            <tr>
+                <th>
+                    Col1
+                </th>
+                <th>
+                    Col2
+                </th>
+            </tr>
+        </thead>
+    </table>
+    <table id="tbl2" data-jpvs-type="DataGrid">
+        <thead>
+            <tr>
+                <th>
+                    Col1
+                </th>
+                <th>
+                    Col2
+                </th>
+            </tr>
+        </thead>
+    </table>
+</body>
+</html>

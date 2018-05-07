@@ -21,6 +21,9 @@ jpvs.makeWidget({
             //Prevent the link from being navigated to
             e.preventDefault();
 
+            if (!W.enabled())
+                return false;
+
             return W.click.fire(W);
         });
     },
@@ -35,6 +38,18 @@ jpvs.makeWidget({
         text: jpvs.property({
             get: function () { return this.element.text(); },
             set: function (value) { this.element.text(value); }
+        }),
+
+        enabled: jpvs.property({
+            get: function () { return !!this.element.data("enabled"); },
+            set: function (value) {
+                this.element.data("enabled", !!value);
+
+                if (!!value)
+                    this.removeState(jpvs.states.DISABLED);
+                else
+                    this.addState(jpvs.states.DISABLED);
+            }
         })
     }
 });

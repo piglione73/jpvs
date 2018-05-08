@@ -8762,7 +8762,7 @@ jpvs.makeWidget({
         }),
 
         enabled: jpvs.property({
-            get: function () { return !!this.element.data("enabled"); },
+            get: function () { return this.element.data("enabled") !== false; },
             set: function (value) {
                 this.element.data("enabled", !!value);
 

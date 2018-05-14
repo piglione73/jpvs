@@ -50,6 +50,11 @@
 
             tbl1.dataBind(recs1);
             tbl2.dataBind(recs2);
+
+            setTimeout(function () {
+                $W.cntTest1.totalPages(100).page(99);
+                $W.cntTest2.totalPages(50).page(49);
+            }, 1000);
         });
     </script>
 </head>
@@ -78,5 +83,8 @@
             </tr>
         </thead>
     </table>
+    <hr />
+    <div id="cntTest1" data-jpvs-type="Pager"></div>
+    <div id="cntTest2" data-jpvs-type="Pager"></div>
 </body>
 </html>

@@ -74,7 +74,10 @@
             });
 
             //...or a plain TextBox if the total number of pages is too high
-            W.pnl = jpvs.writeTag(combo, "div").css("white-space", "nowrap");
+            W.pnl = jpvs.writeTag(combo, "div").css({
+                "white-space": "nowrap",
+                "display": "none"
+            });
             jpvs.write(W.pnl, jpvs.Pager.strings.pag + " ");
             W.txt = jpvs.TextBox.create(W.pnl).width("3em");
             W.txt.element.css("text-align", "right").on("keydown", onKeyDown(W));

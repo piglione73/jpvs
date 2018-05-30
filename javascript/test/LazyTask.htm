@@ -7,6 +7,7 @@
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/LazyTask.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
     <script type="text/javascript">
         function run(taskID, delay) {
             jpvs.runLazyTask(taskID, delay, function () { alert("Task " + taskID + "!"); });
@@ -15,6 +16,10 @@
         function cancel(taskID) {
             jpvs.cancelLazyTask(taskID);
         }
+
+        function lazily() {
+            jpvs.lazily(function () { alert('Hi'); });
+        }
     </script>
 </head>
 <body>
@@ -22,5 +27,6 @@
     <div><button onclick="cancel('A');">Cancel lazy task "A"</button> <span></span></div>
     <div><button onclick="run('B', 4000);">Run lazy task "B" 4 seconds from now</button> <span></span></div>
     <div><button onclick="cancel('B');">Cancel lazy task "B"</button> <span></span></div>
+    <div><button onclick="lazily();">jpvs.lazily</button> <span></span></div>
 </body>
 </html>

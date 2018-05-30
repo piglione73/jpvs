@@ -2,6 +2,10 @@
 
     var taskMap = {};
 
+    jpvs.lazily = function (taskFunction) {
+        jpvs.runLazyTask(taskFunction.toString(), 500, taskFunction);
+    };
+
     jpvs.runLazyTask = function (taskID, delayMillisec, taskFunction) {
         if (!taskFunction)
             return;

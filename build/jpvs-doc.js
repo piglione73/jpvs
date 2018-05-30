@@ -556,6 +556,10 @@ jpvs.toJSON = function (obj) {
 
 window.jpvs = window.jpvs || {};
 
+jpvs.lazily = function (taskFunction) {
+    /// <summary>Executes "taskFunction" lazily. It is a shortcut for jpvs.runLazyTask(taskID, 500, taskFunction), with a uniquely
+    /// generated taskID that is unique to taskFunction.</summary>
+};
 
 jpvs.runLazyTask = function (taskID, delayMillisec, taskFunction) {
     /// <summary>Schedules or reschedules a task to run after "delayMillisec". The task is uniquely identified by the given "taskID".

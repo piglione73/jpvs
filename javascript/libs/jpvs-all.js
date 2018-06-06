@@ -9933,8 +9933,9 @@ jpvs.makeWidget({
 
                     this.element.data("totalPages", value);
 
-                    //Clip
-                    if (this.page() >= value) {
+                    //Clip, only if there is at least one page and this.page() is out of range
+                    //If there are no pages, there is no need to do anything
+                    if (value > 0 && this.page() >= value) {
                         this.page(value - 1);
                         this.change.fire(this);
                     }

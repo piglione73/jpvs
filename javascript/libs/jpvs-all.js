@@ -10343,7 +10343,8 @@ jpvs.makeWidget({
                     this.zIndex(10000);
 
                 //Ensure the popup is in the main zIndex stacking context
-                this.element.appendTo("body");
+                if(this.element.parent()[0].nodeName != "BODY")
+                    this.element.appendTo("body");
 
                 return this;
             },

@@ -20,6 +20,40 @@
         div.LayoutPane-HorizontalResizer:hover, div.LayoutPane-VerticalResizer:hover{
             background-color:#ff0;
         }
+        .Popup .DimScreen
+        {
+            background-color: rgba(255,0,0,0.2);
+        }
+        .Popup .Contents
+        {
+            background-color: #fff;
+            border: 1px solid black;
+            border-top-left-radius: 6pt;
+            border-top-right-radius: 6pt;
+        }
+        .Popup .Title
+        {
+            border-top-left-radius: 5pt;
+            border-top-right-radius: 5pt;
+            background-color: #77F;
+            padding: 3pt;
+        }
+        .Popup .Title H1
+        {
+            cursor: move;
+            margin: 0px;
+            padding: 0px;
+            font-size: 14pt;
+            color: #FFF;
+        }
+        .Popup .Body
+        {
+            padding: 3pt;
+        }
+        .Popup .Title .ImageButton
+        {
+            float: right;
+        }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
@@ -38,6 +72,9 @@
     <script type="text/javascript" src="../src/widgets/LayoutPane.js"></script>
     <script type="text/javascript">
         jpvs(function (w) {
+            w.popTest.modal(false).show();
+            w.popTest2.modal(false).show();
+            w.popTest3.show();
         });
     </script>
 </head>
@@ -57,6 +94,18 @@
         </div>
         <div data-jpvs-type="LayoutPane">
             Lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem. 
+            <div id="popTest" data-jpvs-type="Popup">
+                <h1>Test</h1>
+                Test popup.
+            </div>
+            <div id="popTest2" data-jpvs-type="Popup">
+                <h1>Test</h1>
+                Test popup.
+            </div>
+            <div id="popTest3" data-jpvs-type="Popup">
+                <h1>Test</h1>
+                Test popup.
+            </div>
         </div>
     </div>
 </body>

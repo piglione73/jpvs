@@ -296,6 +296,9 @@
                 else
                     this.zIndex(10000);
 
+                //Ensure the popup is in the main zIndex stacking context
+                this.element.appendTo("body");
+
                 return this;
             },
 

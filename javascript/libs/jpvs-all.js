@@ -9575,6 +9575,15 @@ jpvs.makeWidget({
                 }
             }),
 
+            groupTemplate: jpvs.property({
+                get: function () {
+                    return this.element.data("groupTemplate");
+                },
+                set: function (value) {
+                    this.element.data("groupTemplate", value);
+                }
+            }),
+
             labelTemplate: jpvs.property({
                 get: function () {
                     return this.element.data("labelTemplate");
@@ -9591,13 +9600,13 @@ jpvs.makeWidget({
                 return this;
             },
 
-            addItem: function (value, text, selected) {
+            addItem: function (value, text, selected, group) {
                 var V = value;
                 var T = text != null ? text : value;
 
                 if (V != null & T != null) {
                     var items = getItems(this);
-                    items.push({ value: V, text: T, selected: !!selected });
+                    items.push({ value: V, text: T, selected: !!selected, group: group });
                     setItems(this, items);
                     updateLabel(this);
                 }
@@ -9610,7 +9619,7 @@ jpvs.makeWidget({
                 $.each(items, function (i, item) {
                     if (item != null) {
                         if (item.value != null)
-                            W.addItem(item.value, item.text, item.selected);
+                            W.addItem(item.value, item.text, item.selected, item.group);
                         else
                             W.addItem(item);
                     }
@@ -9736,8 +9745,17 @@ jpvs.makeWidget({
         //The item template must return an object with a "selected" property and a "change" event, so we can use it from here no
         //matter how the item is rendered
         var itemTemplate = W.itemTemplate() || defaultItemTemplate;
+        var groupTemplate = W.groupTemplate() || defaultGroupTemplate;
         var itemObjects = [];
+        var lastGroup = "";
         $.each(items, function (i, item) {
+            var group = item.group || "";
+            if (group != lastGroup) {
+                //Write group
+                var groupObject = jpvs.applyTemplate(ul, groupTemplate, { group: group });
+                lastGroup = group;
+            }
+
             var itemObject = jpvs.applyTemplate(ul, itemTemplate, item);
             itemObjects.push(itemObject);
 
@@ -9788,7 +9806,7 @@ jpvs.makeWidget({
         }
 
         function defaultItemTemplate(dataItem) {
-            var li = jpvs.writeTag(this, "li");
+            var li = jpvs.writeTag(this, "li").addClass(dataItem.group ? "GroupItem" : "");
             var chk = jpvs.CheckBox.create(li).text(dataItem.text).change(onCheckBoxChange);
 
             //Prepare the item object with the "selected" property and the "change" event
@@ -9811,6 +9829,45 @@ jpvs.makeWidget({
                 //We just fire the change event
                 itemObject.change.fire(itemObject);
             }
+        }
+
+        function defaultGroupTemplate(dataItem) {
+            var li = jpvs.writeTag(this, "li").addClass("GroupHeader");
+            var chk = jpvs.LinkButton.create(li).text(dataItem.group).click(onCheckBoxChange);
+
+            function onCheckBoxChange() {
+                var info = getGroupItems(dataItem.group);
+                var selected = 0;
+                for (var i = 0; i < info.groupItems.length; i++) {
+                    if (info.groupItems[i].selected)
+                        selected++;
+                }
+
+                //If all selected, uncheck all. Otherwise, check all
+                var newSelectState = (selected < info.groupItems.length);
+                for (var i = 0; i < info.groupItems.length; i++) {
+                    info.groupItems[i].selected = newSelectState;
+                    info.groupItemObjects[i].selected(newSelectState);
+                }
+
+                updateAndFire();
+            }
+        }
+
+        function getGroupItems(group) {
+            var groupItems = [];
+            var groupItemObjects = [];
+            for (var i = 0; i < items.length; i++) {
+                if ((items[i].group || "") == group) {
+                    groupItems.push(items[i]);
+                    groupItemObjects.push(itemObjects[i]);
+                }
+            }
+
+            return {
+                groupItems: groupItems,
+                groupItemObjects: groupItemObjects
+            };
         }
     }
 

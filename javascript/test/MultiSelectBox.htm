@@ -38,6 +38,25 @@
         {
             float: right;
         }
+        
+        .Popup-MultiSelectBox ul
+        {
+            padding: 0px;
+        }
+        .Popup-MultiSelectBox li
+        {
+            list-style: none;
+            margin-left: 0px;
+        }
+        .Popup-MultiSelectBox li.GroupHeader
+        {
+            margin-top: 4px;
+            font-weight: bold;
+        }
+        .Popup-MultiSelectBox li.GroupItem
+        {
+            margin-left: 3em;
+        }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
@@ -66,13 +85,13 @@
             });
 
             var cmb2 = jpvs.MultiSelectBox.create("#pnl2");
-            cmb2.addItem("0", "Zero");
-            cmb2.addItem("1", "One", true);
-            cmb2.addItem("2", "Two");
+            cmb2.addItem("0", "Zero", false, "Group 1");
+            cmb2.addItem("1", "One", true, "Group 1");
+            cmb2.addItem("2", "Two", false, "Group 2");
             cmb2.addItems([
-                { value: "Val1", text: "Value 1, initially unselected", selected: false },
-                { value: "Val2", text: "Value 2, initially selected", selected: true },
-                { value: "Val3", text: "Value 3, initially unselected", selected: false }
+                { value: "Val1", text: "Value 1, initially unselected", selected: false, group: "Group 3" },
+                { value: "Val2", text: "Value 2, initially selected", selected: true, group: "Group 3" },
+                { value: "Val3", text: "Value 3, initially unselected", selected: false, group: "Group 3" }
             ]);
 
             cmb2.labelTemplate(function (selectedItems) {

@@ -1459,6 +1459,14 @@ jpvs.makeWidget({
             return this;
         },
 
+        groupTemplate: function () {
+            /// <summary>Property: group template. Must create a group header. If not specified, 
+            /// a default item template is used which creates an LI element with a linkbutton inside.
+            /// The template must return nothing. By clicking the linkbutton, all the items within the same 
+            /// group are checked/unchecked.</summary>
+            return this;
+        },
+
         labelTemplate: function () {
             /// <summary>Property: label template. Given the array of selected items, it must write the summary.
             /// The default label template writes all selected item texts, separated by commas. The dataItem passed to this
@@ -1471,17 +1479,18 @@ jpvs.makeWidget({
             return this;
         },
 
-        addItem: function (value, text, selected) {
+        addItem: function (value, text, selected, group) {
             /// <summary>Adds an item.</summary>
             /// <param name="value" type="String">Value of the item.</param>
             /// <param name="text" type="String">Text of the item. If omitted, the "value" is used.</param>
             /// <param name="selected" type="Boolean">Specifies if the item must be initially selected.</param>
+            /// <param name="group" type="String">Optional group name for grouping items.</param>
             return this;
         },
 
         addItems: function (items) {
             /// <summary>Adds multiple items.</summary>
-            /// <param name="items" type="Array">Array of items to add. Each item may be a string or an object like this: { value: String, text: String, selected: Boolean }.</param>
+            /// <param name="items" type="Array">Array of items to add. Each item may be a string or an object like this: { value: String, text: String, selected: Boolean, group: String }.</param>
             return this;
         },
 

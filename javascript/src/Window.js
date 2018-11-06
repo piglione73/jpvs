@@ -19,7 +19,14 @@
         var modifiedUrl = url;
 
         setTimeout(function () {
-            var wnd = window.open(modifiedUrl, windowName, windowFeatures);
+            var wnd;
+            if (windowFeatures)
+                wnd = window.open(modifiedUrl, windowName, windowFeatures);
+            else if (windowName)
+                wnd = window.open(modifiedUrl, windowName);
+            else
+                wnd = window.open(modifiedUrl);
+
             if (wnd)
                 wnd.focus();
         }, 10);

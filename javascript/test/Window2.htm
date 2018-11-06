@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>History 1</title>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/JSON.js"></script>
+    <script type="text/javascript" src="../src/Function.js"></script>
+    <script type="text/javascript" src="../src/Window.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript">
+        jpvs(function (w) {
+            var data = jpvs.Window.getData();
+            if (data)
+                jpvs.write("#pnl", "Data received: " + JSON.stringify(data));
+            else
+                jpvs.write("#pnl", "No data received.");
+        });
+    </script>
+</head>
+<body>
+    <div id="pnl"></div>
+    <button onclick="location='Window1.htm';">Back</button>
+</body>
+</html>

@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <title>History 1</title>
+    <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../src/jpvs.js"></script>
+    <script type="text/javascript" src="../src/Core.js"></script>
+    <script type="text/javascript" src="../src/Event.js"></script>
+    <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/Resources.js"></script>
+    <script type="text/javascript" src="../src/JSON.js"></script>
+    <script type="text/javascript" src="../src/Function.js"></script>
+    <script type="text/javascript" src="../src/Window.js"></script>
+    <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
+    <script type="text/javascript" src="../src/widgets/Button.js"></script>
+    <script type="text/javascript">
+        
+        jpvs(function (w) {
+        });
+
+        function open1() {
+            jpvs.Window.open("Window2.htm");
+        }
+
+        function open2() {
+            jpvs.Window.open("Window2.htm").withData({a: "AAA", b: "BCD"});
+        }
+
+        function open3() {
+            jpvs.Window.open("Window2.htm?Param1=Hello").withData({ a: "XXX", b: "YYY" });
+        }
+
+        function nav1() {
+            jpvs.Window.navigateTo("Window2.htm");
+        }
+
+        function nav2() {
+            jpvs.Window.navigateTo("Window2.htm").withData({ a: "AAA", b: "BCD" });
+        }
+
+        function nav3() {
+            jpvs.Window.navigateTo("Window2.htm?Param1=Hello").withData({ a: "XXX", b: "YYY" });
+        }
+    </script>
+</head>
+<body>
+    <button onclick="open1();">Open</button>
+    <button onclick="open2();">Open with params</button>
+    <button onclick="open3();">Open with params and query string</button>
+    <button onclick="nav1();">Navigate</button>
+    <button onclick="nav2();">Navigate with params</button>
+    <button onclick="nav3();">Navigate with params and query string</button>
+</body>
+</html>

@@ -297,7 +297,7 @@
                     this.zIndex(10000);
 
                 //Ensure the popup is in the main zIndex stacking context
-                if(this.element.parent()[0].nodeName != "BODY")
+                if (this.element.parent()[0].nodeName != "BODY")
                     this.element.appendTo("body");
 
                 return this;
@@ -348,33 +348,39 @@
             buttons: [{ text: "OK"}]
         };
 
-        //Read arguments and dispatch them to the appropriate field
-        var okTitle = false, okText = false;
-        for (var i = 0; i < arguments.length; i++) {
-            var arg = arguments[i];
-            if (!arg)
-                continue;
-
-            if (typeof (arg) == "string") {
-                //First try (text) then (title, text)
-                if (!okText) {
-                    params.text = arg;
-                    okText = true;
-                }
-                else if (!okTitle) {
-                    params.title = params.text;
-                    params.text = arg;
-                    okTitle = true;
-                }
+        //Read arguments and dispatch them to the appropriate fields
+        if (arguments.length >= 4) {
+            //Signature: jpvs.alert(title, text, onclose, buttons)
+            params.title = arguments[0];
+            params.text = arguments[1];
+            params.onclose = arguments[2];
+            params.buttons = arguments[3];
+        }
+        else if (arguments.length == 3) {
+            //Signature: jpvs.alert(title, text, buttons)
+            //Signature: jpvs.alert(title, text, onclose)
+            params.title = arguments[0];
+            params.text = arguments[1];
+            if (arguments[2] && arguments[2].length && typeof (arguments[2]) != "string")
+                params.buttons = arguments[2];
+            else
+                params.onclose = arguments[2];
+        }
+        else if (arguments.length == 2) {
+            //Signature: jpvs.alert(title, text)
+            //Signature: jpvs.alert(text, buttons)
+            if (arguments[1] && arguments[1].length && typeof (arguments[1]) != "string") {
+                params.text = arguments[0];
+                params.buttons = arguments[1];
             }
-            else if (typeof (arg) == "function" || arg.__WIDGET__) {
-                //It's an "onclose" ("function" or "widget to focus")
-                params.onclose = arg;
+            else {
+                params.title = arguments[0];
+                params.text = arguments[1];
             }
-            else if (arg.length) {
-                //Buttons array
-                params.buttons = arg;
-            }
+        }
+        else if (arguments.length == 1) {
+            //Signature: jpvs.alert(text)
+            params.text = arguments[0];
         }
 
         //Create popup
@@ -408,6 +414,11 @@
                 else if (params.onclose.__WIDGET__) {
                     //If widget, then set focus to it
                     params.onclose.focus();
+                }
+                else {
+                    //If string or anything else, treat as jQuery object / selector
+                    try { $(params.onclose).focus(); }
+                    catch (x) { }
                 }
             }
 

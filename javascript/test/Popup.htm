@@ -56,10 +56,13 @@
         jpvs(function ($W) {
             jpvs.alert.defaultTitle = "JPVS";
 
-            $W.pop1.close.bind(function () { jpvs.alert("Popup", "Chiuso a mano.\nA capo.\n\r\nA capo con riga bianca.", $W.txtProva); });
+            $W.pop1.close.bind(function () {
+                jpvs.alert("Popup", "Chiuso a mano.\nA capo.\n\r\nA capo con riga bianca.", $W.txtProva);
+                jpvs.alert("Popup", "Chiuso a mano.\nA capo.\n\r\nA capo con riga bianca.", "#Text1"); 
+            });
             $W.pop1.show();
 
-            jpvs.alert("Hello", [
+            jpvs.alert("Hi", "Hello", [
             { text: "Yes", click: function () { jpvs.alert("You said yes!"); } },
             { text: "No", click: function () { jpvs.alert("You said no!"); } },
             { text: "Don't know", click: function () { jpvs.alert("You said nothing!"); } },

@@ -1716,7 +1716,7 @@ jpvs.alert = function (title, text, onclose, buttons) {
     /// <summary>Displays an alert popup with a title, a text, an on-close action, and one or more buttons.</summary>
     /// <param name="title" type="String">Optional: Title of the popup.</param>
     /// <param name="text" type="String">Text of the popup.</param>
-    /// <param name="onclose" type="Function">Optional: Function that will be called when the popup is closed or jpvs widget to be focused when the popup is closed.</param>
+    /// <param name="onclose" type="Function">Optional: Function that will be called when the popup is closed or jpvs widget to be focused when the popup is closed or jQuery selector of control to be focused when the popup is closed.</param>
     /// <param name="buttons" type="Array">Optional: Array of button definitions. A button definition is like this: { text: "OK", click: eventHandler }. The jpvs.writeButtonBar is used; see it for additional info.</param>
 };
 

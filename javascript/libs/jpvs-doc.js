@@ -1290,6 +1290,8 @@ window.jpvs = window.jpvs || {};
 jpvs.LayoutPane = function (selector) {
     /// <summary>Attaches the widget to an existing element.</summary>
     /// <param name="selector" type="Object">Where to attach the widget: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
+
+    this.resize = jpvs.event(this);
 };
 
 jpvs.LayoutPane.refresh = function () {

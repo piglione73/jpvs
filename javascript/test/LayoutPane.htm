@@ -41,6 +41,17 @@
             w.btnLeftFillToggleScrollable.click(function () {
                 w.paneLeftFill.scrollable(!w.paneLeftFill.scrollable());
             });
+
+            var allPanes = jpvs.find("div.LayoutPane");
+            for (var i = 0; i < allPanes.length; i++)
+                allPanes[i].resize(function () {
+                    var oldColor = this.element.css("background-color");
+                    this.element.css("background-color", "#fff");
+                    var self = this;
+                    setTimeout(function () {
+                        self.element.css("background-color", oldColor);
+                    }, 1000);
+                });
         });
     </script>
 </head>

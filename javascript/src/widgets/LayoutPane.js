@@ -15,6 +15,8 @@
 
     jpvs.LayoutPane = function (selector) {
         this.attach(selector);
+
+        this.resize = jpvs.event(this);
     };
 
     //Static function for refreshing the entire layout
@@ -305,6 +307,29 @@
             else {
                 //If invalid, let's show the error
                 paneElement.empty().text("Invalid anchor for LayoutPane: " + anchor);
+            }
+
+            //Let's see if we have resized
+            var pane = jpvs.find(paneElement);
+            if (pane) {
+                var offset = paneElement.offset();
+                var x = offset.left;
+                var y = offset.top;
+                var w = paneElement.outerWidth();
+                var h = paneElement.outerHeight();
+
+                //If we have resized, then fire
+                var old = pane.oldCoordinates || { x: -1, y: -1, w: -1, h: -1 };
+                if (pane.resize && (x != old.x || y != old.y || w != old.w || h != old.h))
+                    pane.resize.fire(pane);
+
+                //Keep track of the changed coords
+                pane.oldCoordinates = {
+                    x: x,
+                    y: y,
+                    w: w,
+                    h: h
+                };
             }
         }
     }

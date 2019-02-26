@@ -244,6 +244,7 @@
 
                 //Show popup
                 this.element.show();
+                this.contentsElement.show();
 
                 //If never positioned before, then do it now with no animation
                 var posType = this.contentsElement.css("position");

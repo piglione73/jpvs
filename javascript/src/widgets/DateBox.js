@@ -7,9 +7,9 @@ jQuery(function ($) {
         nextText: 'Succ&#x3e;',
         currentText: 'Oggi',
         monthNames: ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-			'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'],
+            'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'],
         monthNamesShort: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu',
-			'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'],
+            'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'],
         dayNames: ['Domenica', 'Luned&#236', 'Marted&#236', 'Mercoled&#236', 'Gioved&#236', 'Venerd&#236', 'Sabato'],
         dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'],
         dayNamesMin: ['Do', 'Lu', 'Ma', 'Me', 'Gi', 'Ve', 'Sa'],
@@ -55,6 +55,9 @@ jQuery(function ($) {
             });
 
             this.element.datepicker("option", $.datepicker.regional[jpvs.currentLocale()]);
+            this.element.datepicker("option", "changeMonth", true);
+            this.element.datepicker("option", "changeYear", true);
+            this.element.datepicker("option", "yearRange", "c-80:c+10");
 
             this.element.datepicker("hide");
         },

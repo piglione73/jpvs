@@ -4,4 +4,4 @@ bower_components/
 *.suo
 *.user
 *~
-.vs/config/applicationhost.config
+.vs

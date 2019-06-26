@@ -1087,6 +1087,11 @@ jpvs.makeWidget({
         dateString: function (value) {
             /// <summary>Property: date of the datebox as a string in the YYYYMMDD format.</summary>
             return this;
+        },
+
+        dateStringISO: function (value) {
+            /// <summary>Property: date of the datebox as a string in the ISO YYYY-MM-DDT00:00:00.000 format.</summary>
+            return this;
         }
 
     }

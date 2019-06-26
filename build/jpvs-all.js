@@ -6626,6 +6626,15 @@ jQuery(function ($) {
                 set: function (value) {
                     this.date(parse(value));
                 }
+            }),
+
+            dateStringISO: jpvs.property({
+                get: function () {
+                    return formatISO(this.date());
+                },
+                set: function (value) {
+                    this.date(parseISO(value));
+                }
             })
         }
     });
@@ -6639,6 +6648,17 @@ jQuery(function ($) {
         var d = date.getDate();
 
         return pad(y, 4) + pad(m, 2) + pad(d, 2);
+    }
+
+    function formatISO(date) {
+        if (!date)
+            return "";
+
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        var d = date.getDate();
+
+        return pad(y, 4) + "-" + pad(m, 2) + "-" + pad(d, 2) + "T00:00:00.000";
     }
 
     function pad(s, len) {
@@ -6658,6 +6678,19 @@ jQuery(function ($) {
         var y = parseInt(yyyymmdd.substring(0, 4));
         var m = parseInt(yyyymmdd.substring(4, 6));
         var d = parseInt(yyyymmdd.substring(6, 8));
+
+        return new Date(y, m - 1, d);
+    }
+
+    function parseISO(iso) {
+        iso = $.trim(iso);
+
+        if (!iso || iso.length < 10)
+            return null;
+
+        var y = parseInt(iso.substring(0, 4));
+        var m = parseInt(iso.substring(5, 7));
+        var d = parseInt(iso.substring(8, 10));
 
         return new Date(y, m - 1, d);
     }

@@ -23,11 +23,19 @@
             setTimeout(function () {
                 $("#pnlInvisibleTest").show();
             }, 5000);
+
+            setInterval(function () {
+                jpvs.writeln("body", "Valore: " + fmt(w.txtDate1.dateString()) + "; ISO: " + fmt(w.txtDate1.dateStringISO()));
+            }, 2000);
         });
+
+        function fmt(x) {
+            return x != null ? x : "(null)";
+        }
     </script>
 </head>
 <body>
-    <input type="text" id="Text1" value="Normal textbox"/>
+    <input type="text" id="Text1" value="Normal textbox" />
     <input type="text" id="txtDate1" data-jpvs-type="DateBox" />
     <div id="pnlInvisibleTest" style="display:none">
         <input type="text" id="txtDate2" data-jpvs-type="DateBox" />

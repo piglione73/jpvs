@@ -12059,6 +12059,9 @@ jpvs.makeWidget({
         var tbl = extender.tableElement;
         var allCellsSelector = extender.allCellsSelector;
 
+        //Before measuring/remeasuring columns, let's set table width "auto", so we don't have forced column scaling
+        tbl.css("width", "auto");
+
         //Measure all columns that have colspan = 1
         var colWidths = [];
         tbl.find(allCellsSelector).each(function () {

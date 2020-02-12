@@ -52,6 +52,8 @@ jpvs.writeButtonBar = function (container, buttons) {
     $.each(buttons, function (i, btnDef) {
         var btn = jpvs.Button.create(bar);
         btn.text(btnDef.text || "OK").click.bind(btnDef.click);
+		if(btnDef.cssClass)
+			btn.element.addClass(btnDef.cssClass);
     });
 
     return bar;

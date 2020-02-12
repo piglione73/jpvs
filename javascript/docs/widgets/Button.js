@@ -23,7 +23,7 @@ jpvs.makeWidget({
 jpvs.writeButtonBar = function (container, buttons) {
     /// <summary>Writes a button bar (a DIV with class "ButtonBar" with buttons inside).</summary>
     /// <param name="container" type="Object">Where to write the button bar: jpvs widget or jQuery selector or jQuery object or DOM element.</param>
-    /// <param name="buttons" type="Array">Array of button definitions. A button definition is like this: { text: "OK", click: eventHandler }</param>
+    /// <param name="buttons" type="Array">Array of button definitions. A button definition is like this: { text: "OK", click: eventHandler, cssClass: CSS class }</param>
     /// <returns type="jQuery">A jQuery object that wraps the element just written.</returns>
 
     return $("*");

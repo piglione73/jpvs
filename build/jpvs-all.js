@@ -10150,10 +10150,11 @@ jpvs.makeWidget({
                 get: function () { return this.element.data("totalPages") || null; },
                 set: function (value) {
                     var oldValue = this.totalPages();
-                    if (oldValue != value || value == null)
+                    if (oldValue != value || value == null) {
+                        this.element.data("totalPages", value);
                         refreshTotal(this, value);
-
-                    this.element.data("totalPages", value);
+                        refreshEnableDisable(this);
+                    }
 
                     //Clip, only if there is at least one page and this.page() is out of range
                     //If there are no pages, there is no need to do anything

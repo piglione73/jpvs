@@ -47,12 +47,20 @@
             jpvs.Pager.strings = jpvs.Pager.allStrings[jpvs.currentLocale()];
 
             W.lnkFirst = jpvs.LinkButton.create(first).text(jpvs.Pager.strings.firstPage).click(function () {
-                W.page(Math.min(0, W.totalPages() - 1));
+                if (W.totalPages() != null)
+                    W.page(Math.min(0, W.totalPages() - 1));
+                else
+                    W.page(0);
+
                 W.change.fire(W);
             });
 
             W.lnkNext = jpvs.LinkButton.create(next).text(jpvs.Pager.strings.nextPage).click(function () {
-                W.page(Math.min(W.page() + 1, W.totalPages() - 1));
+                if (W.totalPages() != null)
+                    W.page(Math.min(W.page() + 1, W.totalPages() - 1));
+                else
+                    W.page(W.page() + 1);
+
                 W.change.fire(W);
             });
 
@@ -62,8 +70,10 @@
             });
 
             W.lnkLast = jpvs.LinkButton.create(last).text(jpvs.Pager.strings.lastPage).click(function () {
-                W.page(W.totalPages() - 1);
-                W.change.fire(W);
+                if (W.totalPages() != null) {
+                    W.page(W.totalPages() - 1);
+                    W.change.fire(W);
+                }
             });
 
             //Either a DropDownList...
@@ -73,7 +83,7 @@
                 W.change.fire(W);
             });
 
-            //...or a plain TextBox if the total number of pages is too high
+            //...or a plain TextBox if the total number of pages is too high or unknown
             W.pnl = jpvs.writeTag(combo, "div").css({
                 "white-space": "nowrap",
                 "display": "none"
@@ -81,7 +91,6 @@
             jpvs.write(W.pnl, jpvs.Pager.strings.pag + " ");
             W.txt = jpvs.TextBox.create(W.pnl).width("3em");
             W.txt.element.css("text-align", "right").on("keydown", onKeyDown(W));
-            jpvs.write(W.pnl, " / ");
             W.lblTot = jpvs.writeTag(W.pnl, "span");
         },
 
@@ -93,29 +102,31 @@
             page: jpvs.property({
                 get: function () { return this.element.data("page") || 0; },
                 set: function (value) {
-                    if (value != null && isFinite(value) && value >= 0 && value < this.totalPages()) {
-                        this.element.data("page", value);
+                    if (value != null && isFinite(value) && value >= 0) {
+                        if (this.totalPages() == null || value < this.totalPages()) {
+                            this.element.data("page", value);
 
-                        this.cmbPages.selectedValue(value.toString());
-                        this.txt.text((value + 1).toString());
+                            this.cmbPages.selectedValue(value.toString());
+                            this.txt.text((value + 1).toString());
 
-                        refreshEnableDisable(this);
+                            refreshEnableDisable(this);
+                        }
                     }
                 }
             }),
 
             totalPages: jpvs.property({
-                get: function () { return this.element.data("totalPages") || 0; },
+                get: function () { return this.element.data("totalPages") || null; },
                 set: function (value) {
                     var oldValue = this.totalPages();
-                    if (oldValue != value)
+                    if (oldValue != value || value == null)
                         refreshTotal(this, value);
 
                     this.element.data("totalPages", value);
 
                     //Clip, only if there is at least one page and this.page() is out of range
                     //If there are no pages, there is no need to do anything
-                    if (value > 0 && this.page() >= value) {
+                    if (value != null && value > 0 && this.page() >= value) {
                         this.page(value - 1);
                         this.change.fire(this);
                     }
@@ -127,14 +138,23 @@
     function refreshEnableDisable(W) {
         W.lnkFirst.enabled(W.page() > 0);
         W.lnkPrev.enabled(W.page() > 0);
-        W.lnkNext.enabled(W.page() < W.totalPages() - 1);
-        W.lnkLast.enabled(W.page() < W.totalPages() - 1);
+
+        if (W.totalPages() != null) {
+            W.lnkNext.enabled(W.page() < W.totalPages() - 1);
+            W.lnkLast.enabled(W.page() < W.totalPages() - 1);
+            W.lnkLast.element.show();
+        }
+        else {
+            W.lnkNext.enabled(true);
+            W.lnkLast.enabled(false);
+            W.lnkLast.element.hide();
+        }
     }
 
     function refreshTotal(W, value) {
         W.cmbPages.clearItems();
 
-        if (value <= 50) {
+        if (value != null && value <= 50) {
             //DropDownList
             W.useDropDown = true;
             W.cmbPages.element.show();
@@ -149,7 +169,12 @@
             W.cmbPages.element.hide();
             W.pnl.show();
 
-            W.lblTot.text(value.toString());
+            if (value != null) {
+                W.lblTot.text("\u00a0/\u00a0" + value.toString());
+                W.lblTot.show();
+            }
+            else
+                W.lblTot.hide();
         }
     }
 

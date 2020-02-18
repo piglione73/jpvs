@@ -19,7 +19,7 @@ jpvs.makeWidget({
         },
 
         totalPages: function (value) {
-            /// <summary>Property: total number of pages.</summary>
+            /// <summary>Property: total number of pages. If set to null, that means the total number of pages is unknown.</summary>
             return this;
         }
     }

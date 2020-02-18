@@ -4,7 +4,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <title>Pagers</title>
     <style>
-        a:disabled, .LinkButton-Disabled { color: #ddd; cursor: default }
+        a:disabled, .LinkButton-Disabled {
+            color: #ddd;
+            cursor: default
+        }
     </style>
     <script type="text/javascript" src="../libs/linq.min.js"></script>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
@@ -41,8 +44,8 @@
             var tbl2 = $W.tbl2;
 
             var tmpl = [
-                { body: { fieldName: "A"} },
-                { body: { fieldName: "B"} }
+                { body: { fieldName: "A" } },
+                { body: { fieldName: "B" } }
             ];
 
             tbl1.template(tmpl).binder(jpvs.DataGrid.pagingBinder({ pageSize: 10, preserveCurrentPage: true }));
@@ -54,6 +57,8 @@
             setTimeout(function () {
                 $W.cntTest1.totalPages(100).page(99);
                 $W.cntTest2.totalPages(50).page(49);
+                $W.cntTest3.totalPages(null).page(0);
+                $W.cntTest4.totalPages(null).page(999);
             }, 1000);
         });
     </script>
@@ -86,5 +91,7 @@
     <hr />
     <div id="cntTest1" data-jpvs-type="Pager"></div>
     <div id="cntTest2" data-jpvs-type="Pager"></div>
+    <div id="cntTest3" data-jpvs-type="Pager"></div>
+    <div id="cntTest4" data-jpvs-type="Pager"></div>
 </body>
 </html>

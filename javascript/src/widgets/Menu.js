@@ -67,17 +67,24 @@
                 var parentMenuItem = findParentItem(parentElement, me);
 
                 //Determine the coordinates and show
-                var box = getBox(parentMenuItem);
-                var coords = getPopupCoords(box, parentElement.childrenAlignment);
+                if (parentElement.childrenAlignment == "right")
+                    me.element.position({ my: "left top", at: "right top", of: parentMenuItem, collision: "flipfit" });
+                else if (parentElement.childrenAlignment == "bottom")
+                    me.element.position({ my: "left top", at: "left bottom", of: parentMenuItem, collision: "flipfit" });
+                else {
+                    //Should never happen...
+                    var box = getBox(parentMenuItem);
+                    var coords = getPopupCoords(box, parentElement.childrenAlignment);
 
-                me.element.css({
-                    position: "absolute",
-                    left: coords.x + "px",
-                    top: coords.y + "px"
-                });
+                    me.element.css({
+                        position: "absolute",
+                        left: coords.x + "px",
+                        top: coords.y + "px"
+                    });
 
-                //Then fit in visible area
-                jpvs.fitInWindow(me.element);
+                    //Then fit in visible area
+                    jpvs.fitInWindow(me.element);
+                }
             }
         }
 

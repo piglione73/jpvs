@@ -36,6 +36,7 @@
         }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="../libs/jquery-ui-1.11.1.min.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
@@ -90,10 +91,42 @@
     </script>
 </head>
 <body>
+    <div style="position: fixed; top:0; left:0">
+        Fixed Menu
+        <div data-jpvs-type="Menu" data-jpvs-template="HorizontalMenuBar,PopupMenu,PopupMenu">
+            <ul>
+                <li>
+                    File
+                    <ul>
+                        <li>New</li>
+                        <li><a href="link:Open">Open</a></li>
+                        <li>Save</li>
+                    </ul>
+                </li>
+                <li>Edit</li>
+                <li></li>
+                <li>
+                    Tools
+                    <ul>
+                        <li>Options</li>
+                        <li>Customize</li>
+                        <li></li>
+                        <li>File manager</li>
+                    </ul>
+                    for everybody
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <br />
+    <br />
+    <br />
     Menu with nested UL/LI:
     <div data-jpvs-type="Menu" data-jpvs-template="HorizontalMenuBar,PopupMenu,PopupMenu">
         <ul>
-            <li>File
+            <li>
+                File
                 <ul>
                     <li>New</li>
                     <li><a href="link:Open">Open</a></li>
@@ -102,14 +135,16 @@
             </li>
             <li>Edit</li>
             <li></li>
-            <li>Tools
+            <li>
+                Tools
                 <ul>
                     <li>Options</li>
                     <li>Customize</li>
                     <li></li>
                     <li>File manager</li>
                 </ul>
-                for everybody </li>
+                for everybody
+            </li>
         </ul>
     </div>
     <hr />
@@ -117,16 +152,21 @@
     <div data-jpvs-type="Menu" data-jpvs-template="VerticalMenuBar,PopupMenu,PopupMenu" data-jpvs-item-template="VerticalMenuBarItem,PopupMenuItem,PopupMenuItem">
         <div>
             <button onclick="alert('Hello');">
-                File</button>
+                File
+            </button>
             <div>
-                <a href="link:New">New</a></div>
+                <a href="link:New">New</a>
+            </div>
             <div>
-                Open</div>
+                Open
+            </div>
             <div>
-                Save</div>
+                Save
+            </div>
         </div>
         <div>
-            Edit</div>
+            Edit
+        </div>
         <div></div>
         <div>
             Tools for everybody

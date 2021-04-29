@@ -669,11 +669,12 @@
             if (jpvs.showDimScreen.element)
                 return;
 
-            //Create a DIV that covers the entire window
+            //Create a DIV that covers the entire window and is on top of everything (infinite z-index)
             jpvs.showDimScreen.element = jpvs.writeTag("body", "div").addClass("DimScreen").css({
                 position: "fixed",
                 top: "0px", left: "0px", width: "100%", height: "100%",
-                display: "none"
+                display: "none",
+				zIndex: "999999999"
             });
 
             //If provided, we can use a custom template for filling the DIV

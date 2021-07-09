@@ -200,7 +200,8 @@
                 var bodyW = this.bodyElement.width();
                 var bodyH = this.bodyElement.height();
 
-                if (deltaW > 0 || deltaH > 0) {
+				//A little tolerance for rounding errors... (Meaning: if deltaW is WITH NO DOUBT > 0 ...)
+                if (deltaW > 5 || deltaH > 5) {
                     this.bodyElement.css("overflow", "auto");
 
                     if (deltaW > 0) {

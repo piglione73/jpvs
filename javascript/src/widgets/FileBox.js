@@ -268,7 +268,7 @@
                 refresh(W);
 
                 if (callback)
-                    callback(xhr.responseText);
+                    callback(xhr.responseText, xhr.status);
             }
         };
 
@@ -302,6 +302,8 @@
         }
     }
 
+
+    //Probably not used anymore
     function post_OldStyleVersion(W, url, callback) {
         W.oldStyleIframe.onreadystatechange = function () {
             if (W.oldStyleIframe.readyState == "complete") {
@@ -311,7 +313,7 @@
 
                 var responseText = W.oldStyleIframe.contentDocument.body.innerText;
                 if (callback)
-                    callback(responseText);
+                    callback(responseText, 200);
             }
         };
 

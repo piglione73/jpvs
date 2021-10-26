@@ -12818,7 +12818,8 @@ jpvs.makeWidget({
 
         //Autocomplete off by default
         W.autoCompleteUniqueID = jpvs.randomString(10);
-        W.autocomplete(false);
+		if(this.element.attr("autocomplete") != "on")
+			W.autocomplete(false);
     },
 
     canAttachTo: function (obj) {

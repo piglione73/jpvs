@@ -37,7 +37,7 @@ jpvs.makeWidget({
 
         //Autocomplete off by default
         W.autoCompleteUniqueID = jpvs.randomString(10);
-		if(this.element.attr("autocomplete") != "on")
+		if(W.element.attr("autocomplete") != "on")
 			W.autocomplete(false);
     },
 

@@ -1,6 +1,6 @@
 {
   "name": "jpvs",
-  "version": "1.3.20",
+  "version": "1.3.21",
   "homepage": "https://github.com/piglione73/jpvs",
   "main": "build/jpvs-all.js",
   "authors": [

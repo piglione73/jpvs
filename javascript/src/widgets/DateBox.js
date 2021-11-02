@@ -57,7 +57,7 @@ jQuery(function ($) {
             this.element.datepicker("option", $.datepicker.regional[jpvs.currentLocale()]);
             this.element.datepicker("option", "changeMonth", true);
             this.element.datepicker("option", "changeYear", true);
-            this.element.datepicker("option", "yearRange", "c-80:c+10");
+            this.element.datepicker("option", "yearRange", "c-80:c+20");
 
             this.element.datepicker("hide");
         },

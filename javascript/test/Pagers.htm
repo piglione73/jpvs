@@ -62,6 +62,7 @@
             }, 1000);
 
             $W.btnNull.click(function () { $W.cntTest4.totalPages(null); });
+            $W.btn0.click(function () { $W.cntTest4.totalPages(0); });
             $W.btn35.click(function () { $W.cntTest4.totalPages(35); });
             $W.btn6666.click(function () { $W.cntTest4.totalPages(6666); });
         });
@@ -99,6 +100,7 @@
     <div id="cntTest4" data-jpvs-type="Pager"></div>
 
     <button type="button" id="btnNull">Set null</button>
+    <button type="button" id="btn0">Set 0</button>
     <button type="button" id="btn35">Set 35</button>
     <button type="button" id="btn6666">Set 6666</button>
 </body>

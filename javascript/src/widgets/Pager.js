@@ -116,7 +116,13 @@
             }),
 
             totalPages: jpvs.property({
-                get: function () { return this.element.data("totalPages") || null; },
+                get: function () {
+                    var tp = this.element.data("totalPages");
+                    if (tp !== undefined)
+                        return tp;
+                    else
+                        return null;
+                },
                 set: function (value) {
                     var oldValue = this.totalPages();
                     if (oldValue != value || value == null) {

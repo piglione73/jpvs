@@ -12860,7 +12860,7 @@ jpvs.makeWidget({
                     jpvs.writeTag(list, "option").attr("value", autoCompleteItems[i]);
 
                 this.element.attr("list", this.autoCompleteUniqueID);
-                this.element.attr("autocomplete", "on");
+                //this.element.attr("autocomplete", "on");
             }
 
             //Chaining

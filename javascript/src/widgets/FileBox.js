@@ -291,7 +291,18 @@
             //If a file is selected, then post it
             xhr.open("POST", url);
             xhr.setRequestHeader("Content-Type", file.type);
-            xhr.setRequestHeader("FileName", file.name);
+
+			//This one, in case of chars not representable in ISO-8859-1 fails because HTTP headers travel as ISO-8859-1
+			try {
+				xhr.setRequestHeader("FileName", file.name);
+			}
+			catch(e) {}
+
+			//So we set a second header with the file name encoded as UTF-8 (simple list of UTF-8 code points)
+			//This second header can always be set successfully
+			var fileNameAsUtf8 = new TextEncoder().encode(file.name).join(" ");
+			xhr.setRequestHeader("FileNameUtf8", fileNameAsUtf8);
+
             xhr.send(file);
         }
         else {

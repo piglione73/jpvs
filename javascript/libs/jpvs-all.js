@@ -1833,6 +1833,10 @@ var jpvs = (function () {
         //Let's be a little lazy, in case a new showDimScreen call is executed next
         var removalDelay = 200;
         jpvs.runLazyTask("jpvs.DimScreenShowHide", removalDelay, function () {
+            //Reset the time-for-showing variable, so the next call to showDimScreen can set its delay freely
+            //(at the end of this function, the dimscreen is not present (or it wasn't already), so timeForShowing makes no sense any longer)
+            jpvs.showDimScreen.timeForShowing = null;
+
             //If a screen dimmer is present, fade it out and remove it
             if (jpvs.showDimScreen.element) {
                 var x = jpvs.showDimScreen.element;

@@ -4,8 +4,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <title>DimScreen</title>
     <style type="text/css">
-        .DimScreen
-        {
+        .DimScreen {
             background-color: rgba(0,0,0,0.5);
         }
     </style>
@@ -29,7 +28,7 @@
                 function dim() {
                     jpvs.write("body", "Repeating " + repetitions + "... ");
                     repetitions--;
-                    jpvs.showDimScreen(0,0);
+                    jpvs.showDimScreen(0, 0);
                     setTimeout(undim, 50);
                 }
 
@@ -64,6 +63,16 @@
 
             });
 
+            $W.btnTest7.click(function () {
+                jpvs.showDimScreen();
+                setTimeout(function () { jpvs.hideDimScreen(); }, 250);
+            });
+
+            $W.btnTest8.click(function () {
+                jpvs.showDimScreen();
+                setTimeout(function () { jpvs.hideDimScreen(); }, 750);
+            });
+
             $(document).on("keydown", function (e) {
                 if (e.which == 27)
                     jpvs.hideDimScreen();
@@ -87,5 +96,7 @@
     <button id="btnTest4">Templated with no delay and no animation</button>
     <button id="btnTest5">Repeated with no delay and no animation</button>
     <button id="btnTest6">Repeated with delay and animation</button>
+    <button id="btnTest7">Show and immediate hide (250ms)</button>
+    <button id="btnTest8">Show and immediate hide (750ms)</button>
 </body>
 </html>

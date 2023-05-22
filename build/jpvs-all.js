@@ -1805,6 +1805,10 @@ var jpvs = (function () {
             millisecondsToWait = 0;
 
         jpvs.runLazyTask("jpvs.DimScreenShowHide", millisecondsToWait, function () {
+            //Reset the time-for-showing variable, so the next call to showDimScreen can set its delay freely
+            //(at the end of this function, the dimscreen is present (or it was already), so timeForShowing makes no sense any longer)
+            jpvs.showDimScreen.timeForShowing = null;
+
             //Element already present. Exit immediately.
             if (jpvs.showDimScreen.element)
                 return;
@@ -1814,7 +1818,7 @@ var jpvs = (function () {
                 position: "fixed",
                 top: "0px", left: "0px", width: "100%", height: "100%",
                 display: "none",
-				zIndex: "999999999"
+                zIndex: "999999999"
             });
 
             //If provided, we can use a custom template for filling the DIV
@@ -1834,9 +1838,6 @@ var jpvs = (function () {
                 var x = jpvs.showDimScreen.element;
                 jpvs.showDimScreen.element = null;
                 x.fadeOut(fadeOutDuration != null ? fadeOutDuration : 250, function () { x.remove(); });
-
-                //Reset the time-for-showing variable, so the next call to showDimScreen can set its delay freely
-                jpvs.showDimScreen.timeForShowing = null;
             }
         });
     };

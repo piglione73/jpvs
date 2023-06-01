@@ -84,7 +84,8 @@
 <body>
     <input type="text" id="txtTest" />
     <button type="button" id="btnTest">
-        Test</button>
+        Test
+    </button>
     <div style="border: 1px solid green" id="pnl" class="P">
     </div>
     <div style="border: 1px solid green" id="pnl2" class="P">
@@ -98,5 +99,21 @@
     <br />
     Date 2: <div id="pnlDate"></div>
     Date 3: <div id="pnlDate2"></div>
+    <hr />
+    <b>Autocomplete and datalist</b>
+    <br />
+    <datalist id="listValues">
+        <option value="Value 1"></option>
+        <option value="Value 2"></option>
+        <option value="Value 3"></option>
+        <option value="Value 4"></option>
+        <option value="Value 5"></option>
+    </datalist>
+    No autocomplete, no list: <input type="text" /><br />
+    autocomplete="off", no list: <input type="text" autocomplete="off" /><br />
+    autocomplete="name", no list: <input type="text" autocomplete="name" /><br />
+    No autocomplete, list="listValues": <input type="text" list="listValues"/><br />
+    autocomplete="off", list="listValues": <input type="text" autocomplete="off" list="listValues"/><br />
+    autocomplete="name", list="listValues": <input type="text" autocomplete="name" list="listValues"/><br />
 </body>
 </html>

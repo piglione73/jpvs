@@ -12838,10 +12838,12 @@ jpvs.makeWidget({
             }
         });
 
-        //Autocomplete off by default
+        //Unique ID used by the autocomplete function
         W.autoCompleteUniqueID = jpvs.randomString(10);
-		if(W.element.attr("autocomplete") != "on")
-			W.autocomplete(false);
+
+        //Autocomplete off by default (= if missing attribute, force it to off)
+        if (!W.element.attr("autocomplete"))
+            W.element.attr("autocomplete", "off");
     },
 
     canAttachTo: function (obj) {
@@ -12865,8 +12867,7 @@ jpvs.makeWidget({
         }),
 
         autocomplete: function (autoCompleteItems) {
-            this.element.attr("autocomplete", "off");
-            this.element.attr("list", "");
+            this.element.attr("list", null);
             $("#" + this.autoCompleteUniqueID).remove();
 
             if (autoCompleteItems && autoCompleteItems.length) {
@@ -12876,7 +12877,7 @@ jpvs.makeWidget({
                     jpvs.writeTag(list, "option").attr("value", autoCompleteItems[i]);
 
                 this.element.attr("list", this.autoCompleteUniqueID);
-                //this.element.attr("autocomplete", "on");
+                this.element.attr("autocomplete", "off");
             }
 
             //Chaining

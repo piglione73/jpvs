@@ -9930,7 +9930,7 @@ jpvs.makeWidget({
         var lastGroup = "";
         $.each(items, function (i, item) {
             var group = item.group || "";
-            if (group != lastGroup) {
+            if (group.toUpperCase() != lastGroup.toUpperCase()) {
                 //Write group
                 var groupObject = jpvs.applyTemplate(ul, groupTemplate, { group: group });
                 lastGroup = group;

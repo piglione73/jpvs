@@ -404,7 +404,7 @@
             var groupItems = [];
             var groupItemObjects = [];
             for (var i = 0; i < items.length; i++) {
-                if ((items[i].group || "") == group) {
+                if ((items[i].group || "").toUpperCase() == group.toUpperCase()) {
                     groupItems.push(items[i]);
                     groupItemObjects.push(itemObjects[i]);
                 }

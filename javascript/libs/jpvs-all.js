@@ -9643,12 +9643,14 @@ jpvs.makeWidget({
     jpvs.MultiSelectBox.allStrings = {
         en: {
             selectAll: "Select all",
-            unselectAll: "Unselect all"
+            unselectAll: "Unselect all",
+            search: "Search..."
         },
 
         it: {
             selectAll: "Seleziona tutto",
-            unselectAll: "Deseleziona tutto"
+            unselectAll: "Deseleziona tutto",
+            search: "Cerca..."
         }
     };
 
@@ -9909,6 +9911,14 @@ jpvs.makeWidget({
         if (prompt)
             jpvs.writeln(pop, prompt);
 
+        //Search, if many items
+        var txtSearch = null;
+        if (items.length > 50) {
+            var pnlSearch = jpvs.writeTag(pop, "div").addClass("Search");
+            txtSearch = jpvs.TextBox.create(pnlSearch).lazychange(recreateUL);
+            txtSearch.element.attr("placeholder", jpvs.MultiSelectBox.strings.search);
+        }
+
         //Select all/unselect all buttons
         jpvs.LinkButton.create(pop).text(jpvs.MultiSelectBox.strings.selectAll).click(onSelectAll);
         jpvs.write(pop, " ");
@@ -9918,33 +9928,85 @@ jpvs.makeWidget({
         //Create the container, using a default container template (UL)
         //No data item is passed to this template
         var containerTemplate = W.containerTemplate() || defaultContainerTemplate;
-        var ul = jpvs.applyTemplate(pop, containerTemplate);
-
-        //Then create the data items (checkboxes), using the item template
-        //Use a default item template that renders the item as an LI element with a checkbox inside
-        //The item template must return an object with a "selected" property and a "change" event, so we can use it from here no
-        //matter how the item is rendered
-        var itemTemplate = W.itemTemplate() || defaultItemTemplate;
-        var groupTemplate = W.groupTemplate() || defaultGroupTemplate;
         var itemObjects = [];
-        var lastGroup = "";
-        $.each(items, function (i, item) {
-            var group = item.group || "";
-            if (group.toUpperCase() != lastGroup.toUpperCase()) {
-                //Write group
-                var groupObject = jpvs.applyTemplate(ul, groupTemplate, { group: group });
-                lastGroup = group;
-            }
+        var ul = null;
+        recreateUL();
 
-            var itemObject = jpvs.applyTemplate(ul, itemTemplate, item);
-            itemObjects.push(itemObject);
-
-            //Set the state and subscribe to the change event
-            itemObject.selected(!!item.selected);
-            itemObject.change(onItemSelectChange(itemObject, item));
+        pop.show(function () {
+            if (txtSearch)
+                txtSearch.focus();
         });
 
-        pop.show();
+        function recreateUL() {
+            //Create / recreate
+            if (ul)
+                ul.remove();
+
+            ul = jpvs.applyTemplate(pop, containerTemplate);
+
+            //Then create the data items (checkboxes), using the item template
+            //Use a default item template that renders the item as an LI element with a checkbox inside
+            //The item template must return an object with a "selected" property and a "change" event, so we can use it from here no
+            //matter how the item is rendered
+            var itemTemplate = W.itemTemplate() || defaultItemTemplate;
+            var groupTemplate = W.groupTemplate() || defaultGroupTemplate;
+
+            //The two arrays "items" and "itemsObjects" are parallel. Hidden items (due to the search filter) have a null itemObject
+            itemObjects = [];
+            var lastGroup = "";
+            $.each(items, function (i, item) {
+                //Decide if visible / hidden
+                item.visible = matchesSearchFilter(item);
+                if (!item.visible) {
+                    itemObjects.push(null);
+                    return;
+                }
+
+                //Write
+                var group = item.group || "";
+                if (group.toUpperCase() != lastGroup.toUpperCase()) {
+                    //Write group
+                    var groupObject = jpvs.applyTemplate(ul, groupTemplate, { group: group });
+                    lastGroup = group;
+                }
+
+                var itemObject = jpvs.applyTemplate(ul, itemTemplate, item);
+                itemObjects.push(itemObject);
+
+                //Set the state and subscribe to the change event
+                itemObject.selected(!!item.selected);
+                itemObject.change(onItemSelectChange(itemObject, item));
+            });
+        }
+
+        function matchesSearchFilter(item) {
+            //If no search, show all
+            if (!txtSearch)
+                return true;
+
+            //If no search term, show all
+            var search = txtSearch.text().trim().toUpperCase();
+            if (!search)
+                return true;
+
+            //If a search term is specified, evaluate
+            //It must contain all words, in any order
+            var itemTextUppercase = item.text.toUpperCase();
+            var words = search.split(" ");
+
+            for (var i = 0; i < words.length; i++) {
+                var word = words[i].trim();
+                if (!word)
+                    continue;
+
+                //It it doesn't contain the word, it is not a match
+                if (itemTextUppercase.indexOf(word) < 0)
+                    return false;
+            }
+
+            //All non-empty words were found --> it's a match
+            return true;
+        }
 
         function onSelectAll() {
             selectAll(true);
@@ -9959,8 +10021,11 @@ jpvs.makeWidget({
                 var item = items[i];
                 var itemObject = itemObjects[i];
 
-                itemObject.selected(value);
-                item.selected = value;
+                if (itemObject) {
+                    //This is a visible item (not null)
+                    itemObject.selected(value);
+                    item.selected = value;
+                }
             }
 
             updateAndFire();
@@ -10038,9 +10103,13 @@ jpvs.makeWidget({
             var groupItems = [];
             var groupItemObjects = [];
             for (var i = 0; i < items.length; i++) {
-                if ((items[i].group || "") == group) {
-                    groupItems.push(items[i]);
-                    groupItemObjects.push(itemObjects[i]);
+                if (itemObjects[i]) {
+                    //This item is visible
+                    //See if it belongs to the group
+                    if ((items[i].group || "").toUpperCase() == group.toUpperCase()) {
+                        groupItems.push(items[i]);
+                        groupItemObjects.push(itemObjects[i]);
+                    }
                 }
             }
 

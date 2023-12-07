@@ -4,59 +4,57 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <title>MultiSelectBox</title>
     <style type="text/css">
-        .Popup .DimScreen
-        {
+        .Popup .DimScreen {
             background-color: rgba(255,0,0,0.2);
         }
-        .Popup .Contents
-        {
+
+        .Popup .Contents {
             background-color: #fff;
             border: 1px solid black;
             border-top-left-radius: 6pt;
             border-top-right-radius: 6pt;
         }
-        .Popup .Title
-        {
+
+        .Popup .Title {
             border-top-left-radius: 5pt;
             border-top-right-radius: 5pt;
             background-color: #77F;
             padding: 3pt;
         }
-        .Popup .Title H1
-        {
-            cursor: move;
-            margin: 0px;
-            padding: 0px;
-            font-size: 14pt;
-            color: #FFF;
-        }
-        .Popup .Body
-        {
+
+            .Popup .Title H1 {
+                cursor: move;
+                margin: 0px;
+                padding: 0px;
+                font-size: 14pt;
+                color: #FFF;
+            }
+
+        .Popup .Body {
             padding: 3pt;
         }
-        .Popup .Title .ImageButton
-        {
+
+        .Popup .Title .ImageButton {
             float: right;
         }
-        
-        .Popup-MultiSelectBox ul
-        {
+
+        .Popup-MultiSelectBox ul {
             padding: 0px;
         }
-        .Popup-MultiSelectBox li
-        {
+
+        .Popup-MultiSelectBox li {
             list-style: none;
             margin-left: 0px;
         }
-        .Popup-MultiSelectBox li.GroupHeader
-        {
-            margin-top: 4px;
-            font-weight: bold;
-        }
-        .Popup-MultiSelectBox li.GroupItem
-        {
-            margin-left: 3em;
-        }
+
+            .Popup-MultiSelectBox li.GroupHeader {
+                margin-top: 4px;
+                font-weight: bold;
+            }
+
+            .Popup-MultiSelectBox li.GroupItem {
+                margin-left: 3em;
+            }
     </style>
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
@@ -65,6 +63,7 @@
     <script type="text/javascript" src="../src/Resources.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
     <script type="text/javascript" src="../src/Random.js"></script>
+    <script type="text/javascript" src="../src/LazyTask.js"></script>
     <script type="text/javascript" src="../src/widgets/TextBox.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript" src="../src/widgets/LinkButton.js"></script>
@@ -93,6 +92,9 @@
                 { value: "Val2", text: "Value 2, initially selected", selected: true, group: "group 3" },
                 { value: "Val3", text: "Value 3, initially unselected", selected: false, group: "Group 3" }
             ]);
+            for (var i = 0; i < 50; i++) {
+                cmb2.addItem("Test" + i, "Number " + i + " - and again " + i, false, "Auto group: " + (Math.floor(i / 10) + 1).toString());
+            }
 
             cmb2.labelTemplate(function (selectedItems) {
                 jpvs.writeln(this, "This MultiSelectBox has a custom label template.");

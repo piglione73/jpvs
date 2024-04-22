@@ -17,6 +17,11 @@ jpvs.makeWidget({
             return this;
         },
 
+        isDateValid: function (value) {
+            /// <summary>Property: true if the date is valid.</summary>
+            return this;
+        },
+
         dateString: function (value) {
             /// <summary>Property: date of the datebox as a string in the YYYYMMDD format.</summary>
             return this;

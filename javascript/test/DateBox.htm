@@ -7,6 +7,7 @@
     <link type="text/css" rel="Stylesheet" href="style/sunny/jquery-ui-theme.css" />
     <script type="text/javascript" src="../libs/jquery-1.7.2.js"></script>
     <script type="text/javascript" src="../libs/jquery-ui-1.8.23.custom.min.js"></script>
+    <script type="text/javascript" src="../libs/moment.js"></script>
     <script type="text/javascript" src="../src/jpvs.js"></script>
     <script type="text/javascript" src="../src/Core.js"></script>
     <script type="text/javascript" src="../src/Event.js"></script>
@@ -19,13 +20,14 @@
     <script type="text/javascript" src="../src/widgets/ImageButton.js"></script>
     <script type="text/javascript" src="../src/widgets/Button.js"></script>
     <script type="text/javascript">
+        jpvs.currentLocale("it");
         jpvs(function (w) {
             setTimeout(function () {
                 $("#pnlInvisibleTest").show();
             }, 5000);
 
             setInterval(function () {
-                jpvs.writeln("body", "Valore: " + fmt(w.txtDate1.dateString()) + "; ISO: " + fmt(w.txtDate1.dateStringISO()));
+                jpvs.writeln("body", "Valid: " + (w.txtDate1.isDateValid() ? "true" : "false") + "; Valore: " + fmt(w.txtDate1.dateString()) + "; ISO: " + fmt(w.txtDate1.dateStringISO()));
             }, 2000);
         });
 

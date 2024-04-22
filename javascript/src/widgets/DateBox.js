@@ -72,6 +72,17 @@ jQuery(function ($) {
                 set: function (value) { this.element.datepicker("setDate", value); }
             }),
 
+            isDateValid: jpvs.property({
+                get: function () {
+                    var opt = $.datepicker.regional[jpvs.currentLocale()] || $.datepicker.regional[""];
+                    var fmt = opt.dateFormat;
+
+                    var parsedDate = moment(this.element.val(), fmt.toUpperCase());
+
+                    return parsedDate.isValid();
+                }
+            }),
+
             dateString: jpvs.property({
                 get: function () {
                     return format(this.date());

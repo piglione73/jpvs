@@ -74,10 +74,12 @@ jQuery(function ($) {
 
             isDateValid: jpvs.property({
                 get: function () {
-                    var opt = $.datepicker.regional[jpvs.currentLocale()] || $.datepicker.regional[""];
-                    var fmt = opt.dateFormat;
+                    var loc = jpvs.currentLocale();
+                    var fmt = ["MM/DD/YYYY", "M/DD/YYYY", "MM/D/YYYY", "M/D/YYYY"];
+                    if (loc == "it")
+                        fmt = ["DD/MM/YYYY", "D/MM/YYYY", "DD/M/YYYY", "D/M/YYYY"];
 
-                    var parsedDate = moment(this.element.val(), fmt.toUpperCase());
+                    var parsedDate = moment(this.element.val(), fmt, true);
 
                     return parsedDate.isValid();
                 }

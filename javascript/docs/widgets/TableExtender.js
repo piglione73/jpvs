@@ -16,6 +16,11 @@ window.jpvs = window.jpvs || {};
         this.changeFilterSort = new jpvs.Event();
     }
 
+    Extender.prototype.defaultColWidth = function (colIndex, pixelWidth) {
+        /// <summary>Sets a default width for the column</summary>
+        return this;
+    };
+
     Extender.prototype.resizableColumns = function (value) {
         /// <summary>Property: true/false. Specifies whether the resizable columns extension must be activated.</summary>
         return this;

@@ -23,9 +23,16 @@
         this.allCellsSelector = ".NAME>tr>th, .NAME>tr>td".replace(/NAME/g, this.uniqueName);
         this.allHeaderCellsSelector = ".NAME>tr>th".replace(/NAME/g, this.uniqueName);
 
+        this.defaultColWidths = {};
+
         this.afterResize = new jpvs.Event();
         this.changeFilterSort = new jpvs.Event();
     }
+
+    Extender.prototype.defaultColWidth = function (colIndex, pixelWidth) {
+        this.defaultColWidths[colIndex] = pixelWidth;
+        return this;
+    };
 
     Extender.prototype.resizableColumns = jpvs.property({
         get: function () { return !!this._resizableColumns; },
@@ -206,6 +213,10 @@
             var cellIndex = getLeftBorderIndex(cell);
             var colspan = cell.prop("colspan") || 1;
             var cellWidth = cell.outerWidth();
+
+            //If a default/starting width is defined, then use that one instead of the one measured
+            if (extender.defaultColWidths[cellIndex])
+                cellWidth = extender.defaultColWidths[cellIndex];
 
             if (colspan == 1)
                 colWidths[cellIndex] = cellWidth;

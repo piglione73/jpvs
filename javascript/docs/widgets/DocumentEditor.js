@@ -46,6 +46,12 @@ jpvs.makeWidget({
 
         allowEvenOddHeadersFooters: function (value) {
             /// <summary>Property: true to allow setting different headers/footers for even pages and odd pages.</summary>
+        },
+
+        customOverlay: function (value) {
+            /// <summary>Property: function that can be used to add a custom overlay on each section. If null/undefined, no custom overlay will be displayed. If specified, the function will be called when the section is loaded/refreshed.
+            /// The function prototype is: function(widget, sectionElement, section). The sectionElement is the DIV element of the section. The "section" argument is the document section.
+            /// </summary >
         }
     }
 });

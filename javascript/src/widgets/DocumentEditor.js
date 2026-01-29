@@ -201,6 +201,15 @@
                 set: function (value) {
                     this.element.data("allowEvenOddHeadersFooters", value);
                 }
+            }),
+
+            customOverlay: jpvs.property({
+                get: function () {
+                    return this.element.data("customOverlay");
+                },
+                set: function (value) {
+                    this.element.data("customOverlay", value);
+                }
             })
         }
     });
@@ -485,6 +494,19 @@
         footerElement.css("height", footerHeight);
     }
 
+    function refreshCustomOverlay(W, sectionElement, section) {
+        //Function that, if defined, will recreate/refresh the custom overlay
+        var customOverlay = W.customOverlay();
+        if (!customOverlay) {
+            //No customization, no overlay
+            return;
+        }
+
+        //Ok, it is defined. Let's just delegate everything to the custom function, so it can do whatever it wants
+        customOverlay(W, sectionElement, section);
+    }
+
+
     function refreshSingleSectionContent(W, sectionNum, fieldHighlightList) {
         var sectionElement = W.element.find("div.Section").eq(sectionNum);
         var domElem = sectionElement.data("jpvs.DocumentEditor.domElem");
@@ -498,6 +520,9 @@
         applySectionPageMargins(sectionElement, section);
         applySectionHeaderMargins(domElem.headerElement, section);
         applySectionFooterMargins(domElem.footerElement, section);
+
+        //Refresh the custom overlay, if defined
+        refreshCustomOverlay(W, sectionElement, section);
 
         //Refresh content
         writeContent(

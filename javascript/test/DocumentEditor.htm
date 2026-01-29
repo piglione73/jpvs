@@ -498,6 +498,12 @@
                 }
             };
 
+            //Custom overlay
+            w.cntEdit.customOverlay(function (W, sectionElement, section) {
+                sectionElement.find(".CustomOverlay").remove();
+                jpvs.writeTag(sectionElement, "div", "Custom overlay: " + new Date().toLocaleTimeString()).addClass("CustomOverlay").css({ position: "absolute", "top": "0", left: "0" });
+            });
+
             //Use async mode
             w.cntEdit.document(
                 doc,
